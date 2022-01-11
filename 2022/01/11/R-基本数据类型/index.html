@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="常用的数据类型包括： vector, list, matrix, data.frame">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R-基本数据类型">
+<meta property="og:url" content="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="常用的数据类型包括： vector, list, matrix, data.frame">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111190920422.png">
+<meta property="og:image" content="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111191122655.png">
+<meta property="og:image" content="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111191134949.png">
+<meta property="article:published_time" content="2022-01-11T11:07:35.000Z">
+<meta property="article:modified_time" content="2022-01-11T11:13:19.909Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111190920422.png">
+
+<link rel="canonical" href="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>R-基本数据类型 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          R-基本数据类型
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-11 19:07:35 / Modified: 19:13:19" itemprop="dateCreated datePublished" datetime="2022-01-11T19:07:35+08:00">2022-01-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>常用的数据类型包括： <code>vector</code>, <code>list</code>, <code>matrix</code>, <code>data.frame</code></p>
+<p><img src="/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111190920422.png"></p>
+<span id="more"></span>
+
+
+
+<h1 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h1><p>Vecror是一种一维变量，只能存放一种类型的数据。不同类型的数据有优先级，通常chr型优先级大于int型。</p>
+<h2 id="Vector创建"><a href="#Vector创建" class="headerlink" title="Vector创建"></a>Vector创建</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; x &lt;- c(1,2,3) </span><br><span class="line">&gt; x</span><br><span class="line">[1] 1 2 3</span><br><span class="line"></span><br><span class="line">&gt; x &lt;- 1:10</span><br><span class="line">&gt; x</span><br><span class="line"> [1]  1  2  3  4  5  6  7  8  9 10 </span><br><span class="line"></span><br><span class="line">&gt; x &lt;- c(1,&#x27;a&#x27;) #其中含有字符串时，所有变量都会转变成字符</span><br><span class="line">&gt; x</span><br><span class="line">[1] &quot;1&quot; &quot;a&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="Vector-索引"><a href="#Vector-索引" class="headerlink" title="Vector 索引"></a>Vector 索引</h2><p>vector的索引是从1开始的，且无办法反向索引，所以如果想要取变量的最后一个元素只能通过如此 <code>x[length(x)]</code> 获取。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; x &lt;- 1:10</span><br><span class="line">&gt; x[1]</span><br><span class="line">[1] 1</span><br><span class="line">&gt; x[-1]  #符号表示不取索引位的元素</span><br><span class="line">[1]  2  3  4  5  6  7  8  9 10</span><br><span class="line">&gt; x[length(x)]</span><br><span class="line">[1] 10</span><br></pre></td></tr></table></figure>
+<p>但是当要截取一个字符串变量的其中几个字母时，就不能用<code>[]</code>的方法进行，而要改用 <code>substring()</code>函数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; a &lt;- &quot;apple&quot;</span><br><span class="line">&gt; a[1]</span><br><span class="line">[1] &quot;apple&quot;</span><br><span class="line">&gt; a[2]</span><br><span class="line">[1] NA</span><br><span class="line">&gt; substring(a, 2)</span><br><span class="line">[1] &quot;pple&quot;</span><br><span class="line">&gt; substring(a, 2, 3)</span><br><span class="line">[1] &quot;pp&quot;</span><br></pre></td></tr></table></figure>
+<h1 id="Matrix"><a href="#Matrix" class="headerlink" title="Matrix"></a>Matrix</h1><p>Matrix 为二维数组，但也是只能保存一种类型的数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; x &lt;- matrix(1:10, 2, 5)  #matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)</span><br><span class="line">&gt; x</span><br><span class="line">     [,1] [,2] [,3] [,4] [,5]</span><br><span class="line">[1,]    1    3    5    7    9</span><br><span class="line">[2,]    2    4    6    8   10</span><br><span class="line">&gt; x[1,3] #取x行y列的元素</span><br><span class="line">[1] 5</span><br></pre></td></tr></table></figure>
+<p>与matrix相关的几个函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">matrix() creates a matrix from the given set of values.</span><br><span class="line"></span><br><span class="line">as.matrix() attempts to turn its argument into a matrix.</span><br><span class="line"></span><br><span class="line">is.matrix() tests if its argument is a (strict) matrix.</span><br></pre></td></tr></table></figure>
+<h1 id="data-frame"><a href="#data-frame" class="headerlink" title="data.frame"></a>data.frame</h1><p>data.frame类比来说就像excel一样，既可以保存数字，又可以保存字符。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; name &lt;- c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;)</span><br><span class="line">&gt; score &lt;- c(4, 7, 9)</span><br><span class="line">&gt; a &lt;- data.frame(name, score)</span><br><span class="line">&gt; a</span><br><span class="line">  name score</span><br><span class="line">1    A     4</span><br><span class="line">2    B     7</span><br><span class="line">3    C     9</span><br></pre></td></tr></table></figure>
+<h2 id="data-frame-的索引"><a href="#data-frame-的索引" class="headerlink" title="data.frame 的索引"></a>data.frame 的索引</h2><p>data.frame的索引多种方法: <code>x[i, j]</code>, <code>x$</code> ，或者通过逻辑值索引…</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; a[,2] </span><br><span class="line">[1] 4 7 9</span><br><span class="line"></span><br><span class="line">&gt; a$score</span><br><span class="line">[1] 4 7 9</span><br><span class="line"></span><br><span class="line">&gt;  a[a$score &gt;5,]</span><br><span class="line">  name score</span><br><span class="line">2    B     7</span><br><span class="line">3    C     9</span><br></pre></td></tr></table></figure>
+<p>或是通过<code>grep()</code>函数寻找特定的元素，类似于excel的“ctrl + F”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">grep(pattern, x, ignore.case = FALSE, perl = FALSE, value = FALSE,</span><br><span class="line">     fixed = FALSE, useBytes = FALSE, invert = FALSE)</span><br><span class="line">&gt; grep(&#x27;A&#x27;,a$name)</span><br><span class="line">[1] 1</span><br><span class="line">&gt; index1 &lt;- grep(&#x27;A&#x27;, a[,1])</span><br><span class="line">&gt; a[index1,]</span><br><span class="line">  name score</span><br><span class="line">1    A     4</span><br></pre></td></tr></table></figure>
+
+<h1 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h1><blockquote>
+<p>一般而言对象可以包含以下的属性：<code>class</code>, <code>dim</code>, <code>name</code>, <code>level</code>等等。属性可以将与对象相关的信息以一种便捷的形式存起来并附加给该对象。</p>
+</blockquote>
+<p>以下是几个访问对象属性的函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt; class(a) #查询数据的类</span><br><span class="line">[1] &quot;data.frame&quot;</span><br><span class="line"></span><br><span class="line">&gt; typeof(a) #查询数据的类型</span><br><span class="line">[1] &quot;list&quot;</span><br><span class="line"></span><br><span class="line">&gt; str(a) #查询数据的结构</span><br><span class="line">&#x27;data.frame&#x27;:	3 obs. of  2 variables:</span><br><span class="line"> $ name : Factor w/ 3 levels &quot;A&quot;,&quot;B&quot;,&quot;C&quot;: 1 2 3</span><br><span class="line"> $ score: num  4 7 9</span><br><span class="line">#a中的变量name包含了三个levels：A,B,C</span><br><span class="line">&gt; a$name</span><br><span class="line">[1] A B C</span><br><span class="line">Levels: A B C</span><br><span class="line"></span><br><span class="line">&gt; is.data.frame(a) #判断数据的类</span><br><span class="line">[1] TRUE</span><br><span class="line"></span><br><span class="line">&gt; as.data.frame(a) #转变数据的类</span><br><span class="line">  name score</span><br><span class="line">1    A     4</span><br><span class="line">2    B     7</span><br><span class="line">3    C     9</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>最后，再来两张在《R语言入门与实践》看到的有意思的图作为总结。</p>
+</blockquote>
+<p><img src="/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111191122655.png" alt="image-20220111191122655"></p>
+<p><img src="/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/image-20220111191134949.png" alt="image-20220111191134949"></p>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="http://example.com/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" title="R-基本数据类型">http://example.com/2022/01/11/R-基本数据类型/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="prev" title="R-小技巧">
+      <i class="fa fa-chevron-left"></i> R-小技巧
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/11/R-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%AF%BB%E4%B8%8E%E5%86%99/" rel="next" title="R-数据的读与写">
+      R-数据的读与写 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Vector"><span class="nav-number">1.</span> <span class="nav-text">Vector</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vector%E5%88%9B%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">Vector创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vector-%E7%B4%A2%E5%BC%95"><span class="nav-number">1.2.</span> <span class="nav-text">Vector 索引</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Matrix"><span class="nav-number">2.</span> <span class="nav-text">Matrix</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#data-frame"><span class="nav-number">3.</span> <span class="nav-text">data.frame</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#data-frame-%E7%9A%84%E7%B4%A2%E5%BC%95"><span class="nav-number">3.1.</span> <span class="nav-text">data.frame 的索引</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">属性</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>

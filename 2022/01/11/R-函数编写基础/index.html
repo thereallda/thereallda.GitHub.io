@@ -19,20 +19,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="记录Markdown常用语法">
+  <meta name="description" content="R里面的函数定义方法">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Markdown语法">
-<meta property="og:url" content="http://example.com/2022/01/06/Markdown_%E8%AF%AD%E6%B3%95/index.html">
+<meta property="og:title" content="R-函数编写基础">
+<meta property="og:url" content="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="记录Markdown常用语法">
+<meta property="og:description" content="R里面的函数定义方法">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-01-06T11:42:00.000Z">
-<meta property="article:modified_time" content="2022-01-10T12:06:18.419Z">
+<meta property="article:published_time" content="2022-01-11T11:40:29.000Z">
+<meta property="article:modified_time" content="2022-01-11T11:46:10.722Z">
 <meta property="article:author" content="Dean Li">
-<meta property="article:tag" content="tools">
+<meta property="article:tag" content="R">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/01/06/Markdown_%E8%AF%AD%E6%B3%95/">
+<link rel="canonical" href="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/">
 
 
 <script id="page-configurations">
@@ -45,7 +45,7 @@
   };
 </script>
 
-  <title>Markdown语法 | Dean's blog</title>
+  <title>R-函数编写基础 | Dean's blog</title>
   
 
 
@@ -161,7 +161,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/06/Markdown_%E8%AF%AD%E6%B3%95/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
@@ -174,7 +174,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Markdown语法
+          R-函数编写基础
         </h1>
 
         <div class="post-meta">
@@ -185,16 +185,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2022-01-06 19:42:00" itemprop="dateCreated datePublished" datetime="2022-01-06T19:42:00+08:00">2022-01-06</time>
+              <time title="Created: 2022-01-11 19:40:29 / Modified: 19:46:10" itemprop="dateCreated datePublished" datetime="2022-01-11T19:40:29+08:00">2022-01-11</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-01-10 20:06:18" itemprop="dateModified" datetime="2022-01-10T20:06:18+08:00">2022-01-10</time>
-              </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -202,7 +196,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>720</span>
+              <span>815</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -221,54 +215,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>记录Markdown常用语法</p>
-<span id="more"></span> 
+        <p>R里面的函数定义方法</p>
+<span id="more"></span>
 
-<h2 id="1-标题"><a href="#1-标题" class="headerlink" title="1. 标题"></a>1. 标题</h2><p>“# ”是设置标题的方法。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 一级标题</span><br><span class="line">## 二级标题</span><br></pre></td></tr></table></figure>
-<p>以此类推。</p>
-<h2 id="2-列表"><a href="#2-列表" class="headerlink" title="2. 列表"></a>2. 列表</h2><p>列表有两种，一种是无序的</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- a</span><br><span class="line">- b</span><br><span class="line">- c</span><br></pre></td></tr></table></figure>
-<p>就会显示为：</p>
-<blockquote>
-<ul>
-<li>a</li>
-<li>b</li>
-<li>c</li>
-</ul>
-</blockquote>
-<p>另一种是有序的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. a</span><br><span class="line">2. b</span><br><span class="line">3. c</span><br></pre></td></tr></table></figure>
-<blockquote>
-<ol>
-<li>a</li>
-<li>b </li>
-<li>c</li>
-</ol>
-</blockquote>
-<p>有序列表不知是否可以实现自动添加，否则一个个排号，也没有很方便。</p>
-<h2 id="3-插入图片或链接"><a href="#3-插入图片或链接" class="headerlink" title="3. 插入图片或链接"></a>3. 插入图片或链接</h2><p>使用markdown插入图片和链接都是较为方便的，可以通过三种方法插入。一种是直接复制粘。第二种是通过文本编写时左上角插入的“插入图片”插入。第三种是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[标题](链接地址)  #链接插入方法</span><br><span class="line"></span><br><span class="line">![图片描述](图片链接地址) #图片插入方法</span><br></pre></td></tr></table></figure>
-<p>其实无论用何种方式插入，在编辑器中都以上述形式显示。</p>
-<h2 id="4-引用"><a href="#4-引用" class="headerlink" title="4. 引用"></a>4. 引用</h2><p>就是插入灰底的框，以区别于本文的内容。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 文字</span><br></pre></td></tr></table></figure>
-<p>则为引用该段文字，要注意引用后要空一行，以免后面的内容被包括到引用框内。</p>
-<h2 id="5-代码"><a href="#5-代码" class="headerlink" title="5. 代码"></a>5. 代码</h2><p>代码的插入主要是以反引号 (`)实现的。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`你好` #用反引号括起的部分为被识别为代码</span><br></pre></td></tr></table></figure>
+<h1 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h1><p>R语言中有两个重要的组成，一是<strong>变量</strong>，用于存储数据；二<strong>是函数</strong>，用于操作数据。</p>
+<p>函数的组成离不开三个部分：函数名、程序主体以及参数集合。</p>
+<p>例如，我编写了如下一个掷骰子的函数，函数名为<code>roll</code>，包含两个参数<code>x</code>, <code>size</code>，且<code>size</code>是默认参数。其中<code>sample</code>函数能够从“x”中随机取样（大小为“size”），而“replace” 参数是定取样方式为<strong>可放回取样</strong>还是<strong>不可放回取样</strong>。最后，函数返回最后一行代码的结果，在该函数中，返回所有骰子的和。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">roll &lt;- <span class="keyword">function</span>(x, size = <span class="number">1</span>)&#123;</span><br><span class="line">  dic &lt;- sample(x, size, replace = <span class="built_in">T</span>)  </span><br><span class="line">  <span class="built_in">sum</span>(dic)</span><br><span class="line">&#125;</span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>) <span class="comment">#一个6面骰子</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">5</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">3</span>) <span class="comment">#三个6面骰子</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">11</span></span><br></pre></td></tr></table></figure>
 
-<p>插入代码框，通过两行(```)，将代码包围起来</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">第一段代码</span><br><span class="line">第二段代码</span><br><span class="line">第三段代码</span><br></pre></td></tr></table></figure>
-
-<h2 id="6-粗体和斜体"><a href="#6-粗体和斜体" class="headerlink" title="6. 粗体和斜体"></a>6. 粗体和斜体</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*斜体*</span><br><span class="line">**粗体**</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><em>斜体</em><br> <strong>粗体</strong></p>
-</blockquote>
-<h2 id="7-数学公式"><a href="#7-数学公式" class="headerlink" title="7. 数学公式"></a>7. 数学公式</h2><p>行内公式：<code>$y=x^2$</code>, $y=x^2$<br>单独一行的公式：<code>$$y=x^2$$</code>, $$y=x^2$$</p>
-<h3 id="常用公式"><a href="#常用公式" class="headerlink" title="常用公式"></a>常用公式</h3><p>上标符号：<code>^</code>，如：$x^3$<br>下标符号：<code>_</code>，如：$x_2$<br>组合符号：<code>&#123;&#125;</code>，如：$X^{2}_{2+3}$<br>分式：<code>$\frac&#123;&#125;&#123;&#125;$</code>，如：$\frac{3}{5}$</p>
-<blockquote>
-<p>Ref<br><a target="_blank" rel="noopener" href="https://markdown.com.cn/basic-syntax/code.html">https://markdown.com.cn/basic-syntax/code.html</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e74eb43960a1">https://www.jianshu.com/p/e74eb43960a1</a></p>
-</blockquote>
+<p>值得注意的是，自定义函数的默认参数的设定要在<code>function()</code>括号内设置，而非在函数主体内部设置，可见如下例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">roll &lt;- <span class="keyword">function</span>(x, size)&#123;</span><br><span class="line">  dic &lt;- sample(x, size = <span class="number">1</span>, replace = <span class="built_in">T</span>)</span><br><span class="line">  <span class="built_in">sum</span>(dic)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">##在sample函数内设定size=1后，无论传入的size是多少都默认为“1”了。</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">3</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">2</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">1000</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>这是由于<code>roll()</code>函数定义的抽样大小参数<code>size</code>没有传给执行抽样的函数<code>sample()</code>，导致无论我们设定<code>roll()</code>的<code>size</code>为多少都不能改变返回样本的个数。</p>
+<p>所以，如果函数中定义的某些参数是需要用户传入，切记这个参数在函数内部被使用了。</p>
+<p>反之，如果我们希望函数的一些参数是不需要被用户更改的，例如该例中的是否执行有放回抽样<code>replace=TRUE</code>，那么我们可以只在函数内部的执行函数中设置一个默认值。</p>
+<p>完。</p>
 
     </div>
 
@@ -284,7 +244,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>Post link: </strong>
-    <a href="http://example.com/2022/01/06/Markdown_%E8%AF%AD%E6%B3%95/" title="Markdown语法">http://example.com/2022/01/06/Markdown_语法/</a>
+    <a href="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/" title="R-函数编写基础">http://example.com/2022/01/11/R-函数编写基础/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -295,7 +255,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/tools/" rel="tag"># tools</a>
+              <a href="/tags/R/" rel="tag"># R</a>
           </div>
 
         
@@ -304,12 +264,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/01/06/About-this-blog/" rel="prev" title="About this blog">
-      <i class="fa fa-chevron-left"></i> About this blog
+    <a href="/2022/01/11/R-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%AF%BB%E4%B8%8E%E5%86%99/" rel="prev" title="R-数据的读与写">
+      <i class="fa fa-chevron-left"></i> R-数据的读与写
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="next" title="R-小技巧">
-      R-小技巧 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/01/11/R-%E7%B4%A2%E5%BC%95/" rel="next" title="R-索引">
+      R-索引 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -369,7 +329,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A0%87%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">1. 标题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%97%E8%A1%A8"><span class="nav-number">2.</span> <span class="nav-text">2. 列表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%8F%92%E5%85%A5%E5%9B%BE%E7%89%87%E6%88%96%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">3. 插入图片或链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%BC%95%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">4. 引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%BB%A3%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text">5. 代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E7%B2%97%E4%BD%93%E5%92%8C%E6%96%9C%E4%BD%93"><span class="nav-number">6.</span> <span class="nav-text">6. 粗体和斜体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">7. 数学公式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%85%AC%E5%BC%8F"><span class="nav-number">7.1.</span> <span class="nav-text">常用公式</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">自定义函数</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在众多编程语言中，大家都会接触到判断语句，各种条件的判断有助于我们根据不同的情况作出不同的选择，那么R又是如何在条件的十字路口作出判断呢？下面将以《R语言入门与实践》中的一个例子展开。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R-if判断语句">
+<meta property="og:url" content="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="在众多编程语言中，大家都会接触到判断语句，各种条件的判断有助于我们根据不同的情况作出不同的选择，那么R又是如何在条件的十字路口作出判断呢？下面将以《R语言入门与实践》中的一个例子展开。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111195957045.png">
+<meta property="og:image" content="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111200208014.png">
+<meta property="og:image" content="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111200154877.png">
+<meta property="article:published_time" content="2022-01-11T11:51:20.000Z">
+<meta property="article:modified_time" content="2022-01-11T12:02:41.330Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111195957045.png">
+
+<link rel="canonical" href="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>R-if判断语句 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          R-if判断语句
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-11 19:51:20 / Modified: 20:02:41" itemprop="dateCreated datePublished" datetime="2022-01-11T19:51:20+08:00">2022-01-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在众多编程语言中，大家都会接触到判断语句，各种条件的判断有助于我们根据不同的情况作出不同的选择，那么R又是如何在条件的十字路口作出判断呢？下面将以<strong>《R语言入门与实践》</strong>中的一个例子展开。</p>
+<p><img src="/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111195957045.png"></p>
+<span id="more"></span>
+
+<p>在R中，if语句的写法如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(condition)&#123;&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span>(condition)&#123;&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>在if语句中，<code>()</code>内的是需要进行判断的情况， <code>&#123;&#125;</code>内的是需要执行的代码。要注意的是由于<code>else</code>的情况无需再进行判断，所以其后也无括号。</p>
+<blockquote>
+<ul>
+<li>本次作为展示的例子是一个关于老虎机的函数。通过该函数的编程，我们可以清晰地认识到R中的条件判断是如何进行的。</li>
+</ul>
+</blockquote>
+<h1 id="抽奖"><a href="#抽奖" class="headerlink" title="抽奖"></a>抽奖</h1><p>我们知道老虎机是根据摇出的图案组合来判断玩家是否中奖的。因此，需要先写出一个可以随机生成不同图案的函数，而且要注意各种图案出现的概率是不一样的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">get_symbols &lt;- function()&#123;</span><br><span class="line">  wheel &lt;- c(&quot;DD&quot;, &quot;7&quot;, &quot;BBB&quot;, &quot;BB&quot;, &quot;B&quot;, &quot;C&quot;, &quot;0&quot;)</span><br><span class="line">  sample(wheel, size = 3, replace = T,</span><br><span class="line">         prob = c(0.03, 0.03, 0.06, 0.1, 0.25, 0.01, 0.52))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt; sym &lt;- get_symbols()</span><br><span class="line">&gt; sym</span><br><span class="line">[1] &quot;B&quot;  &quot;BB&quot; &quot;BB&quot;</span><br></pre></td></tr></table></figure>
+
+<h1 id="中奖"><a href="#中奖" class="headerlink" title="中奖"></a>中奖</h1><p>接着，就是根据图案的组合来判断中奖的金额了。需要写出一个<code>score</code>函数可以识别不同的情况以判定中奖的金额。中奖的情况有以下三种：</p>
+<ol>
+<li>三个图案完全相同。</li>
+<li>任意三个带有“B”的图案（BBB, BB, B）。</li>
+<li>一个或多个“C”。</li>
+<li>如果组合中带有“DD”，奖金倍增“DD”的数量。</li>
+</ol>
+<p><img src="/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111200208014.png" alt="中奖组合"></p>
+<p>将<code>score</code>函数的逻辑结构画出的话将是以下这样的：<br><img src="/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111200154877.png"></p>
+<p><code>score</code>函数是如下的样子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">score &lt;- <span class="keyword">function</span>(sym)&#123;</span><br><span class="line">  <span class="comment">#三个图案一样的情况</span></span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">length</span>(unique(sym))==<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(sym[<span class="number">1</span>]==<span class="string">&quot;DD&quot;</span>)&#123;</span><br><span class="line">      prize &lt;- 100</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(sym[<span class="number">1</span>]==<span class="string">&quot;7&quot;</span>)&#123;</span><br><span class="line">      prize &lt;- 80</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(sym[<span class="number">1</span>]==<span class="string">&quot;BBB&quot;</span>)&#123;</span><br><span class="line">      prize &lt;- 40</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(sym[<span class="number">1</span>]==<span class="string">&quot;BB&quot;</span>)&#123;</span><br><span class="line">      prize &lt;- 25</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(sym[<span class="number">1</span>]==<span class="string">&quot;B&quot;</span>)&#123;</span><br><span class="line">      prize &lt;- 10</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">      prize &lt;- 10</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">#三个都是有B的情况</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">sum</span>(sym %in% <span class="built_in">c</span>(<span class="string">&quot;BBB&quot;</span>, <span class="string">&quot;BB&quot;</span>, <span class="string">&quot;B&quot;</span>))==<span class="number">3</span>)&#123;</span><br><span class="line">    prize &lt;- 5</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">#计算C的数量以及中奖金额</span></span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">sum</span>(sym==<span class="string">&quot;C&quot;</span>)==<span class="number">2</span>)&#123;</span><br><span class="line">      prize &lt;- 5</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">sum</span>(sym==<span class="string">&quot;C&quot;</span>)==<span class="number">1</span>)&#123;</span><br><span class="line">      prize &lt;- 2</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">      prize &lt;- 0</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">#根据DD数量调整奖金</span></span><br><span class="line">  <span class="keyword">if</span>(<span class="string">&quot;DD&quot;</span> %in% sym)&#123;</span><br><span class="line">    prize &lt;- prize*<span class="number">2</span>^<span class="built_in">sum</span>(sym==<span class="string">&quot;DD&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  prize</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  其中，对于三个图案是否一样我们采用了<code>unique</code>函数进行判断，该函数会返回输入变量中的非重复值，所以当变量中所有元素一样时，<code>unique</code>函数只会返回一个值。理所当然，该值的长度正是1. </p>
+<p>  当然，也可以通过<code>sym[1] == sym[2] &amp; sym[2] == sym[3]</code>来判断，看起来会比较直观，但是当需要判断的条件比较多的时候就会很麻烦。</p>
+<p> 最后，将两个函数整合在一起就可以愉快地玩耍了！</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">play &lt;- <span class="keyword">function</span>()&#123;</span><br><span class="line">  sym &lt;- get_symbols()</span><br><span class="line">  print(sym)</span><br><span class="line">  prize &lt;- score(sym)</span><br><span class="line">  print(paste(<span class="string">&quot;Your prize is&quot;</span>, prize))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt; play()</span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;0&quot;</span> <span class="string">&quot;0&quot;</span> <span class="string">&quot;7&quot;</span></span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;Your prize is 0&quot;</span></span><br><span class="line">&gt; play()</span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;B&quot;</span> <span class="string">&quot;B&quot;</span> <span class="string">&quot;B&quot;</span></span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;Your prize is 10&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="http://example.com/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/" title="R-if判断语句">http://example.com/2022/01/11/R-if判断语句/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/11/R-%E7%B4%A2%E5%BC%95/" rel="prev" title="R-索引">
+      <i class="fa fa-chevron-left"></i> R-索引
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/11/R-for%E5%BE%AA%E7%8E%AF/" rel="next" title="R-for循环">
+      R-for循环 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%BD%E5%A5%96"><span class="nav-number">1.</span> <span class="nav-text">抽奖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%AD%E5%A5%96"><span class="nav-number">2.</span> <span class="nav-text">中奖</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
