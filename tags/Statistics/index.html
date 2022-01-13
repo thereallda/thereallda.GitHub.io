@@ -19,20 +19,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="R里面的函数定义方法">
-<meta property="og:type" content="article">
-<meta property="og:title" content="R-函数编写基础">
-<meta property="og:url" content="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Dean&#39;s blog">
+<meta property="og:url" content="http://example.com/tags/Statistics/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="R里面的函数定义方法">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-01-11T11:40:29.000Z">
-<meta property="article:modified_time" content="2022-01-11T11:46:10.722Z">
 <meta property="article:author" content="Dean Li">
-<meta property="article:tag" content="R">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/">
+<link rel="canonical" href="http://example.com/tags/Statistics/">
 
 
 <script id="page-configurations">
@@ -40,12 +35,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : true,
+    isPost : false,
     lang   : 'en'
   };
 </script>
 
-  <title>R-函数编写基础 | Dean's blog</title>
+  <title>Tag: Statistics | Dean's blog</title>
   
 
 
@@ -154,128 +149,51 @@
         <div class="content-wrap">
           
 
-          <div class="content post posts-expand">
+          <div class="content tag">
             
 
-    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          R-函数编写基础
-        </h1>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-11 19:40:29 / Modified: 19:46:10" itemprop="dateCreated datePublished" datetime="2022-01-11T19:40:29+08:00">2022-01-11</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>815</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+  
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        <h2 class="collection-header">Statistics
+          <small>Tag</small>
+        </h2>
+      </div>
 
       
-        <p>R里面的函数定义方法</p>
-<span id="more"></span>
-<h1>自定义函数</h1>
-<p>R语言中有两个重要的组成，一是<strong>变量</strong>，用于存储数据；二<strong>是函数</strong>，用于操作数据。</p>
-<p>函数的组成离不开三个部分：函数名、程序主体以及参数集合。</p>
-<p>例如，我编写了如下一个掷骰子的函数，函数名为<code>roll</code>，包含两个参数<code>x</code>, <code>size</code>，且<code>size</code>是默认参数。其中<code>sample</code>函数能够从“x”中随机取样（大小为“size”），而“replace” 参数是定取样方式为<strong>可放回取样</strong>还是<strong>不可放回取样</strong>。最后，函数返回最后一行代码的结果，在该函数中，返回所有骰子的和。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">roll &lt;- <span class="keyword">function</span>(x, size = <span class="number">1</span>)&#123;</span><br><span class="line">  dic &lt;- sample(x, size, replace = <span class="built_in">T</span>)  </span><br><span class="line">  <span class="built_in">sum</span>(dic)</span><br><span class="line">&#125;</span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>) <span class="comment">#一个6面骰子</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">5</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">3</span>) <span class="comment">#三个6面骰子</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">11</span></span><br></pre></td></tr></table></figure>
-<p>值得注意的是，自定义函数的默认参数的设定要在<code>function()</code>括号内设置，而非在函数主体内部设置，可见如下例子：</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">roll &lt;- <span class="keyword">function</span>(x, size)&#123;</span><br><span class="line">  dic &lt;- sample(x, size = <span class="number">1</span>, replace = <span class="built_in">T</span>)</span><br><span class="line">  <span class="built_in">sum</span>(dic)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">##在sample函数内设定size=1后，无论传入的size是多少都默认为“1”了。</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">3</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">2</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">1000</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">2</span></span><br></pre></td></tr></table></figure>
-<p>这是由于<code>roll()</code>函数定义的抽样大小参数<code>size</code>没有传给执行抽样的函数<code>sample()</code>，导致无论我们设定<code>roll()</code>的<code>size</code>为多少都不能改变返回样本的个数。</p>
-<p>所以，如果函数中定义的某些参数是需要用户传入，切记这个参数在函数内部被使用了。</p>
-<p>反之，如果我们希望函数的一些参数是不需要被用户更改的，例如该例中的是否执行有放回抽样<code>replace=TRUE</code>，那么我们可以只在函数内部的执行函数中设置一个默认值。</p>
-<p>完。</p>
-
+    <div class="collection-year">
+      <span class="collection-header">2022</span>
     </div>
 
-    
-    
-    
-        
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-<div>
-<ul class="post-copyright">
-  <li class="post-copyright-author">
-    <strong>Post author:  </strong>Dean Li
-  </li>
-  <li class="post-copyright-link">
-    <strong>Post link: </strong>
-    <a href="http://example.com/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/" title="R-函数编写基础">http://example.com/2022/01/11/R-函数编写基础/</a>
-  </li>
-  <li class="post-copyright-license">
-    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
-  </li>
-</ul>
-</div>
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2022-01-13T12:11:36+08:00"
+              content="2022-01-13">
+          01-13
+        </time>
+      </div>
 
+      <div class="post-title">
+          <a class="post-title-link" href="/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/" itemprop="url">
+            <span itemprop="name">R-简单的学生检验（t-test）</span>
+          </a>
+      </div>
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/R/" rel="tag"># R</a>
-          </div>
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2022/01/11/R-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%AF%BB%E4%B8%8E%E5%86%99/" rel="prev" title="R-数据的读与写">
-      <i class="fa fa-chevron-left"></i> R-数据的读与写
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/01/11/R-%E7%B4%A2%E5%BC%95/" rel="next" title="R-索引">
-      R-索引 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
+    </header>
   </article>
+
+    </div>
+  </div>
   
   
+  
+
   
 
 
@@ -328,7 +246,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">自定义函数</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

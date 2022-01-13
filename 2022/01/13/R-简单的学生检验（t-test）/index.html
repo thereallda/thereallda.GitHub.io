@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Student’s test —— 简称t-test，据说是作者当年为避风头而用‘’学生”这一笔名，所以就将该种方法称为学生检验了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R-简单的学生检验（t-test）">
+<meta property="og:url" content="http://example.com/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="Student’s test —— 简称t-test，据说是作者当年为避风头而用‘’学生”这一笔名，所以就将该种方法称为学生检验了。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-01-13T04:11:36.000Z">
+<meta property="article:modified_time" content="2022-01-13T04:15:57.688Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="Statistics">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>R-简单的学生检验（t-test） | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          R-简单的学生检验（t-test）
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-13 12:11:36 / Modified: 12:15:57" itemprop="dateCreated datePublished" datetime="2022-01-13T12:11:36+08:00">2022-01-13</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Student’s test —— 简称t-test，据说是作者当年为避风头而用‘’学生”这一笔名，所以就将该种方法称为学生检验了。</p>
+<span id="more"></span>
+<blockquote>
+<p><strong>百度百科</strong>：t-test 主要用于样本含量较小（例如n &lt; 30），总体标准差σ未知的正态分布。t-test 是用t分布理论来推论差异发生的概率，从而比较两个平均数的差异是否显著。</p>
+</blockquote>
+<p>关于t-test的原理在此处就不过多赘述了,主要还是看在R语言里面怎么用以及何时用。首先，我们要注意做t-test的目的是为了检验在符合<strong>正态分布</strong>的样本中<strong>两个平均数</strong>是否有显著的差异，且该样本的总体方差也是未知的，否则可以用u检验。</p>
+<p>在R语言中，t-test的函数为<code>t.test()</code>，如下所示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">t.test(x, ...)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Default S3 method:</span></span><br><span class="line">t.test(x, y = <span class="literal">NULL</span>,</span><br><span class="line">       alternative = <span class="built_in">c</span>(<span class="string">&quot;two.sided&quot;</span>, <span class="string">&quot;less&quot;</span>, <span class="string">&quot;greater&quot;</span>),</span><br><span class="line">       mu = <span class="number">0</span>, paired = <span class="literal">FALSE</span>, var.equal = <span class="literal">FALSE</span>,</span><br><span class="line">       conf.level = <span class="number">0.95</span>, ...)</span><br></pre></td></tr></table></figure>
+<p><code>x,y</code> ：为进行检验的数据。<br>
+<code>alternative</code>：该参数设定备择假设，默认为双尾检验。<br>
+<code>mu</code>：单样本检验时，需要设定的平均值。<br>
+<code>paired</code>：为逻辑参数，是否进行配对t-test。<br>
+<code>var.equal</code>：双样本检验时，总体方差是否相等<br>
+<code>conf.level</code>：设定显著性水平，默认α=0.05。</p>
+<blockquote>
+<p>以下将以实例展示不同情况下的t-test如何使用。</p>
+</blockquote>
+<h1>单样本均值检验</h1>
+<p>**【例1】**一鱼塘多年水中含氧量平均值为4.5 mg/L，现随机在该鱼塘采集10个样本，试检验该次抽样的均值是否与多年均值有显著差别。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">4.33</span>, <span class="number">4.62</span>, <span class="number">3.89</span>, <span class="number">4.14</span>, <span class="number">4.78</span>, <span class="number">4.64</span>, <span class="number">4.52</span>, <span class="number">4.55</span>, <span class="number">4.48</span>, <span class="number">4.26</span>)</span><br><span class="line">&gt; t.test(X, mu=<span class="number">4.5</span>)</span><br><span class="line"></span><br><span class="line">	One Sample t-test</span><br><span class="line"></span><br><span class="line">data:  X</span><br><span class="line">t = -<span class="number">0.93574</span>, df = <span class="number">9</span>, p-value = <span class="number">0.3738</span></span><br><span class="line">alternative hypothesis: true mean is not equal to <span class="number">4.5</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">4.230016</span> <span class="number">4.611984</span></span><br><span class="line">sample estimates:</span><br><span class="line">mean of x </span><br><span class="line">    <span class="number">4.421</span> </span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>假设检验一般都是以四段进行，分别为：<br>
+（1）给出假设H0, HA<br>
+（2）确定显著水平<br>
+（3）计算统计检验值<br>
+（4）作出推断</p>
+</blockquote>
+<p>在以上结果中，我们可以看到<code>t.test</code>函数给出的结果中包含了计算出的检验值、自由度、p值以及结论等。很明显，我们看到本次抽样的均值与总体均值是没有显著差异的。</p>
+<h1>双样本均值检验</h1>
+<p>当要比较的两个样本的总体方差未知，但相等时（判断方差是否相等可以借助方差同质性检验F-test），可以使用t-test。</p>
+<h2 id="成组数据的均值检验–独立样本">成组数据的均值检验–独立样本</h2>
+<p>成组数据（pooled data）是两个样本的各个变量从各自总体中抽取，也就是说两个样本间的变量没有任何关联，两个抽样样本彼此独立。成组数据的两个样本的容量未必相同，但是方差需要相等才能进行t-test。</p>
+<p>**【例2】**用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">134</span>, <span class="number">146</span>, <span class="number">106</span>, <span class="number">119</span>, <span class="number">124</span>, <span class="number">161</span>, <span class="number">107</span>, <span class="number">83</span>, <span class="number">113</span>, <span class="number">129</span>, <span class="number">97</span>, <span class="number">123</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">70</span>, <span class="number">118</span>, <span class="number">101</span>, <span class="number">85</span>, <span class="number">107</span>, <span class="number">132</span>, <span class="number">94</span>)</span><br><span class="line">&gt; t.test(X, Y, var.equal = <span class="built_in">T</span>)</span><br><span class="line"></span><br><span class="line">	Two Sample t-test</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line">t = <span class="number">1.9157</span>, df = <span class="number">17</span>, p-value = <span class="number">0.07238</span></span><br><span class="line">alternative hypothesis: true difference <span class="keyword">in</span> means is not equal to <span class="number">0</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> -<span class="number">1.942543</span> <span class="number">40.275876</span></span><br><span class="line">sample estimates:</span><br><span class="line">mean of x mean of y </span><br><span class="line"> <span class="number">120.1667</span>  <span class="number">101.0000</span> </span><br></pre></td></tr></table></figure>
+<p>由于本篇文章不展开F-test，因此我们先跳过方差同质性检验这步（但两总体的方差是相等的）。此时所用的自由度为(n1+n2-2)，且由于默认上<code>mu=0</code>，所以在结果中备择假设就打印出：<br>
+<code>alternative hypothesis: true difference in means is not equal to 0</code></p>
+<p>但是细看p值的话，p&gt;0.05，即接受H0，两者无显著差异，所以进行双总体均值检验时，要以p值为判断基准。</p>
+<h2 id="配对样本检验">配对样本检验</h2>
+<p>配对样本（paired data）的比较要求两个样本间配偶成对，每一对样本除随机地给予不同处理外，其他实验条件应尽量一致。即为配对，两样本的容量必定相等。</p>
+<p>配对样本检验在研究中也是较为常用的，如高血压病人在服药前后血压变化是否有显著差异等，都可以使用该法检验。</p>
+<p>**【例3】**用正常饲料和维生素E缺乏饲料饲养两组配对的实验动物一段时间后，检测其肝脏中维生素A含量是否有显著性差异。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">3550</span>, <span class="number">2000</span>, <span class="number">3000</span>, <span class="number">3950</span>, <span class="number">3800</span>, <span class="number">3750</span>, <span class="number">3450</span>, <span class="number">3050</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">2450</span>, <span class="number">2400</span>, <span class="number">1800</span>, <span class="number">3200</span>, <span class="number">3250</span>, <span class="number">2700</span>, <span class="number">2500</span>, <span class="number">1750</span>)</span><br><span class="line">&gt; t.test(X, Y, var.equal = <span class="built_in">T</span>, paired = <span class="built_in">T</span>)</span><br><span class="line"></span><br><span class="line">	Paired t-test</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line">t = <span class="number">4.207</span>, df = <span class="number">7</span>, p-value = <span class="number">0.004001</span></span><br><span class="line">alternative hypothesis: true difference <span class="keyword">in</span> means is not equal to <span class="number">0</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line">  <span class="number">355.8207</span> <span class="number">1269.1793</span></span><br><span class="line">sample estimates:</span><br><span class="line">mean of the differences </span><br><span class="line">                  <span class="number">812.5</span> </span><br></pre></td></tr></table></figure>
+<p>由于是进行配对检验，因此<code> paired = T</code>。p&lt;0.05，证明两组均值有显著性差异。</p>
+<p>R语言中的统计检验还是较为简单和直接的，但作为数据分析者，我们的任务除了敲出这几行代码之外，还要对我们的结果作出解答。统计检验是研究结论的守门人，务必要保证该流程的严谨性，以给出令人信服的结论。</p>
+<blockquote>
+<p>“When you have eliminated the impossible, whatever remains, however improbable, must be the truth.” – Sherlock Holmes</p>
+</blockquote>
+<p>假设检验也是如此，即使结果与预设不符合，但只要任何一步都是严谨地进行的时候，我们都应当采信得出的结论。</p>
+<blockquote>
+<p>Ref:</p>
+<p>《生物统计学》（第五版）李春喜等著</p>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="http://example.com/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/" title="R-简单的学生检验（t-test）">http://example.com/2022/01/13/R-简单的学生检验（t-test）/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/Statistics/" rel="tag"># Statistics</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/11/R-for%E5%BE%AA%E7%8E%AF/" rel="prev" title="R-for循环">
+      <i class="fa fa-chevron-left"></i> R-for循环
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">单样本均值检验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">双样本均值检验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E7%BB%84%E6%95%B0%E6%8D%AE%E7%9A%84%E5%9D%87%E5%80%BC%E6%A3%80%E9%AA%8C%E2%80%93%E7%8B%AC%E7%AB%8B%E6%A0%B7%E6%9C%AC"><span class="nav-number">2.1.</span> <span class="nav-text">成组数据的均值检验–独立样本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E5%AF%B9%E6%A0%B7%E6%9C%AC%E6%A3%80%E9%AA%8C"><span class="nav-number">2.2.</span> <span class="nav-text">配对样本检验</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
