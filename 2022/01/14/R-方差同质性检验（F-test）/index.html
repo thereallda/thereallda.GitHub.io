@@ -16,13 +16,13 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。 本文介绍的是使用F-test进行方差同质性检验的方法。要注意，任何F-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个样本方差的比较来判断两个正态分布的总体方差是否相等、">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R-方差同质性检验（F-test）">
-<meta property="og:url" content="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/index.html">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
 <meta property="og:description" content="方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。 本文介绍的是使用F-test进行方差同质性检验的方法。要注意，任何F-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个样本方差的比较来判断两个正态分布的总体方差是否相等、">
 <meta property="og:locale" content="en_US">
@@ -33,7 +33,7 @@
 <meta property="article:tag" content="Statistics">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
+<link rel="canonical" href="https://thereallda.github.io/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
 
 
 <script id="page-configurations">
@@ -162,7 +162,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
@@ -241,7 +241,7 @@
 <li>方差比值</li>
 </ol>
 <p>从p-value一项可以看出，本次检验接受零假设，即两样本的总体方差同质。</p>
-<p>对F-test有了大致的了解后，我们可以对上篇<a target="_blank" rel="noopener" href="https://thereallda.github.io/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89">R-简单的学生检验（t-test）</a>中的独立样本的均值检验进行方差同质性检验了。</p>
+<p>对F-test有了大致的了解后，我们可以对上篇<a href="https://thereallda.github.io/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89">R-简单的学生检验（t-test）</a>中的独立样本的均值检验进行方差同质性检验了。</p>
 <p><strong>【例】</strong>用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">134</span>, <span class="number">146</span>, <span class="number">106</span>, <span class="number">119</span>, <span class="number">124</span>, <span class="number">161</span>, <span class="number">107</span>, <span class="number">83</span>, <span class="number">113</span>, <span class="number">129</span>, <span class="number">97</span>, <span class="number">123</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">70</span>, <span class="number">118</span>, <span class="number">101</span>, <span class="number">85</span>, <span class="number">107</span>, <span class="number">132</span>, <span class="number">94</span>)</span><br><span class="line">&gt; var.test(X, Y)</span><br><span class="line"></span><br><span class="line">	<span class="built_in">F</span> test to compare two variances</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line"><span class="built_in">F</span> = <span class="number">1.0626</span>, num df = <span class="number">11</span>, denom df = <span class="number">6</span>, p-value = <span class="number">0.9917</span></span><br><span class="line">alternative hypothesis: true ratio of variances is not equal to <span class="number">1</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">0.1964273</span> <span class="number">4.1236757</span></span><br><span class="line">sample estimates:</span><br><span class="line">ratio of variances </span><br><span class="line">          <span class="number">1.062625</span> </span><br></pre></td></tr></table></figure>
 
@@ -267,7 +267,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>Post link: </strong>
-    <a href="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/" title="R-方差同质性检验（F-test）">http://example.com/2022/01/14/R-方差同质性检验（F-test）/</a>
+    <a href="https://thereallda.github.io/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/" title="R-方差同质性检验（F-test）">https://thereallda.github.io/2022/01/14/R-方差同质性检验（F-test）/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -291,7 +291,10 @@
     <a href="/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/" rel="prev" title="R-简单的学生检验（t-test）">
       <i class="fa fa-chevron-left"></i> R-简单的学生检验（t-test）
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/" rel="next" title="R-卡方检验">
+      R-卡方检验 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -365,7 +368,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
