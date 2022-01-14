@@ -217,9 +217,9 @@
       
         <p>索引能够帮助我们从数据当中截取或去除特定的的部分，本文介绍在R中进行索引的常用规则，以及当我们只取<code>data.frame</code>的一列时，如何保持<code>data.frame</code>的格式。</p>
 <span id="more"></span>
+
 <p>在R中读取了或创建了一个数据集后，我们有时候会需要截取数据当中的一部分。这个时候如何准确地提取这部分特定的数据就成为了一个头疼的问题。幸好，R语言提供了强大的索引体系，以下我就展示一些常见的索引方法及例子吧！</p>
-<h1>索引方法</h1>
-<p>我们可以通过以下几种方式创建索引：</p>
+<h1 id="索引方法"><a href="#索引方法" class="headerlink" title="索引方法"></a>索引方法</h1><p>我们可以通过以下几种方式创建索引：</p>
 <blockquote>
 <ul>
 <li>正整数</li>
@@ -233,11 +233,9 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; name &lt;- c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;)</span><br><span class="line">&gt; score &lt;- c(4, 7, 9)</span><br><span class="line">&gt; df &lt;- data.frame(name, score)</span><br><span class="line">&gt; df</span><br><span class="line">  name score</span><br><span class="line">1    A     4</span><br><span class="line">2    B     7</span><br><span class="line">3    C     9</span><br></pre></td></tr></table></figure>
 <p>接着，我们将通过不同的索引方法，提取其中的数据</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#正整数索引类似于(i,j)的索引方法</span><br><span class="line">&gt; df[1,1]   </span><br><span class="line">[1] A</span><br><span class="line"></span><br><span class="line">#负整数索引则是返回不包含负整数索引所对应的元素</span><br><span class="line">&gt; df[-1,1]   </span><br><span class="line">[1] B C</span><br><span class="line"></span><br><span class="line">#空格表示返回该索引对应维度的所有元素。</span><br><span class="line">&gt; df[1, ]  </span><br><span class="line">  name score</span><br><span class="line">1    A     4</span><br><span class="line"></span><br><span class="line">#也可以用待提取元素的名称作为索引值，但要双引号</span><br><span class="line">&gt; df[1, &quot;name&quot;]</span><br><span class="line">[1] A</span><br><span class="line"></span><br><span class="line">#逻辑值索引，相当于对该维度的每一位置进行逻辑判断后再进行提取。</span><br><span class="line">&gt; df[1, c(TRUE,FALSE)]</span><br><span class="line">[1] A</span><br><span class="line"></span><br><span class="line">#对于列/行有名称的情况，还可以用$索引某列/行</span><br><span class="line">&gt; df$score</span><br><span class="line">[1] 4 7 9</span><br></pre></td></tr></table></figure>
-<h1>drop参数保持data.frame属性</h1>
-<p>如果想通过中括号取值后仍然返回数据框的格式，一种是提取的值包含多种类型的值。二是使用<code>drop</code> 参数：</p>
+<h1 id="drop参数保持data-frame属性"><a href="#drop参数保持data-frame属性" class="headerlink" title="drop参数保持data.frame属性"></a>drop参数保持data.frame属性</h1><p>如果想通过中括号取值后仍然返回数据框的格式，一种是提取的值包含多种类型的值。二是使用<code>drop</code> 参数：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; df[-1,1]</span><br><span class="line">[1] B C</span><br><span class="line">&gt; class(df[-1,1])</span><br><span class="line">[1] &quot;factor&quot;</span><br><span class="line"></span><br><span class="line">&gt; df[-1,1, drop = FALSE]</span><br><span class="line">  name</span><br><span class="line">2    B</span><br><span class="line">3    C</span><br><span class="line">&gt; class(df[-1,1, drop = FALSE])</span><br><span class="line">[1] &quot;data.frame&quot;</span><br></pre></td></tr></table></figure>
-<h1>list相关的subset</h1>
-<p>此外，在<code>list</code>中也有一些有意思的情况，但还是应当了解其索引的方法。<code>list</code>的元素可以通过双中括号<code>[[]]</code>和单中括号<code>[]</code>索引，两者有以下区别：</p>
+<h1 id="list相关的subset"><a href="#list相关的subset" class="headerlink" title="list相关的subset"></a>list相关的subset</h1><p>此外，在<code>list</code>中也有一些有意思的情况，但还是应当了解其索引的方法。<code>list</code>的元素可以通过双中括号<code>[[]]</code>和单中括号<code>[]</code>索引，两者有以下区别：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">list1 &lt;- list(1:10, &quot;a&quot;, list(TRUE, FALSE))</span><br><span class="line">#双中括号返回的是列表中的子集元素</span><br><span class="line">&gt; list1[[1]]</span><br><span class="line"> [1]  1  2  3  4  5  6  7  8  9 10</span><br><span class="line">&gt; sum(list1[[1]])</span><br><span class="line">[1] 55</span><br><span class="line">&gt; class(list1[[1]])</span><br><span class="line">[1] &quot;integer&quot;</span><br><span class="line"></span><br><span class="line">#而单中括号返回的仍然是一个列表对象，R中许多函数不接受list对象</span><br><span class="line">&gt; list1[1]</span><br><span class="line">[[1]]</span><br><span class="line"> [1]  1  2  3  4  5  6  7  8  9 10</span><br><span class="line">&gt; sum(list1[1])</span><br><span class="line">Error in sum(list1[1]) : invalid &#x27;type&#x27; (list) of argument</span><br><span class="line">&gt; class(list1[1])</span><br><span class="line">[1] &quot;list&quot;</span><br></pre></td></tr></table></figure>
 <p>总而言之，使用双中括号索引列表时，可以实实在在地获得列表中的元素。而使用单中括号索引时，只是提取了一个子列表出来，返回的仍然是列表。</p>
 <p>完。</p>
@@ -341,7 +339,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">索引方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">drop参数保持data.frame属性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">list相关的subset</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">索引方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#drop%E5%8F%82%E6%95%B0%E4%BF%9D%E6%8C%81data-frame%E5%B1%9E%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">drop参数保持data.frame属性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#list%E7%9B%B8%E5%85%B3%E7%9A%84subset"><span class="nav-number">3.</span> <span class="nav-text">list相关的subset</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -357,7 +355,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

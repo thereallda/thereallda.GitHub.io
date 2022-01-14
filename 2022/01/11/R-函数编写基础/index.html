@@ -217,11 +217,12 @@
       
         <p>R里面的函数定义方法</p>
 <span id="more"></span>
-<h1>自定义函数</h1>
-<p>R语言中有两个重要的组成，一是<strong>变量</strong>，用于存储数据；二<strong>是函数</strong>，用于操作数据。</p>
+
+<h1 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h1><p>R语言中有两个重要的组成，一是<strong>变量</strong>，用于存储数据；二<strong>是函数</strong>，用于操作数据。</p>
 <p>函数的组成离不开三个部分：函数名、程序主体以及参数集合。</p>
 <p>例如，我编写了如下一个掷骰子的函数，函数名为<code>roll</code>，包含两个参数<code>x</code>, <code>size</code>，且<code>size</code>是默认参数。其中<code>sample</code>函数能够从“x”中随机取样（大小为“size”），而“replace” 参数是定取样方式为<strong>可放回取样</strong>还是<strong>不可放回取样</strong>。最后，函数返回最后一行代码的结果，在该函数中，返回所有骰子的和。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">roll &lt;- <span class="keyword">function</span>(x, size = <span class="number">1</span>)&#123;</span><br><span class="line">  dic &lt;- sample(x, size, replace = <span class="built_in">T</span>)  </span><br><span class="line">  <span class="built_in">sum</span>(dic)</span><br><span class="line">&#125;</span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>) <span class="comment">#一个6面骰子</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">5</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">3</span>) <span class="comment">#三个6面骰子</span></span><br><span class="line">[<span class="number">1</span>] <span class="number">11</span></span><br></pre></td></tr></table></figure>
+
 <p>值得注意的是，自定义函数的默认参数的设定要在<code>function()</code>括号内设置，而非在函数主体内部设置，可见如下例子：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">roll &lt;- <span class="keyword">function</span>(x, size)&#123;</span><br><span class="line">  dic &lt;- sample(x, size = <span class="number">1</span>, replace = <span class="built_in">T</span>)</span><br><span class="line">  <span class="built_in">sum</span>(dic)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">##在sample函数内设定size=1后，无论传入的size是多少都默认为“1”了。</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">3</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">2</span></span><br><span class="line">&gt; roll(<span class="number">1</span>:<span class="number">6</span>, size = <span class="number">1000</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">2</span></span><br></pre></td></tr></table></figure>
 <p>这是由于<code>roll()</code>函数定义的抽样大小参数<code>size</code>没有传给执行抽样的函数<code>sample()</code>，导致无论我们设定<code>roll()</code>的<code>size</code>为多少都不能改变返回样本的个数。</p>
@@ -328,7 +329,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">自定义函数</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">自定义函数</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -344,7 +345,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

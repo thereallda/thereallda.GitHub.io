@@ -19,22 +19,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="&amp;#x1f4d4;记录平常使用R的一些小技巧">
+  <meta name="description" content="方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。 本文介绍的是使用F-test进行方差同质性检验的方法。要注意，任何F-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个样本方差的比较来判断两个正态分布的总体方差是否相等、">
 <meta property="og:type" content="article">
-<meta property="og:title" content="R-小技巧">
-<meta property="og:url" content="http://example.com/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/index.html">
+<meta property="og:title" content="R-方差同质性检验（F-test）">
+<meta property="og:url" content="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="&amp;#x1f4d4;记录平常使用R的一些小技巧">
+<meta property="og:description" content="方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。 本文介绍的是使用F-test进行方差同质性检验的方法。要注意，任何F-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个样本方差的比较来判断两个正态分布的总体方差是否相等、">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/image-20220110203101847.png">
-<meta property="article:published_time" content="2022-01-10T12:30:11.000Z">
-<meta property="article:modified_time" content="2022-01-10T13:40:52.542Z">
+<meta property="article:published_time" content="2022-01-14T05:24:17.000Z">
+<meta property="article:modified_time" content="2022-01-14T05:27:54.879Z">
 <meta property="article:author" content="Dean Li">
 <meta property="article:tag" content="R">
+<meta property="article:tag" content="Statistics">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/image-20220110203101847.png">
 
-<link rel="canonical" href="http://example.com/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/">
+<link rel="canonical" href="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
 
 
 <script id="page-configurations">
@@ -47,7 +46,7 @@
   };
 </script>
 
-  <title>R-小技巧 | Dean's blog</title>
+  <title>R-方差同质性检验（F-test） | Dean's blog</title>
   
 
 
@@ -163,7 +162,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
@@ -176,7 +175,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          R-小技巧
+          R-方差同质性检验（F-test）
         </h1>
 
         <div class="post-meta">
@@ -189,7 +188,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-01-10 20:30:11 / Modified: 21:40:52" itemprop="dateCreated datePublished" datetime="2022-01-10T20:30:11+08:00">2022-01-10</time>
+              <time title="Created: 2022-01-14 13:24:17 / Modified: 13:27:54" itemprop="dateCreated datePublished" datetime="2022-01-14T13:24:17+08:00">2022-01-14</time>
             </span>
 
           <br>
@@ -198,14 +197,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.5k</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
 
         </div>
@@ -217,48 +216,42 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p> <span class="github-emoji" alias="notebook_with_decorative_cover" style="" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4d4.png?v8">&#x1f4d4;</span>记录平常使用R的一些小技巧 </p>
+        <p>方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。</p>
+<p>本文介绍的是使用<em>F</em>-test进行方差同质性检验的方法。要注意，任何<em>F</em>-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个<strong>样本</strong>方差的比较来判断两个正态分布的<strong>总体</strong>方差是否相等、</p>
 <span id="more"></span>
 
-<h1 id="RStudio"><a href="#RStudio" class="headerlink" title="RStudio"></a>RStudio</h1><p>RStudio是R的一种编译环境</p>
-<p><img src="/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/image-20220110203101847.png"></p>
-<p>其代码输入的主要区域为console与source。个人感觉最好在source中以脚步的形式编写代码，即使只有一两行，可以养成编写代码的习惯。在脚本中编写代码可以<code>Ctrl + Enter</code>的形式运行当前光标所在一行的代码，或者选择多行后一起运行。</p>
-<h1 id="R的小技巧"><a href="#R的小技巧" class="headerlink" title="R的小技巧"></a>R的小技巧</h1><ol>
-<li>在console中可通过键盘的“↑”返回上一行的代码</li>
-<li><code>dev.off() </code> 可以关闭当前画图的窗口。</li>
-<li><code>rm(list = ls())</code> 可以移除当前环境中所有变量，其中<code>rm()</code> = <code>remove()</code></li>
-<li>RStudio中各种小扫把，可以去除相应区域的对象。</li>
-<li>‘?function’可以查询该function的信息。可以将help中的例子复制至script中尝试调用。</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Examples # rm() 的例子</span><br><span class="line"></span><br><span class="line">tmp &lt;- 1:4</span><br><span class="line">## work with tmp  and cleanup</span><br><span class="line">rm(tmp)</span><br><span class="line"></span><br><span class="line">## Not run: </span><br><span class="line">## remove (almost) everything in the working environment.</span><br><span class="line">## You will get no warning, so don&#x27;t do this unless you are really sure.</span><br><span class="line">rm(list = ls())</span><br><span class="line"></span><br><span class="line">## End(Not run)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
-
-<h1 id="R包的安装"><a href="#R包的安装" class="headerlink" title="R包的安装"></a>R包的安装</h1><p><code>.libPaths()</code>可查看当前包安装的路径</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; .libPaths()</span><br><span class="line">[1] &quot;**/R-3.5.2/library&quot;</span><br></pre></td></tr></table></figure>
-
-<p>R library的安装可以通过 <code>install.packages(&quot;package&quot;) </code> 实现。</p>
-<p>发布在<a target="_blank" rel="noopener" href="https://www.bioconductor.org/">Bioconductor</a>的R包则需要通过<code>BiocManager::install()</code>安装</p>
-<h2 id="R包的加载"><a href="#R包的加载" class="headerlink" title="R包的加载"></a>R包的加载</h2><p>R包只需要安装一次，本机的用户就可以使用。使用的方式则是进入新的工作环境时，加载我们需要用到的包，有两种方法实现：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># package有无引号都可以加载</span><br><span class="line">library(package)</span><br><span class="line">require(package)</span><br></pre></td></tr></table></figure>
-
-<p>两者区别在于：</p>
+<p>方差是表示数据变异度的一个重要指标，事实上，我们对样本的平均数、频数进行假设检验时，都是以各个总体的方差的同质性为前提的。因此，在进行平均数的假设检验（e.g. t-test）之前，务必要从各样本的方差来推断其总体方差是否相同，即<strong>方差同质性检验</strong>。</p>
+<p>在本文中，主要介绍的是两样本方差的同质性检验，而<strong>单样本（卡方检验）</strong>和<strong>多样本（巴特勒检验）</strong>的方差同质性检验暂不展开。</p>
+<p>在R中，F-test的函数为<code>var.test()</code></p>
 <blockquote>
-<p>library和require都可以载入包，但二者存在区别。<br>在一个函数中，如果一个包不存在，执行到library将会停止执行，require则会继续执行。</p>
+<p><code>var.test()</code>:<br><strong>Performs an F test to compare the variances of two samples from normal populations.</strong></p>
 </blockquote>
-<h2 id="R包的解除"><a href="#R包的解除" class="headerlink" title="R包的解除"></a>R包的解除</h2><p>有时候载入多个包可能会让同名函数发生冲突，这个时候可以通过解除环境中的某个包来避免函数冲突</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 解除`dplyr`</span></span><br><span class="line">detach(<span class="string">&quot;package:dplyr&quot;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var.test(x, ...)</span><br><span class="line"><span class="comment">## Default S3 method:</span></span><br><span class="line">var.test(x, y, ratio = <span class="number">1</span>,</span><br><span class="line">         alternative = <span class="built_in">c</span>(<span class="string">&quot;two.sided&quot;</span>, <span class="string">&quot;less&quot;</span>, <span class="string">&quot;greater&quot;</span>),</span><br><span class="line">         conf.level = <span class="number">0.95</span>, ...)</span><br><span class="line"></span><br><span class="line"><span class="comment">## S3 method for class &#x27;formula&#x27;</span></span><br><span class="line">var.test(formula, data, subset, na.action, ...)</span><br></pre></td></tr></table></figure>
+<p><code>x,y</code> ：为进行检验的数据。<br><code>alternative</code>：设定备择假设，包括”two.sided” (default), “greater” or “less”。<br><code>conf.level</code>：设定显著性水平，默认α=0.05。</p>
+<p>需要注意的是，<code>var.test()</code>的零假设是x和y的方差比值（ratio）为1（默认），即是x与y的方差相等。</p>
+<p>下面尝试从正态总体中抽取两个方差均为1的，但容量有所差异的样本进行检验：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; x &lt;- rnorm(<span class="number">50</span>, mean = <span class="number">0</span>, sd = <span class="number">1</span>)</span><br><span class="line">&gt; y &lt;- rnorm(<span class="number">30</span>, mean = <span class="number">0</span>, sd = <span class="number">1</span>)</span><br><span class="line">&gt; var.test(x, y)</span><br><span class="line"></span><br><span class="line">	<span class="built_in">F</span> test to compare two variances</span><br><span class="line"></span><br><span class="line">data:  x and y</span><br><span class="line"><span class="built_in">F</span> = <span class="number">1.0895</span>, num df = <span class="number">49</span>, denom df = <span class="number">29</span>, p-value = <span class="number">0.8199</span></span><br><span class="line">alternative hypothesis: true ratio of variances is not equal to <span class="number">1</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">0.5473957</span> <span class="number">2.0498245</span></span><br><span class="line">sample estimates:</span><br><span class="line">ratio of variances </span><br><span class="line">          <span class="number">1.089511</span> </span><br></pre></td></tr></table></figure>
+<p>可以看到<code>var.test()</code>的结果由以上几个部分组成：</p>
+<ol>
+<li>F检验统计值，包括两样本分别的自由度和p-value。</li>
+<li>备择假设</li>
+<li>置信区间</li>
+<li>方差比值</li>
+</ol>
+<p>从p-value一项可以看出，本次检验接受零假设，即两样本的总体方差同质。</p>
+<p>对F-test有了大致的了解后，我们可以对上篇<a target="_blank" rel="noopener" href="https://thereallda.github.io/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89">R-简单的学生检验（t-test）</a>中的独立样本的均值检验进行方差同质性检验了。</p>
+<p><strong>【例】</strong>用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">134</span>, <span class="number">146</span>, <span class="number">106</span>, <span class="number">119</span>, <span class="number">124</span>, <span class="number">161</span>, <span class="number">107</span>, <span class="number">83</span>, <span class="number">113</span>, <span class="number">129</span>, <span class="number">97</span>, <span class="number">123</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">70</span>, <span class="number">118</span>, <span class="number">101</span>, <span class="number">85</span>, <span class="number">107</span>, <span class="number">132</span>, <span class="number">94</span>)</span><br><span class="line">&gt; var.test(X, Y)</span><br><span class="line"></span><br><span class="line">	<span class="built_in">F</span> test to compare two variances</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line"><span class="built_in">F</span> = <span class="number">1.0626</span>, num df = <span class="number">11</span>, denom df = <span class="number">6</span>, p-value = <span class="number">0.9917</span></span><br><span class="line">alternative hypothesis: true ratio of variances is not equal to <span class="number">1</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">0.1964273</span> <span class="number">4.1236757</span></span><br><span class="line">sample estimates:</span><br><span class="line">ratio of variances </span><br><span class="line">          <span class="number">1.062625</span> </span><br></pre></td></tr></table></figure>
 
-<h1 id="R的环境变量"><a href="#R的环境变量" class="headerlink" title="R的环境变量"></a>R的环境变量</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">## 获取环境变量</span><br><span class="line">Sys.getenv()</span><br><span class="line">## 设定环境变量</span><br><span class="line">Sys.setenv(KEY=&#x27;value&#x27;)</span><br></pre></td></tr></table></figure>
-
-<h2 id="获取当前工作环境的变量"><a href="#获取当前工作环境的变量" class="headerlink" title="获取当前工作环境的变量"></a>获取当前工作环境的变量</h2><p><code>ls()</code> 默认下可以获取当前工作环境内已创建的变量名</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- 1:3</span><br><span class="line">b &lt;- c(&#x27;a&#x27;,&#x27;b&#x27;,&#x27;c&#x27;)</span><br><span class="line">ls()</span><br><span class="line">## [1] &quot;a&quot; &quot;b&quot;</span><br></pre></td></tr></table></figure>
-
-<h2 id="获取当前工作环境的特定变量"><a href="#获取当前工作环境的特定变量" class="headerlink" title="获取当前工作环境的特定变量"></a>获取当前工作环境的特定变量</h2><p><code>objects()</code> 默认下可以获取当前环境特定变量名</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a1 &lt;- 1:5</span><br><span class="line">a2 &lt;- 2:6</span><br><span class="line">a3 &lt;- 8:9</span><br><span class="line">objects(pattern = &#x27;^a&#x27;)</span><br><span class="line">## [1] &quot;a&quot;  &quot;a1&quot; &quot;a2&quot; &quot;a3&quot;</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意的是</strong>无论是<code>ls()</code> 还是<code>objects()</code> 返回的只是变量名，如果需要获取变量具体的值需要使用<code>get()</code>或<code>mget()</code></p>
-<p>暂完。</p>
+<p>F-test的结果也如同我们上篇中所假设，两组大白鼠的方差是同质的，因此可以进行t-test分析两者均值有无显著差异。</p>
+<p>F-test的介绍就简单地到此结束了，如有不足，请各位指出。</p>
+<blockquote>
+<p>Ref:</p>
+<p>《生物统计学》（第五版）李春喜等著</p>
+</blockquote>
+<p>完。 </p>
 
     </div>
 
@@ -274,7 +267,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>Post link: </strong>
-    <a href="http://example.com/2022/01/10/R-%E5%B0%8F%E6%8A%80%E5%B7%A7/" title="R-小技巧">http://example.com/2022/01/10/R-小技巧/</a>
+    <a href="http://example.com/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/" title="R-方差同质性检验（F-test）">http://example.com/2022/01/14/R-方差同质性检验（F-test）/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -286,6 +279,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/Statistics/" rel="tag"># Statistics</a>
           </div>
 
         
@@ -294,13 +288,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/01/06/Markdown_%E8%AF%AD%E6%B3%95/" rel="prev" title="Markdown语法">
-      <i class="fa fa-chevron-left"></i> Markdown语法
+    <a href="/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/" rel="prev" title="R-简单的学生检验（t-test）">
+      <i class="fa fa-chevron-left"></i> R-简单的学生检验（t-test）
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/01/11/R-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" rel="next" title="R-基本数据类型">
-      R-基本数据类型 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -359,7 +350,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RStudio"><span class="nav-number">1.</span> <span class="nav-text">RStudio</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7"><span class="nav-number">2.</span> <span class="nav-text">R的小技巧</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">R包的安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#R%E5%8C%85%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="nav-number">3.1.</span> <span class="nav-text">R包的加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R%E5%8C%85%E7%9A%84%E8%A7%A3%E9%99%A4"><span class="nav-number">3.2.</span> <span class="nav-text">R包的解除</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R%E7%9A%84%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">R的环境变量</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E5%B7%A5%E4%BD%9C%E7%8E%AF%E5%A2%83%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-number">4.1.</span> <span class="nav-text">获取当前工作环境的变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E5%B7%A5%E4%BD%9C%E7%8E%AF%E5%A2%83%E7%9A%84%E7%89%B9%E5%AE%9A%E5%8F%98%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">获取当前工作环境的特定变量</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
