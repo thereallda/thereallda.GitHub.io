@@ -230,12 +230,11 @@
       
         <p>记录Markdown常用语法</p>
 <span id="more"></span> 
-<h2 id="1-标题">1. 标题</h2>
-<p>“# ”是设置标题的方法。</p>
+
+<h2 id="1-标题"><a href="#1-标题" class="headerlink" title="1. 标题"></a>1. 标题</h2><p>“# ”是设置标题的方法。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 一级标题</span><br><span class="line">## 二级标题</span><br></pre></td></tr></table></figure>
 <p>以此类推。</p>
-<h2 id="2-列表">2. 列表</h2>
-<p>列表有两种，一种是无序的</p>
+<h2 id="2-列表"><a href="#2-列表" class="headerlink" title="2. 列表"></a>2. 列表</h2><p>列表有两种，一种是无序的</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- a</span><br><span class="line">- b</span><br><span class="line">- c</span><br></pre></td></tr></table></figure>
 <p>就会显示为：</p>
 <blockquote>
@@ -250,42 +249,32 @@
 <blockquote>
 <ol>
 <li>a</li>
-<li>b</li>
+<li>b </li>
 <li>c</li>
 </ol>
 </blockquote>
 <p>有序列表不知是否可以实现自动添加，否则一个个排号，也没有很方便。</p>
-<h2 id="3-插入图片或链接">3. 插入图片或链接</h2>
-<p>使用markdown插入图片和链接都是较为方便的，可以通过三种方法插入。一种是直接复制粘。第二种是通过文本编写时左上角插入的“插入图片”插入。第三种是：</p>
+<h2 id="3-插入图片或链接"><a href="#3-插入图片或链接" class="headerlink" title="3. 插入图片或链接"></a>3. 插入图片或链接</h2><p>使用markdown插入图片和链接都是较为方便的，可以通过三种方法插入。一种是直接复制粘。第二种是通过文本编写时左上角插入的“插入图片”插入。第三种是：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[标题](链接地址)  #链接插入方法</span><br><span class="line"></span><br><span class="line">![图片描述](图片链接地址) #图片插入方法</span><br></pre></td></tr></table></figure>
 <p>其实无论用何种方式插入，在编辑器中都以上述形式显示。</p>
-<h2 id="4-引用">4. 引用</h2>
-<p>就是插入灰底的框，以区别于本文的内容。</p>
+<h2 id="4-引用"><a href="#4-引用" class="headerlink" title="4. 引用"></a>4. 引用</h2><p>就是插入灰底的框，以区别于本文的内容。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 文字</span><br></pre></td></tr></table></figure>
 <p>则为引用该段文字，要注意引用后要空一行，以免后面的内容被包括到引用框内。</p>
-<h2 id="5-代码">5. 代码</h2>
-<p>代码的插入主要是以反引号 (`)实现的。</p>
+<h2 id="5-代码"><a href="#5-代码" class="headerlink" title="5. 代码"></a>5. 代码</h2><p>代码的插入主要是以反引号 (`)实现的。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`你好` #用反引号括起的部分为被识别为代码</span><br></pre></td></tr></table></figure>
+
 <p>插入代码框，通过两行(```)，将代码包围起来</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">第一段代码</span><br><span class="line">第二段代码</span><br><span class="line">第三段代码</span><br></pre></td></tr></table></figure>
-<h2 id="6-粗体和斜体">6. 粗体和斜体</h2>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*斜体*</span><br><span class="line">**粗体**</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-粗体和斜体"><a href="#6-粗体和斜体" class="headerlink" title="6. 粗体和斜体"></a>6. 粗体和斜体</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*斜体*</span><br><span class="line">**粗体**</span><br></pre></td></tr></table></figure>
+
 <blockquote>
-<p><em>斜体</em><br>
-<strong>粗体</strong></p>
+<p><em>斜体</em><br> <strong>粗体</strong></p>
 </blockquote>
-<h2 id="7-数学公式">7. 数学公式</h2>
-<p>行内公式：<code>$y=x^2$</code>, $y=x^2$<br>
-单独一行的公式：<code>$$y=x^2$$</code>, $$y=x^2$$</p>
-<h3 id="常用公式">常用公式</h3>
-<p>上标符号：<code>^</code>，如：$x^3$<br>
-下标符号：<code>_</code>，如：$x_2$<br>
-组合符号：<code>&#123;&#125;</code>，如：$X^{2}_{2+3}$<br>
-分式：<code>$\frac&#123;&#125;&#123;&#125;$</code>，如：$\frac{3}{5}$</p>
+<h2 id="7-数学公式"><a href="#7-数学公式" class="headerlink" title="7. 数学公式"></a>7. 数学公式</h2><p>行内公式：<code>$y=x^2$</code>, $y=x^2$<br>单独一行的公式：<code>$$y=x^2$$</code>, $$y=x^2$$</p>
+<h3 id="常用公式"><a href="#常用公式" class="headerlink" title="常用公式"></a>常用公式</h3><p>上标符号：<code>^</code>，如：$x^3$<br>下标符号：<code>_</code>，如：$x_2$<br>组合符号：<code>&#123;&#125;</code>，如：$X^{2}_{2+3}$<br>分式：<code>$\frac&#123;&#125;&#123;&#125;$</code>，如：$\frac{3}{5}$</p>
 <blockquote>
-<p>Ref<br>
-<a target="_blank" rel="noopener" href="https://markdown.com.cn/basic-syntax/code.html">https://markdown.com.cn/basic-syntax/code.html</a><br>
-<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e74eb43960a1">https://www.jianshu.com/p/e74eb43960a1</a></p>
+<p>Ref<br><a target="_blank" rel="noopener" href="https://markdown.com.cn/basic-syntax/code.html">https://markdown.com.cn/basic-syntax/code.html</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e74eb43960a1">https://www.jianshu.com/p/e74eb43960a1</a></p>
 </blockquote>
 
     </div>
@@ -454,8 +443,6 @@
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
 
-
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
         
