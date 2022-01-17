@@ -231,50 +231,40 @@
       
         <p>Student’s test —— 简称t-test，据说是作者当年为避风头而用“学生”这一笔名，所以就将该种方法称为学生检验了。</p>
 <span id="more"></span>
+
 <blockquote>
 <p><strong>百度百科</strong>：t-test 主要用于样本量较小（例如n &lt; 30），总体标准差σ未知的正态分布。t-test 是用t分布理论来推论差异发生的概率，从而比较两个平均数的差异是否显著。</p>
 </blockquote>
 <p>关于t-test的原理在此处就不过多赘述了,主要还是看在R语言里面怎么用。首先，我们要注意做t-test的目的是为了检验在符合<strong>正态分布</strong>的样本中<strong>两个平均数</strong>是否有显著的差异，且该样本的总体方差也是未知的，否则可以用u检验。</p>
 <p>在R语言中，t-test的函数为<code>t.test()</code>，如下所示</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">t.test(x, ...)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Default S3 method:</span></span><br><span class="line">t.test(x, y = <span class="literal">NULL</span>,</span><br><span class="line">       alternative = <span class="built_in">c</span>(<span class="string">&quot;two.sided&quot;</span>, <span class="string">&quot;less&quot;</span>, <span class="string">&quot;greater&quot;</span>),</span><br><span class="line">       mu = <span class="number">0</span>, paired = <span class="literal">FALSE</span>, var.equal = <span class="literal">FALSE</span>,</span><br><span class="line">       conf.level = <span class="number">0.95</span>, ...)</span><br></pre></td></tr></table></figure>
-<p><code>x,y</code> ：为进行检验的数据。<br>
-<code>alternative</code>：该参数设定备择假设，默认为双尾检验。<br>
-<code>mu</code>：单样本检验时，需要设定的平均值。<br>
-<code>paired</code>：为逻辑参数，是否进行配对t-test。<br>
-<code>var.equal</code>：双样本检验时，总体方差是否相等<br>
-<code>conf.level</code>：设定显著性水平，默认α=0.05。</p>
+<p><code>x,y</code> ：为进行检验的数据。<br><code>alternative</code>：该参数设定备择假设，默认为双尾检验。<br><code>mu</code>：单样本检验时，需要设定的平均值。<br><code>paired</code>：为逻辑参数，是否进行配对t-test。<br><code>var.equal</code>：双样本检验时，总体方差是否相等<br><code>conf.level</code>：设定显著性水平，默认α=0.05。</p>
 <blockquote>
 <p>以下将以实例展示不同情况下的t-test如何使用。</p>
 </blockquote>
-<h1>单样本均值检验</h1>
-<p>**【例1】**一鱼塘多年水中含氧量平均值为4.5 mg/L，现随机在该鱼塘采集10个样本，试检验该次抽样的均值是否与多年均值有显著差别。</p>
+<h1 id="单样本均值检验"><a href="#单样本均值检验" class="headerlink" title="单样本均值检验"></a>单样本均值检验</h1><p><strong>【例1】</strong>一鱼塘多年水中含氧量平均值为4.5 mg/L，现随机在该鱼塘采集10个样本，试检验该次抽样的均值是否与多年均值有显著差别。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">4.33</span>, <span class="number">4.62</span>, <span class="number">3.89</span>, <span class="number">4.14</span>, <span class="number">4.78</span>, <span class="number">4.64</span>, <span class="number">4.52</span>, <span class="number">4.55</span>, <span class="number">4.48</span>, <span class="number">4.26</span>)</span><br><span class="line">&gt; t.test(X, mu=<span class="number">4.5</span>)</span><br><span class="line"></span><br><span class="line">	One Sample t-test</span><br><span class="line"></span><br><span class="line">data:  X</span><br><span class="line">t = -<span class="number">0.93574</span>, df = <span class="number">9</span>, p-value = <span class="number">0.3738</span></span><br><span class="line">alternative hypothesis: true mean is not equal to <span class="number">4.5</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">4.230016</span> <span class="number">4.611984</span></span><br><span class="line">sample estimates:</span><br><span class="line">mean of x </span><br><span class="line">    <span class="number">4.421</span> </span><br></pre></td></tr></table></figure>
+
 <blockquote>
-<p>假设检验一般都是以四段进行，分别为：<br>
-（1）给出假设H0, HA<br>
-（2）确定显著水平<br>
-（3）计算统计检验值<br>
-（4）作出推断</p>
+<p>假设检验一般都是以四段进行，分别为：<br>（1）给出假设H0, HA<br>（2）确定显著水平<br>（3）计算统计检验值<br>（4）作出推断</p>
 </blockquote>
 <p>在以上结果中，我们可以看到<code>t.test</code>函数给出的结果中包含了计算出的检验值、自由度、p值以及结论等。很明显，我们看到本次抽样的均值与总体均值是没有显著差异的。</p>
-<h1>双样本均值检验</h1>
-<p>当要比较的两个样本的总体方差未知，但相等时（判断方差是否相等可以借助方差同质性检验F-test），可以使用t-test。</p>
-<h2 id="成组数据的均值检验–独立样本">成组数据的均值检验–独立样本</h2>
-<p>成组数据（pooled data）是两个样本的各个变量从各自总体中抽取，也就是说两个样本间的变量没有任何关联，两个抽样样本彼此独立。成组数据的两个样本的容量未必相同，但是方差需要相等才能进行t-test。</p>
-<p>**【例2】**用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
+<h1 id="双样本均值检验"><a href="#双样本均值检验" class="headerlink" title="双样本均值检验"></a>双样本均值检验</h1><p>当要比较的两个样本的总体方差未知，但相等时（判断方差是否相等可以借助方差同质性检验F-test），可以使用t-test。</p>
+<h2 id="成组数据的均值检验–独立样本"><a href="#成组数据的均值检验–独立样本" class="headerlink" title="成组数据的均值检验–独立样本"></a>成组数据的均值检验–独立样本</h2><p>成组数据（pooled data）是两个样本的各个变量从各自总体中抽取，也就是说两个样本间的变量没有任何关联，两个抽样样本彼此独立。成组数据的两个样本的容量未必相同，但是方差需要相等才能进行t-test。</p>
+<p><strong>【例2】</strong>用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">134</span>, <span class="number">146</span>, <span class="number">106</span>, <span class="number">119</span>, <span class="number">124</span>, <span class="number">161</span>, <span class="number">107</span>, <span class="number">83</span>, <span class="number">113</span>, <span class="number">129</span>, <span class="number">97</span>, <span class="number">123</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">70</span>, <span class="number">118</span>, <span class="number">101</span>, <span class="number">85</span>, <span class="number">107</span>, <span class="number">132</span>, <span class="number">94</span>)</span><br><span class="line">&gt; t.test(X, Y, var.equal = <span class="built_in">T</span>)</span><br><span class="line"></span><br><span class="line">	Two Sample t-test</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line">t = <span class="number">1.9157</span>, df = <span class="number">17</span>, p-value = <span class="number">0.07238</span></span><br><span class="line">alternative hypothesis: true difference <span class="keyword">in</span> means is not equal to <span class="number">0</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> -<span class="number">1.942543</span> <span class="number">40.275876</span></span><br><span class="line">sample estimates:</span><br><span class="line">mean of x mean of y </span><br><span class="line"> <span class="number">120.1667</span>  <span class="number">101.0000</span> </span><br></pre></td></tr></table></figure>
-<p>由于本篇文章不展开F-test，因此我们先跳过方差同质性检验这步（但两总体的方差是相等的）。此时所用的自由度为(n1+n2-2)，且由于默认上<code>mu=0</code>，所以在结果中备择假设就打印出：<br>
-<code>alternative hypothesis: true difference in means is not equal to 0</code></p>
+
+<p>由于本篇文章不展开F-test，因此我们先跳过方差同质性检验这步（但两总体的方差是相等的）。此时所用的自由度为(n1+n2-2)，且由于默认上<code>mu=0</code>，所以在结果中备择假设就打印出：<br><code>alternative hypothesis: true difference in means is not equal to 0</code></p>
 <p>但是细看p值的话，p&gt;0.05，即接受H0，两者无显著差异，所以进行双总体均值检验时，要以p值为判断基准。</p>
-<h2 id="配对样本检验">配对样本检验</h2>
-<p>配对样本（paired data）的比较要求两个样本间配偶成对，每一对样本除随机地给予不同处理外，其他实验条件应尽量一致。即为配对，两样本的容量必定相等。</p>
+<h2 id="配对样本检验"><a href="#配对样本检验" class="headerlink" title="配对样本检验"></a>配对样本检验</h2><p>配对样本（paired data）的比较要求两个样本间配偶成对，每一对样本除随机地给予不同处理外，其他实验条件应尽量一致。即为配对，两样本的容量必定相等。</p>
 <p>配对样本检验在研究中也是较为常用的，如高血压病人在服药前后血压变化是否有显著差异等，都可以使用该法检验。</p>
-<p>**【例3】**用正常饲料和维生素E缺乏饲料饲养两组配对的实验动物一段时间后，检测其肝脏中维生素A含量是否有显著性差异。</p>
+<p><strong>【例3】</strong>用正常饲料和维生素E缺乏饲料饲养两组配对的实验动物一段时间后，检测其肝脏中维生素A含量是否有显著性差异。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">3550</span>, <span class="number">2000</span>, <span class="number">3000</span>, <span class="number">3950</span>, <span class="number">3800</span>, <span class="number">3750</span>, <span class="number">3450</span>, <span class="number">3050</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">2450</span>, <span class="number">2400</span>, <span class="number">1800</span>, <span class="number">3200</span>, <span class="number">3250</span>, <span class="number">2700</span>, <span class="number">2500</span>, <span class="number">1750</span>)</span><br><span class="line">&gt; t.test(X, Y, var.equal = <span class="built_in">T</span>, paired = <span class="built_in">T</span>)</span><br><span class="line"></span><br><span class="line">	Paired t-test</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line">t = <span class="number">4.207</span>, df = <span class="number">7</span>, p-value = <span class="number">0.004001</span></span><br><span class="line">alternative hypothesis: true difference <span class="keyword">in</span> means is not equal to <span class="number">0</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line">  <span class="number">355.8207</span> <span class="number">1269.1793</span></span><br><span class="line">sample estimates:</span><br><span class="line">mean of the differences </span><br><span class="line">                  <span class="number">812.5</span> </span><br></pre></td></tr></table></figure>
+
 <p>由于是进行配对检验，因此<code> paired = T</code>。p&lt;0.05，证明两组均值有显著性差异。</p>
 <p>R语言中的统计检验还是较为简单和直接的，但作为数据分析者，我们的任务除了敲出这几行代码之外，还要对我们的结果作出解答。统计检验是研究结论的守门人，务必要保证该流程的严谨性，以给出令人信服的结论。</p>
 <blockquote>
-<p>“When you have eliminated the impossible, whatever remains, however improbable, must be the truth.” – Sherlock Holmes</p>
+<p>“When you have eliminated the impossible, whatever remains, however improbable, must be the truth.” – Sherlock Holmes </p>
 </blockquote>
 <p>假设检验也是如此，即使结果与预设不符合，但只要任何一步都是严谨地进行的时候，我们都应当采信得出的结论。</p>
 <blockquote>
@@ -383,7 +373,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">单样本均值检验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">双样本均值检验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E7%BB%84%E6%95%B0%E6%8D%AE%E7%9A%84%E5%9D%87%E5%80%BC%E6%A3%80%E9%AA%8C%E2%80%93%E7%8B%AC%E7%AB%8B%E6%A0%B7%E6%9C%AC"><span class="nav-number">2.1.</span> <span class="nav-text">成组数据的均值检验–独立样本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E5%AF%B9%E6%A0%B7%E6%9C%AC%E6%A3%80%E9%AA%8C"><span class="nav-number">2.2.</span> <span class="nav-text">配对样本检验</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E6%A0%B7%E6%9C%AC%E5%9D%87%E5%80%BC%E6%A3%80%E9%AA%8C"><span class="nav-number">1.</span> <span class="nav-text">单样本均值检验</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E6%A0%B7%E6%9C%AC%E5%9D%87%E5%80%BC%E6%A3%80%E9%AA%8C"><span class="nav-number">2.</span> <span class="nav-text">双样本均值检验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E7%BB%84%E6%95%B0%E6%8D%AE%E7%9A%84%E5%9D%87%E5%80%BC%E6%A3%80%E9%AA%8C%E2%80%93%E7%8B%AC%E7%AB%8B%E6%A0%B7%E6%9C%AC"><span class="nav-number">2.1.</span> <span class="nav-text">成组数据的均值检验–独立样本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E5%AF%B9%E6%A0%B7%E6%9C%AC%E6%A3%80%E9%AA%8C"><span class="nav-number">2.2.</span> <span class="nav-text">配对样本检验</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -450,17 +440,9 @@
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
 
-<% if (theme.busuanzi && theme.busuanzi.enable){ %>
-        <!-- busuanzi -->
-        <span id="busuanzi_container_site_pv">
-                Total visit<span id="busuanzi_value_site_pv"></span>times
-        </span>
-        <span class="post-meta-divider">|</span>
-        <span id="busuanzi_container_site_uv" style='display:none'>
-                Total visitors<span id="busuanzi_value_site_uv"></span>
-        </span>
-        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-  <% } %>
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
 
         
 <div class="busuanzi-count">
