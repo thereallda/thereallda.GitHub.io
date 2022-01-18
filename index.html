@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Dean&#39;s blog">
+<meta property="og:url" content="https://thereallda.github.io/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="Dean Li">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://thereallda.github.io/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/06/About-this-blog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/06/About-this-blog/" class="post-title-link" itemprop="url">About this blog</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-top-flag" title="top">
+            <b>[Pinned]</b>                    
+            </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-01-06 19:40:04" itemprop="dateCreated datePublished" datetime="2022-01-06T19:40:04+08:00">2022-01-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-01-10 20:11:31" itemprop="dateModified" datetime="2022-01-10T20:11:31+08:00">2022-01-10</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>178</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><span class="github-emoji" alias="wave" style="" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44b.png?v8">&#x1f44b;</span> Hi</p>
+<p>这个博客主要用于记录我日常的学习、工作和想法。</p>
+<p>如果有什么问题，可以通过邮箱: <a href="mailto:&#x6c;&#x69;&#x64;&#x65;&#x61;&#110;&#108;&#100;&#97;&#x40;&#102;&#111;&#120;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;">&#x6c;&#x69;&#x64;&#x65;&#x61;&#110;&#108;&#100;&#97;&#x40;&#102;&#111;&#120;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;</a>与我联系。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/" class="post-title-link" itemprop="url">R-管道符</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-18 12:56:21 / Modified: 13:58:42" itemprop="dateCreated datePublished" datetime="2022-01-18T12:56:21+08:00">2022-01-18</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>最近学习到Linux的管道符 <code>|</code> 可以将左侧的输入传递给右侧的函数处理，这种从左到右的函数处理方式看着就让人很舒服，想起R中其实也有这种类似的管道符 —— <code>%&gt;%</code> 。因此，就在这篇文章谈谈<code>%&gt;%</code>的基本特点和包含它的包<code>magrittr</code></p>
+</blockquote>
+<p>记得第一次看到这样的代码的时候就忍不住头大，这个<code>%&gt;%</code>到底是个啥？</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rnorm(<span class="number">10</span>) %&gt;% <span class="built_in">as.character</span> %&gt;% sort %&gt;% unique</span><br></pre></td></tr></table></figure>
+
+<p>在翻阅了多个网站的资料后，才知道<code>%&gt;%</code>的功能就是把左侧的变量传递给右边。而上面的函数也就是相当于把嵌套的函数<code>unique(sort(as.character(rnorm(10))))</code> 用<code>%&gt;%</code>写出来。</p>
+<p>当时对<code>%&gt;%</code>的第一感受就是可以简化函数嵌套的表达模式，用一种更简洁且优美的方式敲代码。但<code>%&gt;%</code>就止步于此了吗？</p>
+<h1 id="magrittr-Ceci-n’est-pas-un-pipe"><a href="#magrittr-Ceci-n’est-pas-un-pipe" class="headerlink" title="magrittr - Ceci n’est pas un pipe."></a>magrittr - Ceci n’est pas un pipe.</h1><blockquote>
+<p><em>Ceci n’est pas un pipe</em> 是一句法语，翻译过来的意思是 “这不是管道符”。</p>
+</blockquote>
+<p><img src="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118125859501.png"></p>
+<p>在了解<code>%&gt;%</code>之前，我们要先弄明白 <a target="_blank" rel="noopener" href="https://www.rdocumentation.org/collaborators/name/Stefan%20Milton%20Bache">Stefan Milton Bache</a>写这个包想要解决的问题是什么？</p>
+<p>从<code>magrittr</code>的R Documents上了解到，其提供了一系列操作符，可以解决以下问题</p>
+<ul>
+<li>以一种从左到右的方式构建数据操作的顺序</li>
+<li>避免函数嵌套式调用</li>
+<li>减少局部变量的创建和部分函数的定义</li>
+<li>简单地在代码序列中添加步骤</li>
+</ul>
+<p>一句话总结<code>magrittr</code>管道符的优点就是大大地提高了代码的可读性（readable），减少到几乎不需要局部变量的创建，并降低程序对内存的占用。</p>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages(<span class="string">&quot;magrittr&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h1><p><code>%&gt;%</code> : 管道操作符，将左侧变量传递到右侧并作为输入变量.</p>
+<h2 id="gt-的基本用法"><a href="#gt-的基本用法" class="headerlink" title="%&gt;%的基本用法"></a><code>%&gt;%</code>的基本用法</h2><p>先从最基本的<code>%&gt;%</code>开始，其用法也十分简单，基础的用法就是 <code>x %&gt;% f</code> == <code>f(x)</code></p>
+<p> <code>x %&gt;% f</code> 默认将<code>x</code>传递到函数的第一个参数位，无论后面有无参数，即 <code>x %&gt;% f(y)</code> == <code>f(x,y)</code></p>
+<p>像一开始的例子一样，多级函数传递也是可以的，<code>x %&gt;% f %&gt;% g %&gt;% h</code> == <code>h(g(f(x)))</code></p>
+<p>拿<code>iris</code>数据做个例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一种用法</span></span><br><span class="line">&gt; iris %&gt;% head</span><br><span class="line">  Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span><br><span class="line"><span class="number">1</span>          <span class="number">5.1</span>         <span class="number">3.5</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">2</span>          <span class="number">4.9</span>         <span class="number">3.0</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">3</span>          <span class="number">4.7</span>         <span class="number">3.2</span>          <span class="number">1.3</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">4</span>          <span class="number">4.6</span>         <span class="number">3.1</span>          <span class="number">1.5</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">5</span>          <span class="number">5.0</span>         <span class="number">3.6</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">6</span>          <span class="number">5.4</span>         <span class="number">3.9</span>          <span class="number">1.7</span>         <span class="number">0.4</span>  setosa</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二种用法</span></span><br><span class="line">&gt; iris %&gt;% head(<span class="number">3</span>)</span><br><span class="line">  Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span><br><span class="line"><span class="number">1</span>          <span class="number">5.1</span>         <span class="number">3.5</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">2</span>          <span class="number">4.9</span>         <span class="number">3.0</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">3</span>          <span class="number">4.7</span>         <span class="number">3.2</span>          <span class="number">1.3</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第三种用法</span></span><br><span class="line">&gt; iris[,<span class="number">1</span>] %&gt;% <span class="built_in">as.character</span> %&gt;% sort %&gt;% unique </span><br><span class="line"> [<span class="number">1</span>] <span class="string">&quot;4.3&quot;</span> <span class="string">&quot;4.4&quot;</span> <span class="string">&quot;4.5&quot;</span> <span class="string">&quot;4.6&quot;</span> <span class="string">&quot;4.7&quot;</span> <span class="string">&quot;4.8&quot;</span> <span class="string">&quot;4.9&quot;</span> <span class="string">&quot;5&quot;</span>   <span class="string">&quot;5.1&quot;</span> <span class="string">&quot;5.2&quot;</span> <span class="string">&quot;5.3&quot;</span> <span class="string">&quot;5.4&quot;</span></span><br><span class="line">[<span class="number">13</span>] <span class="string">&quot;5.5&quot;</span> <span class="string">&quot;5.6&quot;</span> <span class="string">&quot;5.7&quot;</span> <span class="string">&quot;5.8&quot;</span> <span class="string">&quot;5.9&quot;</span> <span class="string">&quot;6&quot;</span>   <span class="string">&quot;6.1&quot;</span> <span class="string">&quot;6.2&quot;</span> <span class="string">&quot;6.3&quot;</span> <span class="string">&quot;6.4&quot;</span> <span class="string">&quot;6.5&quot;</span> <span class="string">&quot;6.6&quot;</span></span><br><span class="line">[<span class="number">25</span>] <span class="string">&quot;6.7&quot;</span> <span class="string">&quot;6.8&quot;</span> <span class="string">&quot;6.9&quot;</span> <span class="string">&quot;7&quot;</span>   <span class="string">&quot;7.1&quot;</span> <span class="string">&quot;7.2&quot;</span> <span class="string">&quot;7.3&quot;</span> <span class="string">&quot;7.4&quot;</span> <span class="string">&quot;7.6&quot;</span> <span class="string">&quot;7.7&quot;</span> <span class="string">&quot;7.9&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Placeholder-占位符"><a href="#Placeholder-占位符" class="headerlink" title="Placeholder | 占位符."></a>Placeholder | 占位符<code>.</code></h2><p><code>x %&gt;% f(y, .)</code> == <code>f(y, x)</code><br>用<code>.</code>可作为placeholder，指明左侧输入传递到的位置。如果没有的话，默认左侧输入传递到右侧函数的第一个参数。 </p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="string">&quot;Ceci n&#x27;est pas une pipe&quot;</span> %&gt;% gsub(<span class="string">&quot;une&quot;</span>, <span class="string">&quot;un&quot;</span>, .)</span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;Ceci n&#x27;est pas un pipe&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &#x27;[]&#x27;也可以</span></span><br><span class="line">&gt; iris[,<span class="number">5</span>] %&gt;% grep(<span class="string">&#x27;setosa&#x27;</span>, .)  %&gt;% iris[.,<span class="number">1</span>:<span class="number">5</span>] %&gt;% head</span><br><span class="line">  Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span><br><span class="line"><span class="number">1</span>          <span class="number">5.1</span>         <span class="number">3.5</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">2</span>          <span class="number">4.9</span>         <span class="number">3.0</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">3</span>          <span class="number">4.7</span>         <span class="number">3.2</span>          <span class="number">1.3</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">4</span>          <span class="number">4.6</span>         <span class="number">3.1</span>          <span class="number">1.5</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">5</span>          <span class="number">5.0</span>         <span class="number">3.6</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">6</span>          <span class="number">5.4</span>         <span class="number">3.9</span>          <span class="number">1.7</span>         <span class="number">0.4</span>  setosa</span><br></pre></td></tr></table></figure>
+
+<h2 id="传递给多个参数"><a href="#传递给多个参数" class="headerlink" title="传递给多个参数 | {}"></a>传递给多个参数 | <code>&#123;&#125;</code></h2><p>在嵌套函数中使用<code>.</code>方法时需要格外注意以下情况的发生：</p>
+<p><code>x %&gt;% f(y=nrow(.), z=ncol(.))</code> == <code>f(x, y=nrow(x), z=ncol(x))</code></p>
+<p>虽然使用<code>.</code>后，变量<code>x</code>会传递到<code>.</code>处，但是<code>x</code>也传递到函数<code>f</code>的第一个参数位。</p>
+<p>想要避免这种情况的发生可以使用<code>&#123;&#125;</code>将函数包起来，即<code>x %&gt;% &#123;f(y=nrow(.), z=ncol(.))&#125;</code> == <code>f(y=nrow(x), z=ncol(x))</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; set.seed(<span class="number">501</span>)</span><br><span class="line">&gt; rnorm(<span class="number">100</span>) %&gt;% &#123;<span class="built_in">c</span>(<span class="built_in">min</span>(.), mean(.), <span class="built_in">max</span>(.))&#125; %&gt;% <span class="built_in">floor</span></span><br><span class="line">[<span class="number">1</span>] -<span class="number">3</span>  <span class="number">0</span>  <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="在创建函数中使用管道符"><a href="#在创建函数中使用管道符" class="headerlink" title="在创建函数中使用管道符"></a>在创建函数中使用管道符</h2><p>利用管道符构建函数也是十分简单的，我们可以使用<code>.</code>作为管道传递的起始，它将会返回一个函数，例如：<br><code>f &lt;- . %&gt;% cos %&gt;% sin</code> == <code>f &lt;- function(.) sin(cos(.))</code></p>
+<h2 id="其他管道符"><a href="#其他管道符" class="headerlink" title="其他管道符"></a>其他管道符</h2><p><code>magrittr</code>包还提高了其他几种管道符，以在特殊的情景进行利用，下面会简单介绍这几种符号。</p>
+<h3 id="lt-gt-赋值代码流的结果给一个变量"><a href="#lt-gt-赋值代码流的结果给一个变量" class="headerlink" title="%&lt;&gt;% 赋值代码流的结果给一个变量"></a><code>%&lt;&gt;%</code> 赋值代码流的结果给一个变量</h3><ol>
+<li><code>%&lt;&gt;%</code> ：相当于<code>&lt;- %&gt;%</code>的组合， 同样是将左侧变量传递到右侧并作为输入变量，但会将最后的结果赋值到最左侧的变量。<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- <span class="built_in">rep</span>(<span class="built_in">c</span>(<span class="number">2</span>,<span class="number">3</span>), each =<span class="number">10</span>)</span><br><span class="line">a %&lt;&gt;% <span class="built_in">as.character</span> %&gt;% unique</span><br><span class="line">a</span><br><span class="line"><span class="comment">## [1] &quot;2&quot; &quot;3&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="T-gt-分支管道符"><a href="#T-gt-分支管道符" class="headerlink" title="%T&gt;%分支管道符"></a><code>%T&gt;%</code>分支管道符</h3><ol start="2">
+<li><code>%T&gt;%</code> : 将左侧传递到右侧，右侧执行后返回左边的原始输入，而非执行后结果。</li>
+</ol>
+<p>以下的代码从标准正态分布中随机取样200个数，并构建出<code>100 x 2</code>的矩阵，最后对列求和。唯一不同在于第二条代码使用 <code>%T&gt;% plot</code> 对矩阵画了个散点图，再将矩阵传递给<code>colSums</code>。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; rnorm(<span class="number">200</span>) %&gt;% matrix(ncol = <span class="number">2</span>) %&gt;% colSums</span><br><span class="line">[<span class="number">1</span>]   <span class="number">9.040591</span> -<span class="number">10.754680</span></span><br><span class="line"></span><br><span class="line">&gt; rnorm(<span class="number">200</span>) %&gt;% matrix(ncol = <span class="number">2</span>) %T&gt;% plot %&gt;% colSums</span><br><span class="line">[<span class="number">1</span>]   <span class="number">9.040591</span> -<span class="number">10.754680</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118130318577.png"></p>
+<p>所以<code>%T&gt;%</code>的一种应用环境就是当操作序列中间有像<code>plot</code>这种不返回结果的函数时，既将左侧变量传递给这种函数，又不会影响后边函数的处理。<br><img src="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118130330958.png" alt="上述代码流程图示"></p>
+<h3 id="创建变量局部环境"><a href="#创建变量局部环境" class="headerlink" title="%$% 创建变量局部环境"></a><code>%$%</code> 创建变量局部环境</h3><ol start="3">
+<li><code>%$%</code> : 可以将左侧变量中的变量名传递到右侧应用。有些函数，如<code>ggplot</code>，在输入数据后可以用数据框中的变量名来调用数据框内的变量（例如：<code>ggplot(data,aes(x=x1,y=x2))</code>）。<code>%$%</code>就是发挥这样的功能，我们可以用下面这个例子来理解</li>
+</ol>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">iris %&gt;%</span><br><span class="line">  subset(Sepal.Length &gt; mean(Sepal.Length)) %$%</span><br><span class="line">  cor(Sepal.Length, Sepal.Width)</span><br><span class="line"><span class="comment">## [1] 0.3361992</span></span><br></pre></td></tr></table></figure>
+<p>上面的代码就是先截取<code>iris</code>数据中<code>Sepal.Length</code>列大于平均值的部分，再在截取后的<code>iris</code>数据中使用<code>cor</code>计算<code>Sepal.Length</code> 和<code>Sepal.Width</code>的相关性。与下面的代码是等价的</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- iris %&gt;% subset(Sepal.Length &gt; mean(Sepal.Length)) </span><br><span class="line">cor(a$Sepal.Length,a$Sepal.Width)</span><br><span class="line"><span class="comment">## [1] 0.3361992</span></span><br></pre></td></tr></table></figure>
+<p>通过这个例子，我们可以看到使用<code>%$%</code>这一管道符，其实相当于在符号的右侧创建了一个局部环境，在该环境中可以直接以名字的方式调用左侧传递过来的变量，而省略<code>$</code>。</p>
+<p>以上的这些管道操作符在<code>magrittr</code>, <code>dplyr</code>, <code>tidyverse</code>包都能找到，加载其中一者即可使用。</p>
+<p>完。</p>
+<blockquote>
+<p>参考资料：<br><a target="_blank" rel="noopener" href="https://www.rdocumentation.org/packages/magrittr/versions/1.5">https://www.rdocumentation.org/packages/magrittr/versions/1.5</a></p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/17/R-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%9F%BA%E7%A1%80-dplyr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/17/R-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%9F%BA%E7%A1%80-dplyr/" class="post-title-link" itemprop="url">R-数据处理基础-dplyr</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-01-17 20:37:25" itemprop="dateCreated datePublished" datetime="2022-01-17T20:37:25+08:00">2022-01-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-01-18 09:29:43" itemprop="dateModified" datetime="2022-01-18T09:29:43+08:00">2022-01-18</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文将介绍<code>dplyr</code>包中几个基础的函数，掌握后可以应付一些基础的数据处理工作了，包括：</p>
+<ul>
+<li><code>filter()</code>：筛选出包含特定值的数据，类似excel的ctrl + F</li>
+<li><code>arrange()</code> ：重新排序数据框中的行</li>
+<li><code>select()</code> ：按名称选取变量</li>
+<li><code>mutate()</code>：使用现有变量创建新变量</li>
+<li><code>%&gt;%</code>: 管道符，将左侧的变量或函数返回结果传递到右侧</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/17/R-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%9F%BA%E7%A1%80-dplyr/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/" class="post-title-link" itemprop="url">R-卡方检验</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-14 19:32:39 / Modified: 19:33:58" itemprop="dateCreated datePublished" datetime="2022-01-14T19:32:39+08:00">2022-01-14</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="chi-squared-test"><a href="#chi-squared-test" class="headerlink" title="chi-squared test"></a>chi-squared test</h1><p>χ2检验主要有三个用途：<strong>单样本方差的同质性检验</strong>、<strong>独立性检验</strong>和<strong>适合性检验</strong>。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验<strong>观测值（observed value, <em>O</em>）**与</strong>理论值（expected value, <em>E</em>）**之间的偏离程度。</p>
+<p>在本文中，我们先介绍<strong>独立性检验</strong>和<strong>适合性检验</strong>在R语言当中的应用。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/" class="post-title-link" itemprop="url">R-方差同质性检验（F-test）</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-14 13:24:17 / Modified: 13:27:54" itemprop="dateCreated datePublished" datetime="2022-01-14T13:24:17+08:00">2022-01-14</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。</p>
+<p>本文介绍的是使用<em>F</em>-test进行方差同质性检验的方法。要注意，任何<em>F</em>-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个<strong>样本</strong>方差的比较来判断两个正态分布的<strong>总体</strong>方差是否相等、</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/14/R-%E6%96%B9%E5%B7%AE%E5%90%8C%E8%B4%A8%E6%80%A7%E6%A3%80%E9%AA%8C%EF%BC%88F-test%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/" class="post-title-link" itemprop="url">R-简单的学生检验（t-test）</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-01-13 12:11:36" itemprop="dateCreated datePublished" datetime="2022-01-13T12:11:36+08:00">2022-01-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-01-14 13:26:21" itemprop="dateModified" datetime="2022-01-14T13:26:21+08:00">2022-01-14</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Student’s test —— 简称t-test，据说是作者当年为避风头而用“学生”这一笔名，所以就将该种方法称为学生检验了。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/11/R-for%E5%BE%AA%E7%8E%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/11/R-for%E5%BE%AA%E7%8E%AF/" class="post-title-link" itemprop="url">R-for循环</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-11 20:03:53 / Modified: 20:51:13" itemprop="dateCreated datePublished" datetime="2022-01-11T20:03:53+08:00">2022-01-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>R语言是以向量化编程而闻名的。因此R的for循环相比于向量化操作而言有时候会较慢。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/11/R-for%E5%BE%AA%E7%8E%AF/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/" class="post-title-link" itemprop="url">R-if判断语句</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-11 19:51:20 / Modified: 20:02:41" itemprop="dateCreated datePublished" datetime="2022-01-11T19:51:20+08:00">2022-01-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在众多编程语言中，大家都会接触到判断语句，各种条件的判断有助于我们根据不同的情况作出不同的选择，那么R又是如何在条件的十字路口作出判断呢？下面将以<strong>《R语言入门与实践》</strong>中的一个例子展开。</p>
+<p><img src="/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/image-20220111195957045.png"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/11/R-if%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/11/R-%E7%B4%A2%E5%BC%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/11/R-%E7%B4%A2%E5%BC%95/" class="post-title-link" itemprop="url">R-索引</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-11 19:47:01 / Modified: 19:58:33" itemprop="dateCreated datePublished" datetime="2022-01-11T19:47:01+08:00">2022-01-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>索引能够帮助我们从数据当中截取或去除特定的的部分，本文介绍在R中进行索引的常用规则，以及当我们只取<code>data.frame</code>的一列时，如何保持<code>data.frame</code>的格式。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/11/R-%E7%B4%A2%E5%BC%95/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">R-函数编写基础</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-11 19:40:29 / Modified: 19:46:10" itemprop="dateCreated datePublished" datetime="2022-01-11T19:40:29+08:00">2022-01-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>815</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>R里面的函数定义方法</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/11/R-%E5%87%BD%E6%95%B0%E7%BC%96%E5%86%99%E5%9F%BA%E7%A1%80/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
