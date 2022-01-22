@@ -19,31 +19,31 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="学习最好的方式就是分享。  最近看到一个在R上进行的RNA-seq 分析流程，恰好自己也有过RNA-seq分析的经验，所以就想结合以前的经验分享这个流程出来。P.S. RNA-seq  分析有多种流程，本文仅是举出其中一个例子，抛砖引玉。  本文将要介绍的是由Combine Australia所提供的一个针对有参基因组的基因差异表达分析流程。 分析流程的基本信息   目标物种 : mouse（小">
+  <meta name="description" content="学习最好的方式就是分享。  最近看到一个在R上进行的RNA-seq 分析流程，恰好自己也有过RNA-seq分析的经验，所以就想结合以前的经验分享这个流程出来。P.S. RNA-seq  分析有多种流程，本文仅是举出其中一个例子，抛砖引玉。  本文将要介绍的是由Combine Australia所提供的一个针对有参基因组的基因差异表达分析流程。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R-用R进行RNA-seq数据分析">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="学习最好的方式就是分享。  最近看到一个在R上进行的RNA-seq 分析流程，恰好自己也有过RNA-seq分析的经验，所以就想结合以前的经验分享这个流程出来。P.S. RNA-seq  分析有多种流程，本文仅是举出其中一个例子，抛砖引玉。  本文将要介绍的是由Combine Australia所提供的一个针对有参基因组的基因差异表达分析流程。 分析流程的基本信息   目标物种 : mouse（小">
+<meta property="og:description" content="学习最好的方式就是分享。  最近看到一个在R上进行的RNA-seq 分析流程，恰好自己也有过RNA-seq分析的经验，所以就想结合以前的经验分享这个流程出来。P.S. RNA-seq  分析有多种流程，本文仅是举出其中一个例子，抛砖引玉。  本文将要介绍的是由Combine Australia所提供的一个针对有参基因组的基因差异表达分析流程。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200228135.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200240029.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200248845.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200312506.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200322356.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200348849.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200412539.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200426544.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200445711.png">
-<meta property="og:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200502891.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200228135.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200240029.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200248845.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200312506.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200322356.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200348849.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200412539.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200426544.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200445711.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200502891.png">
 <meta property="article:published_time" content="2022-01-22T11:38:12.000Z">
-<meta property="article:modified_time" content="2022-01-22T12:05:07.664Z">
+<meta property="article:modified_time" content="2022-01-22T14:03:20.951Z">
 <meta property="article:author" content="Dean Li">
 <meta property="article:tag" content="R">
 <meta property="article:tag" content="Data_analysis">
 <meta property="article:tag" content="RNA-seq">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://thereallda.github.io/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200228135.png">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200228135.png">
 
 <link rel="canonical" href="https://thereallda.github.io/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/">
 
@@ -200,7 +200,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-01-22 19:38:12 / Modified: 20:05:07" itemprop="dateCreated datePublished" datetime="2022-01-22T19:38:12+08:00">2022-01-22</time>
+              <time title="Created: 2022-01-22 19:38:12 / Modified: 22:03:20" itemprop="dateCreated datePublished" datetime="2022-01-22T19:38:12+08:00">2022-01-22</time>
             </span>
 
           
@@ -239,8 +239,10 @@
 <p>学习最好的方式就是分享。</p>
 </blockquote>
 <p>最近看到一个在R上进行的RNA-seq 分析流程，恰好自己也有过RNA-seq分析的经验，所以就想结合以前的经验分享这个流程出来。<br><strong>P.S. RNA-seq  分析有多种流程，本文仅是举出其中一个例子，抛砖引玉。</strong></p>
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200228135.png"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200228135.png"></p>
 <p>本文将要介绍的是由<a target="_blank" rel="noopener" href="https://bioinformatics-core-shared-training.github.io/RNAseq-R/">Combine Australia</a>所提供的一个针对有参基因组的基因差异表达分析流程。</p>
+<span id="more"></span>
+
 <h1 id="分析流程的基本信息"><a href="#分析流程的基本信息" class="headerlink" title="分析流程的基本信息"></a>分析流程的基本信息</h1><ul>
 <li>  目标物种 : <strong>mouse</strong>（小鼠）</li>
 <li>  组织 : <strong>mammary gland</strong>（乳腺）</li>
@@ -284,10 +286,10 @@
 
 
 <hr>
-<p><strong>这里要注意<code>Glimma</code>包需要通过在<a target="_blank" rel="noopener" href="https://www.bioconductor.org/packages/release/bioc/html/Glimma.html">Bioconductor</a>中下载其源文件来安装</strong><br><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200240029.png"></p>
+<p><strong>这里要注意<code>Glimma</code>包需要通过在<a target="_blank" rel="noopener" href="https://www.bioconductor.org/packages/release/bioc/html/Glimma.html">Bioconductor</a>中下载其源文件来安装</strong><br><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200240029.png"></p>
 <h2 id="源文件的安装方法之一"><a href="#源文件的安装方法之一" class="headerlink" title="源文件的安装方法之一"></a>源文件的安装方法之一</h2><p>源文件可以在R studio中安装，在上方工具栏中选择**”Tools –&gt; Install packages”**。</p>
 <p>然后，在弹出的窗口中点击**”Install from”<strong>下拉菜单中选择</strong>Package Archive File**。</p>
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200248845.png"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200248845.png"></p>
 <p>最后，选择下载的源文件包即可安装。</p>
 <h1 id="Step-2-RNA-seq-Pre-processing"><a href="#Step-2-RNA-seq-Pre-processing" class="headerlink" title="Step 2 RNA-seq Pre-processing"></a>Step 2 RNA-seq Pre-processing</h1><blockquote>
 <p>Ref: <a target="_blank" rel="noopener" href="https://bioinformatics-core-shared-training.github.io/RNAseq-R/rna-seq-preprocessing.nb.html">https://bioinformatics-core-shared-training.github.io/RNAseq-R/rna-seq-preprocessing.nb.html</a></p>
@@ -343,18 +345,18 @@
 
 <h2 id="质量控制"><a href="#质量控制" class="headerlink" title="质量控制"></a>质量控制</h2><p>由于我们的数据并不是正态分布的，为了下游分析的进行，使用<code>cpm</code>函数对我们的数据取log2处理</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; logcounts &lt;- cpm(dgeObj,<span class="built_in">log</span>=<span class="literal">TRUE</span>)</span><br><span class="line">&gt; <span class="comment"># 使用箱线图检查数据的分布</span></span><br><span class="line">&gt; boxplot(logcounts, xlab=<span class="string">&quot;&quot;</span>, ylab=<span class="string">&quot;Log2 counts per million&quot;</span>,las=<span class="number">2</span>)</span><br><span class="line">&gt; <span class="comment"># 使用蓝色的横线标出logCPM的中值</span></span><br><span class="line">&gt; abline(h=median(logcounts),col=<span class="string">&quot;blue&quot;</span>)</span><br><span class="line">&gt; title(<span class="string">&quot;Boxplots of logCPMs (unnormalised)&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200312506.png"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200312506.png"></p>
 <p>从箱线图中可以看出样本数据分布虽然存在差异，但这种差异程度是我们还能接受的程度。</p>
 <h2 id="主成分分析"><a href="#主成分分析" class="headerlink" title="主成分分析"></a>主成分分析</h2><p>主成分分析在RNA-seq分析中是一个较为重要的步骤，其指出了样本数据中造成主要差异的因子是什么。一般而言，我们当然希望数据中最大的差异是由于<strong>处理与否</strong>引起的</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; plotMDS(dgeObj)</span><br></pre></td></tr></table></figure>
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200322356.png" alt="High Reproducibilty"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200322356.png" alt="High Reproducibilty"></p>
 <p>可以看到两个生物学重复样本都能较好的聚在一起</p>
-<p>另外，我们也可以运用各种参数使主成分分析的可视化更加符合我们的要求，例如根据细胞类型或小鼠状态标注颜色：<br><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200348849.png" alt="Colored by cell-type or condition"></p>
+<p>另外，我们也可以运用各种参数使主成分分析的可视化更加符合我们的要求，例如根据细胞类型或小鼠状态标注颜色：<br><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200348849.png" alt="Colored by cell-type or condition"></p>
 <p>总而言之，利用主成分分析，可以观察出引起样本变化的主要因子。</p>
 <h2 id="标准化处理"><a href="#标准化处理" class="headerlink" title="标准化处理"></a>标准化处理</h2><p>此处我们采用了The trimmed mean of M-values normalization method (TMM) 去校正文库之间的组成偏好。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; dgeObj &lt;- calcNormFactors(dgeObj)</span><br><span class="line">&gt; dgeObj$samples</span><br><span class="line">        group lib.size norm.factors</span><br><span class="line">MCL1.DG     <span class="number">1</span> <span class="number">23218026</span>    <span class="number">1.2368993</span></span><br><span class="line">MCL1.DH     <span class="number">1</span> <span class="number">21768136</span>    <span class="number">1.2139485</span></span><br><span class="line">MCL1.DI     <span class="number">1</span> <span class="number">24091588</span>    <span class="number">1.1255640</span></span><br><span class="line">MCL1.DJ     <span class="number">1</span> <span class="number">22656713</span>    <span class="number">1.0698261</span></span><br><span class="line">MCL1.DK     <span class="number">1</span> <span class="number">21522033</span>    <span class="number">1.0359212</span></span><br><span class="line">MCL1.DL     <span class="number">1</span> <span class="number">20008326</span>    <span class="number">1.0872153</span></span><br><span class="line">MCL1.LA     <span class="number">1</span> <span class="number">20384562</span>    <span class="number">1.3684449</span></span><br><span class="line">MCL1.LB     <span class="number">1</span> <span class="number">21698793</span>    <span class="number">1.3653200</span></span><br><span class="line">MCL1.LC     <span class="number">1</span> <span class="number">22235847</span>    <span class="number">1.0047431</span></span><br><span class="line">MCL1.LD     <span class="number">1</span> <span class="number">21982745</span>    <span class="number">0.9232822</span></span><br><span class="line">MCL1.LE     <span class="number">1</span> <span class="number">24719697</span>    <span class="number">0.5291015</span></span><br><span class="line">MCL1.LF     <span class="number">1</span> <span class="number">24652963</span>    <span class="number">0.5354877</span></span><br><span class="line"><span class="comment"># 此步在‘samples’信息中直接添加了校正因子。</span></span><br></pre></td></tr></table></figure>
 
-<p>我们可以单独抽一个样本出来看看校正前后的数据分布情况<br><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200412539.png"></p>
+<p>我们可以单独抽一个样本出来看看校正前后的数据分布情况<br><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200412539.png"></p>
 <p>可以看出校正后，样本表达更加集中于0。</p>
 <p>至此，数据的预处理也已经完结.</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#保存预处理分析结果</span></span><br><span class="line">save(group,dgeObj,sampleinfo,file=<span class="string">&quot;~preprocessing.Rdata&quot;</span>)</span><br></pre></td></tr></table></figure>
@@ -381,7 +383,7 @@
 
 <h2 id="预测基因表达的离散度"><a href="#预测基因表达的离散度" class="headerlink" title="预测基因表达的离散度"></a>预测基因表达的离散度</h2><p>这里根据每个基因在不同样本之间的表达量对基因表达的离散度（dispersion）进行预测。对基因表达离散度的预测将会帮助我们对各个样本的counts进行校正。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; dgeObj &lt;- estimateCommonDisp(dgeObj)</span><br><span class="line"><span class="comment"># Then we estimate gene-wise dispersion estimates, allowing a possible trend with averge count size:</span></span><br><span class="line">&gt; dgeObj &lt;- estimateGLMTrendedDisp(dgeObj)</span><br><span class="line">&gt; dgeObj &lt;- estimateTagwiseDisp(dgeObj)</span><br><span class="line"> <span class="comment">#Plot the estimated dispersions</span></span><br><span class="line">&gt; plotBCV(dgeObj)</span><br></pre></td></tr></table></figure>
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200426544.png"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200426544.png"></p>
 <p>实际上以上三句代码可以用一个函数代替。在真实的分析当中也是使用<code>estimateDisp()</code>预测基因离散度，上面的拆分只是为了帮助我们理解离散度的预测是由哪几方面出发的。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dgeObj &lt;- estimateDisp(dgeObj, design = design)</span><br></pre></td></tr></table></figure>
 
@@ -416,11 +418,11 @@
 <h2 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h2><p>火山图是一种常用的差异表达分析结果可视化形式。该图横轴展示基因表达差异倍数，纵轴表示基因表达差异的显著性。</p>
 <p>先看看最简单的图</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; signif &lt;- -log10(results.annotated$FDR)</span><br><span class="line">&gt; plot(results.annotated$logFC,<span class="built_in">signif</span>,pch=<span class="number">16</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200445711.png"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200445711.png"></p>
 <p>当然，各位R学习者肯定不会止步于画了这个图就算了。让我们用<code>ggplot</code>画出更漂亮的图吧！</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&gt; library(ggplot2)</span><br><span class="line">&gt; library(ggtheme)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 首先添加上threshold</span></span><br><span class="line">&gt; results.annotated$threshold &lt;- as.factor(</span><br><span class="line">+   ifelse(results.annotated$FDR &lt; <span class="number">0.05</span> &amp; <span class="built_in">abs</span>(results.annotated$logFC) &gt;=log2(<span class="number">2</span>),</span><br><span class="line">+   ifelse(results.annotated$logFC &gt; log2(<span class="number">2</span>) ,<span class="string">&#x27;Up&#x27;</span>,<span class="string">&#x27;Down&#x27;</span>),<span class="string">&#x27;Not&#x27;</span>))</span><br><span class="line"></span><br><span class="line">&gt; plt &lt;- ggplot(data=results.annotated, aes(x=logFC, y =-log10(FDR), colour=threshold,fill=threshold)) +</span><br><span class="line">+   scale_color_manual(values=<span class="built_in">c</span>(<span class="string">&quot;blue&quot;</span>, <span class="string">&quot;grey&quot;</span>,<span class="string">&quot;red&quot;</span>))+</span><br><span class="line">+   geom_point(alpha=<span class="number">0.4</span>, size=<span class="number">1.2</span>) +</span><br><span class="line">+   theme_bw(base_size = <span class="number">12</span>, base_family = <span class="string">&quot;Times&quot;</span>) +</span><br><span class="line">+   geom_vline(xintercept=<span class="built_in">c</span>(-<span class="number">0.5</span>,<span class="number">0.5</span>),lty=<span class="number">4</span>,col=<span class="string">&quot;grey&quot;</span>,lwd=<span class="number">0.6</span>)+</span><br><span class="line">+   geom_hline(yintercept = -log10(<span class="number">0.05</span>),lty=<span class="number">4</span>,col=<span class="string">&quot;grey&quot;</span>,lwd=<span class="number">0.6</span>)+</span><br><span class="line">+   theme(legend.position=<span class="string">&quot;right&quot;</span>,</span><br><span class="line">+         panel.grid=element_blank(),</span><br><span class="line">+         legend.title = element_blank(),</span><br><span class="line">+         legend.text= element_text(face=<span class="string">&quot;bold&quot;</span>, color=<span class="string">&quot;black&quot;</span>,family = <span class="string">&quot;Times&quot;</span>, size=<span class="number">8</span>),</span><br><span class="line">+         plot.title = element_text(hjust = <span class="number">0.5</span>),</span><br><span class="line">+         axis.text.x = element_text(face=<span class="string">&quot;bold&quot;</span>, color=<span class="string">&quot;black&quot;</span>, size=<span class="number">12</span>),</span><br><span class="line">+         axis.text.y = element_text(face=<span class="string">&quot;bold&quot;</span>,  color=<span class="string">&quot;black&quot;</span>, size=<span class="number">12</span>),</span><br><span class="line">+         axis.title.x = element_text(face=<span class="string">&quot;bold&quot;</span>, color=<span class="string">&quot;black&quot;</span>, size=<span class="number">12</span>),</span><br><span class="line">+         axis.title.y = element_text(face=<span class="string">&quot;bold&quot;</span>,color=<span class="string">&quot;black&quot;</span>, size=<span class="number">12</span>)) +</span><br><span class="line">+   labs( x=<span class="string">&quot;log2 (Fold Change)&quot;</span>,y=<span class="string">&quot;-log10 (p-value)&quot;</span>)</span><br><span class="line"></span><br><span class="line">&gt; plt</span><br></pre></td></tr></table></figure>
 
-<p><img src="/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200502891.png"></p>
+<p><img src="/2022/01/22/R-%E7%94%A8R%E8%BF%9B%E8%A1%8CRNA-seq%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/image-20220122200502891.png"></p>
 <p>除了火山图，还有各种对差异分析结果可视化的图就不在此展开了，有兴趣的朋友可以到原网站上继续了解。</p>
 <h1 id="Step-5-Gene-set-testing"><a href="#Step-5-Gene-set-testing" class="headerlink" title="Step 5:  Gene-set testing"></a><strong>Step 5:</strong>  Gene-set testing</h1><p>本节将介绍基因富集分析的实战代码。</p>
 <blockquote>
