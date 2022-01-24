@@ -19,12 +19,12 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="最近学习到Linux的管道符 | 可以将左侧的输入传递给右侧的函数处理，这种从左到右的函数处理方式看着就让人很舒服，想起R中其实也有这种类似的管道符 –  %&gt;% 。因此，就在这篇文章谈谈%&gt;%的基本特点和包含它的包magrittr  magrittr - Ceci n’est pas un pipe. Ceci n’est pas un pipe 是一句法语，翻译过来的意思是 “这">
+  <meta name="description" content="最近学习到Linux的管道符 | 可以将左侧的输入传递给右侧的函数处理，这种从左到右的函数处理方式看着就让人很舒服，想起R中其实也有这种类似的管道符 –  %&gt;% 。因此，就在这篇文章谈谈%&gt;%的基本特点和包含它的包magrittr  magrittr - Ceci n’est pas un pipe.  Ceci n’est pas un pipe 是一句法语，翻译过来的意思是 “">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R-管道符">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="最近学习到Linux的管道符 | 可以将左侧的输入传递给右侧的函数处理，这种从左到右的函数处理方式看着就让人很舒服，想起R中其实也有这种类似的管道符 –  %&gt;% 。因此，就在这篇文章谈谈%&gt;%的基本特点和包含它的包magrittr  magrittr - Ceci n’est pas un pipe. Ceci n’est pas un pipe 是一句法语，翻译过来的意思是 “这">
+<meta property="og:description" content="最近学习到Linux的管道符 | 可以将左侧的输入传递给右侧的函数处理，这种从左到右的函数处理方式看着就让人很舒服，想起R中其实也有这种类似的管道符 –  %&gt;% 。因此，就在这篇文章谈谈%&gt;%的基本特点和包含它的包magrittr  magrittr - Ceci n’est pas un pipe.  Ceci n’est pas un pipe 是一句法语，翻译过来的意思是 “">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118125859501.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118130318577.png">
@@ -229,15 +229,14 @@
         <blockquote>
 <p>最近学习到Linux的管道符 <code>|</code> 可以将左侧的输入传递给右侧的函数处理，这种从左到右的函数处理方式看着就让人很舒服，想起R中其实也有这种类似的管道符 –  <code>%&gt;%</code> 。因此，就在这篇文章谈谈<code>%&gt;%</code>的基本特点和包含它的包<code>magrittr</code></p>
 </blockquote>
-<h1 id="magrittr-Ceci-n’est-pas-un-pipe"><a href="#magrittr-Ceci-n’est-pas-un-pipe" class="headerlink" title="magrittr - Ceci n’est pas un pipe."></a>magrittr - Ceci n’est pas un pipe.</h1><blockquote>
+<h1>magrittr - Ceci n’est pas un pipe.</h1>
+<blockquote>
 <p><em>Ceci n’est pas un pipe</em> 是一句法语，翻译过来的意思是 “这不是管道符”。</p>
 </blockquote>
-<p><img src="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118125859501.png"></p>
+<p><img src="image-20220118125859501.png" alt=""></p>
 <span id="more"></span>
-
 <p>记得第一次看到这样的代码的时候就忍不住头大，这个<code>%&gt;%</code>到底是个啥？</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rnorm(<span class="number">10</span>) %&gt;% <span class="built_in">as.character</span> %&gt;% sort %&gt;% unique</span><br></pre></td></tr></table></figure>
-
 <p>在翻阅了多个网站的资料后，才知道<code>%&gt;%</code>的功能就是把左侧的变量传递给右边。而上面的函数也就是相当于把嵌套的函数<code>unique(sort(as.character(rnorm(10))))</code> 用<code>%&gt;%</code>写出来。</p>
 <p>当时对<code>%&gt;%</code>的第一感受就是可以简化函数嵌套的表达模式，用一种更简洁且优美的方式敲代码。但<code>%&gt;%</code>就止步于此了吗？</p>
 <p>在了解<code>%&gt;%</code>之前，我们要先弄明白 <a target="_blank" rel="noopener" href="https://www.rdocumentation.org/collaborators/name/Stefan%20Milton%20Bache">Stefan Milton Bache</a>写这个包想要解决的问题是什么？</p>
@@ -249,37 +248,47 @@
 <li>简单地在代码序列中添加步骤</li>
 </ul>
 <p>一句话总结<code>magrittr</code>管道符的优点就是大大地提高了代码的可读性（readable），减少到几乎不需要局部变量的创建，并降低程序对内存的占用。</p>
-<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages(<span class="string">&quot;magrittr&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h1><p><code>%&gt;%</code> : 管道操作符，将左侧变量传递到右侧并作为输入变量.</p>
-<h2 id="gt-的基本用法"><a href="#gt-的基本用法" class="headerlink" title="%&gt;%的基本用法"></a><code>%&gt;%</code>的基本用法</h2><p>先从最基本的<code>%&gt;%</code>开始，其用法也十分简单，基础的用法就是 <code>x %&gt;% f</code> == <code>f(x)</code></p>
-<p> <code>x %&gt;% f</code> 默认将<code>x</code>传递到函数的第一个参数位，无论后面有无参数，即 <code>x %&gt;% f(y)</code> == <code>f(x,y)</code></p>
+<h2 id="Installation">Installation</h2>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages(<span class="string">&quot;magrittr&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h1>Usage</h1>
+<p><code>%&gt;%</code> : 管道操作符，将左侧变量传递到右侧并作为输入变量.</p>
+<h2 id="的基本用法"><code>%&gt;%</code>的基本用法</h2>
+<p>先从最基本的<code>%&gt;%</code>开始，其用法也十分简单，基础的用法就是 <code>x %&gt;% f</code> == <code>f(x)</code></p>
+<p><code>x %&gt;% f</code> 默认将<code>x</code>传递到函数的第一个参数位，无论后面有无参数，即 <code>x %&gt;% f(y)</code> == <code>f(x,y)</code></p>
 <p>像一开始的例子一样，多级函数传递也是可以的，<code>x %&gt;% f %&gt;% g %&gt;% h</code> == <code>h(g(f(x)))</code></p>
 <p>拿<code>iris</code>数据做个例子</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一种用法</span></span><br><span class="line">&gt; iris %&gt;% head</span><br><span class="line">  Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span><br><span class="line"><span class="number">1</span>          <span class="number">5.1</span>         <span class="number">3.5</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">2</span>          <span class="number">4.9</span>         <span class="number">3.0</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">3</span>          <span class="number">4.7</span>         <span class="number">3.2</span>          <span class="number">1.3</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">4</span>          <span class="number">4.6</span>         <span class="number">3.1</span>          <span class="number">1.5</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">5</span>          <span class="number">5.0</span>         <span class="number">3.6</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">6</span>          <span class="number">5.4</span>         <span class="number">3.9</span>          <span class="number">1.7</span>         <span class="number">0.4</span>  setosa</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二种用法</span></span><br><span class="line">&gt; iris %&gt;% head(<span class="number">3</span>)</span><br><span class="line">  Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span><br><span class="line"><span class="number">1</span>          <span class="number">5.1</span>         <span class="number">3.5</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">2</span>          <span class="number">4.9</span>         <span class="number">3.0</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">3</span>          <span class="number">4.7</span>         <span class="number">3.2</span>          <span class="number">1.3</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第三种用法</span></span><br><span class="line">&gt; iris[,<span class="number">1</span>] %&gt;% <span class="built_in">as.character</span> %&gt;% sort %&gt;% unique </span><br><span class="line"> [<span class="number">1</span>] <span class="string">&quot;4.3&quot;</span> <span class="string">&quot;4.4&quot;</span> <span class="string">&quot;4.5&quot;</span> <span class="string">&quot;4.6&quot;</span> <span class="string">&quot;4.7&quot;</span> <span class="string">&quot;4.8&quot;</span> <span class="string">&quot;4.9&quot;</span> <span class="string">&quot;5&quot;</span>   <span class="string">&quot;5.1&quot;</span> <span class="string">&quot;5.2&quot;</span> <span class="string">&quot;5.3&quot;</span> <span class="string">&quot;5.4&quot;</span></span><br><span class="line">[<span class="number">13</span>] <span class="string">&quot;5.5&quot;</span> <span class="string">&quot;5.6&quot;</span> <span class="string">&quot;5.7&quot;</span> <span class="string">&quot;5.8&quot;</span> <span class="string">&quot;5.9&quot;</span> <span class="string">&quot;6&quot;</span>   <span class="string">&quot;6.1&quot;</span> <span class="string">&quot;6.2&quot;</span> <span class="string">&quot;6.3&quot;</span> <span class="string">&quot;6.4&quot;</span> <span class="string">&quot;6.5&quot;</span> <span class="string">&quot;6.6&quot;</span></span><br><span class="line">[<span class="number">25</span>] <span class="string">&quot;6.7&quot;</span> <span class="string">&quot;6.8&quot;</span> <span class="string">&quot;6.9&quot;</span> <span class="string">&quot;7&quot;</span>   <span class="string">&quot;7.1&quot;</span> <span class="string">&quot;7.2&quot;</span> <span class="string">&quot;7.3&quot;</span> <span class="string">&quot;7.4&quot;</span> <span class="string">&quot;7.6&quot;</span> <span class="string">&quot;7.7&quot;</span> <span class="string">&quot;7.9&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Placeholder-占位符"><a href="#Placeholder-占位符" class="headerlink" title="Placeholder | 占位符."></a>Placeholder | 占位符<code>.</code></h2><p><code>x %&gt;% f(y, .)</code> == <code>f(y, x)</code><br>用<code>.</code>可作为placeholder，指明左侧输入传递到的位置。如果没有的话，默认左侧输入传递到右侧函数的第一个参数。 </p>
+<h2 id="Placeholder-占位符">Placeholder | 占位符<code>.</code></h2>
+<p><code>x %&gt;% f(y, .)</code> == <code>f(y, x)</code><br>
+用<code>.</code>可作为placeholder，指明左侧输入传递到的位置。如果没有的话，默认左侧输入传递到右侧函数的第一个参数。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="string">&quot;Ceci n&#x27;est pas une pipe&quot;</span> %&gt;% gsub(<span class="string">&quot;une&quot;</span>, <span class="string">&quot;un&quot;</span>, .)</span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;Ceci n&#x27;est pas un pipe&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &#x27;[]&#x27;也可以</span></span><br><span class="line">&gt; iris[,<span class="number">5</span>] %&gt;% grep(<span class="string">&#x27;setosa&#x27;</span>, .)  %&gt;% iris[.,<span class="number">1</span>:<span class="number">5</span>] %&gt;% head</span><br><span class="line">  Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span><br><span class="line"><span class="number">1</span>          <span class="number">5.1</span>         <span class="number">3.5</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">2</span>          <span class="number">4.9</span>         <span class="number">3.0</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">3</span>          <span class="number">4.7</span>         <span class="number">3.2</span>          <span class="number">1.3</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">4</span>          <span class="number">4.6</span>         <span class="number">3.1</span>          <span class="number">1.5</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">5</span>          <span class="number">5.0</span>         <span class="number">3.6</span>          <span class="number">1.4</span>         <span class="number">0.2</span>  setosa</span><br><span class="line"><span class="number">6</span>          <span class="number">5.4</span>         <span class="number">3.9</span>          <span class="number">1.7</span>         <span class="number">0.4</span>  setosa</span><br></pre></td></tr></table></figure>
-
-<h2 id="传递给多个参数"><a href="#传递给多个参数" class="headerlink" title="传递给多个参数 | {}"></a>传递给多个参数 | <code>&#123;&#125;</code></h2><p>在嵌套函数中使用<code>.</code>方法时需要格外注意以下情况的发生：</p>
+<h2 id="传递给多个参数">传递给多个参数 | <code>&#123;&#125;</code></h2>
+<p>在嵌套函数中使用<code>.</code>方法时需要格外注意以下情况的发生：</p>
 <p><code>x %&gt;% f(y=nrow(.), z=ncol(.))</code> == <code>f(x, y=nrow(x), z=ncol(x))</code></p>
 <p>虽然使用<code>.</code>后，变量<code>x</code>会传递到<code>.</code>处，但是<code>x</code>也传递到函数<code>f</code>的第一个参数位。</p>
 <p>想要避免这种情况的发生可以使用<code>&#123;&#125;</code>将函数包起来，即<code>x %&gt;% &#123;f(y=nrow(.), z=ncol(.))&#125;</code> == <code>f(y=nrow(x), z=ncol(x))</code></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; set.seed(<span class="number">501</span>)</span><br><span class="line">&gt; rnorm(<span class="number">100</span>) %&gt;% &#123;<span class="built_in">c</span>(<span class="built_in">min</span>(.), mean(.), <span class="built_in">max</span>(.))&#125; %&gt;% <span class="built_in">floor</span></span><br><span class="line">[<span class="number">1</span>] -<span class="number">3</span>  <span class="number">0</span>  <span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="在创建函数中使用管道符"><a href="#在创建函数中使用管道符" class="headerlink" title="在创建函数中使用管道符"></a>在创建函数中使用管道符</h2><p>利用管道符构建函数也是十分简单的，我们可以使用<code>.</code>作为管道传递的起始，它将会返回一个函数，例如：<br><code>f &lt;- . %&gt;% cos %&gt;% sin</code> == <code>f &lt;- function(.) sin(cos(.))</code></p>
-<h2 id="其他管道符"><a href="#其他管道符" class="headerlink" title="其他管道符"></a>其他管道符</h2><p><code>magrittr</code>包还提高了其他几种管道符，以在特殊的情景进行利用，下面会简单介绍这几种符号。</p>
-<h3 id="lt-gt-赋值代码流的结果给一个变量"><a href="#lt-gt-赋值代码流的结果给一个变量" class="headerlink" title="%&lt;&gt;% 赋值代码流的结果给一个变量"></a><code>%&lt;&gt;%</code> 赋值代码流的结果给一个变量</h3><ol>
-<li><code>%&lt;&gt;%</code> ：相当于<code>&lt;- %&gt;%</code>的组合， 同样是将左侧变量传递到右侧并作为输入变量，但会将最后的结果赋值到最左侧的变量。<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- <span class="built_in">rep</span>(<span class="built_in">c</span>(<span class="number">2</span>,<span class="number">3</span>), each =<span class="number">10</span>)</span><br><span class="line">a %&lt;&gt;% <span class="built_in">as.character</span> %&gt;% unique</span><br><span class="line">a</span><br><span class="line"><span class="comment">## [1] &quot;2&quot; &quot;3&quot;</span></span><br></pre></td></tr></table></figure></li>
+<h2 id="在创建函数中使用管道符">在创建函数中使用管道符</h2>
+<p>利用管道符构建函数也是十分简单的，我们可以使用<code>.</code>作为管道传递的起始，它将会返回一个函数，例如：<br>
+<code>f &lt;- . %&gt;% cos %&gt;% sin</code> == <code>f &lt;- function(.) sin(cos(.))</code></p>
+<h2 id="其他管道符">其他管道符</h2>
+<p><code>magrittr</code>包还提高了其他几种管道符，以在特殊的情景进行利用，下面会简单介绍这几种符号。</p>
+<h3 id="赋值代码流的结果给一个变量"><code>%&lt;&gt;%</code> 赋值代码流的结果给一个变量</h3>
+<ol>
+<li><code>%&lt;&gt;%</code> ：相当于<code>&lt;- %&gt;%</code>的组合， 同样是将左侧变量传递到右侧并作为输入变量，但会将最后的结果赋值到最左侧的变量。</li>
 </ol>
-<h3 id="T-gt-分支管道符"><a href="#T-gt-分支管道符" class="headerlink" title="%T&gt;%分支管道符"></a><code>%T&gt;%</code>分支管道符</h3><ol start="2">
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- <span class="built_in">rep</span>(<span class="built_in">c</span>(<span class="number">2</span>,<span class="number">3</span>), each =<span class="number">10</span>)</span><br><span class="line">a %&lt;&gt;% <span class="built_in">as.character</span> %&gt;% unique</span><br><span class="line">a</span><br><span class="line"><span class="comment">## [1] &quot;2&quot; &quot;3&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="T-分支管道符"><code>%T&gt;%</code>分支管道符</h3>
+<ol start="2">
 <li><code>%T&gt;%</code> : 将左侧传递到右侧，右侧执行后返回左边的原始输入，而非执行后结果。</li>
 </ol>
 <p>以下的代码从标准正态分布中随机取样200个数，并构建出<code>100 x 2</code>的矩阵，最后对列求和。唯一不同在于第二条代码使用 <code>%T&gt;% plot</code> 对矩阵画了个散点图，再将矩阵传递给<code>colSums</code>。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; rnorm(<span class="number">200</span>) %&gt;% matrix(ncol = <span class="number">2</span>) %&gt;% colSums</span><br><span class="line">[<span class="number">1</span>]   <span class="number">9.040591</span> -<span class="number">10.754680</span></span><br><span class="line"></span><br><span class="line">&gt; rnorm(<span class="number">200</span>) %&gt;% matrix(ncol = <span class="number">2</span>) %T&gt;% plot %&gt;% colSums</span><br><span class="line">[<span class="number">1</span>]   <span class="number">9.040591</span> -<span class="number">10.754680</span></span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118130318577.png"></p>
-<p>所以<code>%T&gt;%</code>的一种应用环境就是当操作序列中间有像<code>plot</code>这种不返回结果的函数时，既将左侧变量传递给这种函数，又不会影响后边函数的处理。<br><img src="/2022/01/18/R-%E7%AE%A1%E9%81%93%E7%AC%A6/image-20220118130330958.png" alt="上述代码流程图示"></p>
-<h3 id="创建变量局部环境"><a href="#创建变量局部环境" class="headerlink" title="%$% 创建变量局部环境"></a><code>%$%</code> 创建变量局部环境</h3><ol start="3">
+<p><img src="image-20220118130318577.png" alt=""></p>
+<p>所以<code>%T&gt;%</code>的一种应用环境就是当操作序列中间有像<code>plot</code>这种不返回结果的函数时，既将左侧变量传递给这种函数，又不会影响后边函数的处理。<br>
+<img src="image-20220118130330958.png" alt="上述代码流程图示"></p>
+<h3 id="创建变量局部环境"><code>%$%</code> 创建变量局部环境</h3>
+<ol start="3">
 <li><code>%$%</code> : 可以将左侧变量中的变量名传递到右侧应用。有些函数，如<code>ggplot</code>，在输入数据后可以用数据框中的变量名来调用数据框内的变量（例如：<code>ggplot(data,aes(x=x1,y=x2))</code>）。<code>%$%</code>就是发挥这样的功能，我们可以用下面这个例子来理解</li>
 </ol>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">iris %&gt;%</span><br><span class="line">  subset(Sepal.Length &gt; mean(Sepal.Length)) %$%</span><br><span class="line">  cor(Sepal.Length, Sepal.Width)</span><br><span class="line"><span class="comment">## [1] 0.3361992</span></span><br></pre></td></tr></table></figure>
@@ -289,7 +298,8 @@
 <p>以上的这些管道操作符在<code>magrittr</code>, <code>dplyr</code>, <code>tidyverse</code>包都能找到，加载其中一者即可使用。</p>
 <p>完。</p>
 <blockquote>
-<p>参考资料：<br><a target="_blank" rel="noopener" href="https://www.rdocumentation.org/packages/magrittr/versions/1.5">https://www.rdocumentation.org/packages/magrittr/versions/1.5</a></p>
+<p>参考资料：<br>
+<a target="_blank" rel="noopener" href="https://www.rdocumentation.org/packages/magrittr/versions/1.5">https://www.rdocumentation.org/packages/magrittr/versions/1.5</a></p>
 </blockquote>
 
     </div>
@@ -392,7 +402,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#magrittr-Ceci-n%E2%80%99est-pas-un-pipe"><span class="nav-number">1.</span> <span class="nav-text">magrittr - Ceci n’est pas un pipe.</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Installation"><span class="nav-number">1.1.</span> <span class="nav-text">Installation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Usage"><span class="nav-number">2.</span> <span class="nav-text">Usage</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#gt-%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">%&gt;%的基本用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Placeholder-%E5%8D%A0%E4%BD%8D%E7%AC%A6"><span class="nav-number">2.2.</span> <span class="nav-text">Placeholder | 占位符.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E9%80%92%E7%BB%99%E5%A4%9A%E4%B8%AA%E5%8F%82%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">传递给多个参数 | {}</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E5%88%9B%E5%BB%BA%E5%87%BD%E6%95%B0%E4%B8%AD%E4%BD%BF%E7%94%A8%E7%AE%A1%E9%81%93%E7%AC%A6"><span class="nav-number">2.4.</span> <span class="nav-text">在创建函数中使用管道符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%AE%A1%E9%81%93%E7%AC%A6"><span class="nav-number">2.5.</span> <span class="nav-text">其他管道符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lt-gt-%E8%B5%8B%E5%80%BC%E4%BB%A3%E7%A0%81%E6%B5%81%E7%9A%84%E7%BB%93%E6%9E%9C%E7%BB%99%E4%B8%80%E4%B8%AA%E5%8F%98%E9%87%8F"><span class="nav-number">2.5.1.</span> <span class="nav-text">%&lt;&gt;% 赋值代码流的结果给一个变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#T-gt-%E5%88%86%E6%94%AF%E7%AE%A1%E9%81%93%E7%AC%A6"><span class="nav-number">2.5.2.</span> <span class="nav-text">%T&gt;%分支管道符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8F%98%E9%87%8F%E5%B1%80%E9%83%A8%E7%8E%AF%E5%A2%83"><span class="nav-number">2.5.3.</span> <span class="nav-text">%$% 创建变量局部环境</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">magrittr - Ceci n’est pas un pipe.</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Installation"><span class="nav-number">1.1.</span> <span class="nav-text">Installation</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">Usage</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">%&gt;%的基本用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Placeholder-%E5%8D%A0%E4%BD%8D%E7%AC%A6"><span class="nav-number">2.2.</span> <span class="nav-text">Placeholder | 占位符.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E9%80%92%E7%BB%99%E5%A4%9A%E4%B8%AA%E5%8F%82%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">传递给多个参数 | {}</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E5%88%9B%E5%BB%BA%E5%87%BD%E6%95%B0%E4%B8%AD%E4%BD%BF%E7%94%A8%E7%AE%A1%E9%81%93%E7%AC%A6"><span class="nav-number">2.4.</span> <span class="nav-text">在创建函数中使用管道符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%AE%A1%E9%81%93%E7%AC%A6"><span class="nav-number">2.5.</span> <span class="nav-text">其他管道符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E4%BB%A3%E7%A0%81%E6%B5%81%E7%9A%84%E7%BB%93%E6%9E%9C%E7%BB%99%E4%B8%80%E4%B8%AA%E5%8F%98%E9%87%8F"><span class="nav-number">2.5.1.</span> <span class="nav-text">%&lt;&gt;% 赋值代码流的结果给一个变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#T-%E5%88%86%E6%94%AF%E7%AE%A1%E9%81%93%E7%AC%A6"><span class="nav-number">2.5.2.</span> <span class="nav-text">%T&gt;%分支管道符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8F%98%E9%87%8F%E5%B1%80%E9%83%A8%E7%8E%AF%E5%A2%83"><span class="nav-number">2.5.3.</span> <span class="nav-text">%$% 创建变量局部环境</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -408,14 +418,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

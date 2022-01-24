@@ -26,8 +26,8 @@
 <meta property="og:site_name" content="Dean&#39;s blog">
 <meta property="og:description" content="在高通量测序数据的分析中，仅仅靠raw read counts描述基因的表达量是远远不够的。受限于测序过程中的技术因素影响，read counts对于基因表达量的反映存在一定偏好（bias）。因此，Mortazavi等人提出了RPKM&#x2F;FPKM的方法对read counts进行normalization以使基因表达量的比较可以在不同文库间进行。随后，Mortazavi等人更是提出了考虑转录本长度分">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://thereallda.github.io/image-20220124102415711.png">
-<meta property="og:image" content="https://thereallda.github.io/image-20220124102844133.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124102415711.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124102844133.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124111816290.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124111831499.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124111839423.png">
@@ -37,7 +37,7 @@
 <meta property="article:tag" content="RNA-seq">
 <meta property="article:tag" content="Statistics">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://thereallda.github.io/image-20220124102415711.png">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124102415711.png">
 
 <link rel="canonical" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/">
 
@@ -231,49 +231,51 @@
       
         <p>在高通量测序数据的分析中，仅仅靠raw read counts描述基因的表达量是远远不够的。受限于测序过程中的技术因素影响，read counts对于基因表达量的反映存在一定偏好（bias）。因此，<strong>Mortazavi等人</strong>提出了<strong>RPKM/FPKM</strong>的方法对read counts进行normalization以使基因表达量的比较可以在不同文库间进行。随后，<strong>Mortazavi等人</strong>更是提出了考虑<strong>转录本长度分布</strong>情况的TPM方法。本文将会简要说明为什么我们要对read counts进行normalization，以及RPKM，FPKM，TPM是什么，并通过一个简单地例子阐述为什么TPM才是被更多人认同的方法。</p>
 <span id="more"></span>
-
-<h2 id="为什么我们要进行Normalization"><a href="#为什么我们要进行Normalization" class="headerlink" title="为什么我们要进行Normalization"></a>为什么我们要进行Normalization</h2><p>  我们之所以说测序得到的read counts并不是其mRNA丰度的忠实反映，是因为read counts的数量会受到多种因素的影响，例如：</p>
+<h2 id="为什么我们要进行Normalization">为什么我们要进行Normalization</h2>
+<p>我们之所以说测序得到的read counts并不是其mRNA丰度的忠实反映，是因为read counts的数量会受到多种因素的影响，例如：</p>
 <ul>
-<li><p><strong>测序深度</strong>：测序深度直接影响样本的read counts。例如，<strong>测序深度高</strong>的样本，同一个基因的read counts相对<strong>测序深度较低</strong>的样本而言也会较高，即使这个基因并没有发生差异表达。另外，某些低表达量的基因只有在较高的测序深度时才能检测到。一般而言，随着测序深度的增加，基因种类以及可变剪接体的数目也会增加。</p>
-<p><img src="/image-20220124102415711.png" alt="Effect of sequencing depth"></p>
+<li>
+<p><strong>测序深度</strong>：测序深度直接影响样本的read counts。例如，<strong>测序深度高</strong>的样本，同一个基因的read counts相对<strong>测序深度较低</strong>的样本而言也会较高，即使这个基因并没有发生差异表达。另外，某些低表达量的基因只有在较高的测序深度时才能检测到。一般而言，随着测序深度的增加，基因种类以及可变剪接体的数目也会增加。</p>
+<p><img src="image-20220124102415711.png" alt="Effect of sequencing depth"></p>
 </li>
 </ul>
 <p>在上图中，样本A中的基因X表达量是样本B的两倍，但这是由于测序深度引起的结果，而非真实存在的差异。</p>
 <ul>
-<li><p><strong>基因长度</strong>：由于高通量测序是将cDNA碎片化后再进行测序的，因此越长的基因产生的片段会越多，其read counts也更多。这就导致了较长的基因read counts比较短的基因要更多，从而混淆了不同长度基因间表达量的比较，所以对基因长度的校正也是十分有必要的。</p>
-<p><img src="/image-20220124102844133.png" alt="Effect of gene length"></p>
+<li>
+<p><strong>基因长度</strong>：由于高通量测序是将cDNA碎片化后再进行测序的，因此越长的基因产生的片段会越多，其read counts也更多。这就导致了较长的基因read counts比较短的基因要更多，从而混淆了不同长度基因间表达量的比较，所以对基因长度的校正也是十分有必要的。</p>
+<p><img src="image-20220124102844133.png" alt="Effect of gene length"></p>
 </li>
 </ul>
 <p>在这个图里，基因X和Y的真实表达量是一致的，但是基因X的read counts会比基因Y要多，这是由于基因X的基因长度较长所致的。</p>
 <p>除了上述两个主要因素外，还会有其他因素对read counts的检测有所影响，例如<strong>转录组的组成，GC含量，random hexamers引起的测序偏好</strong>等等。由于上述因素的存在，导致在不同样本间使用read counts 进行比较是不太现实的，人们便提出了许多对read counts进行normalization的方法。本文在此简单地介绍使用最为广泛却最受质疑的RPKM/FPKM，以及受到更多人认可的TPM。</p>
-<h2 id="RPKM-FPKM"><a href="#RPKM-FPKM" class="headerlink" title="RPKM/FPKM"></a>RPKM/FPKM</h2><blockquote>
+<h2 id="RPKM-FPKM">RPKM/FPKM</h2>
+<blockquote>
 <p>RPKM: <strong>Reads per kilo base per million mapped reads</strong> (single-end sequencing)</p>
 <p>FPKM: <strong>Fragments per kilo base per million mapped reads</strong> (paired-end sequencing)</p>
 </blockquote>
 <p>RPKM与FPKM实际上一样的单位，只不过RPKM是在单端测序文库中使用，而FPKM是双端测序所用的</p>
-<p><img src="/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124111816290.png" alt="RPKM"></p>
-<p>从RPKM的公式中我们可以看到，RPKM对<strong>基因长度（gene length）</strong>以<strong>及测序深度（mapped reads from library）</strong>都进行了校正。而FPKM只是RPKM的双端测序（pair-end）版本。</p>
+<p><img src="image-20220124111816290.png" alt="RPKM"></p>
+<p>从RPKM的公式中我们可以看到，RPKM对**基因长度（gene length）<strong>以</strong>及测序深度（mapped reads from library）**都进行了校正。而FPKM只是RPKM的双端测序（pair-end）版本。</p>
 <p>其R语言实现如下:</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">RPKM &lt;- <span class="keyword">function</span>(x, gene.length)&#123; </span><br><span class="line">  lib.size &lt;- <span class="built_in">sum</span>(x)</span><br><span class="line">  rpm &lt;- 1e6 * x/lib.size</span><br><span class="line">  rpkm &lt;- 1e3 * rpm/gene.length</span><br><span class="line">  <span class="built_in">return</span>(rpkm)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>其中<code>x</code>为一个向量存储了每个基因的counts，而<code>gene.length</code>是相应于<code>x</code>中每个基因的长度的一个向量.</p>
-<h2 id="TPM"><a href="#TPM" class="headerlink" title="TPM"></a>TPM</h2><blockquote>
+<h2 id="TPM">TPM</h2>
+<blockquote>
 <p>TPM: <strong>Transcript per million</strong></p>
 </blockquote>
 <p>TPM的计算公式如下所示：</p>
-<p><img src="/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124111831499.png" alt="TPM"></p>
-<p>同RPKM一样，TPM对基因的长度进行了校正，计算<strong>比对到基因上的reads</strong>/<strong>基因长度</strong>得到<strong>长度校正的表达量 reads per kilobase (RPK)<strong>。再以文库中</strong>RPK之和</strong>作为Scale Factor求出TPM。</p>
+<p><img src="image-20220124111831499.png" alt="TPM"></p>
+<p>同RPKM一样，TPM对基因的长度进行了校正，计算<strong>比对到基因上的reads</strong>/<strong>基因长度</strong>得到<strong>长度校正的表达量 reads per kilobase (RPK)</strong>。再以文库中<strong>RPK之和</strong>作为Scale Factor求出TPM。</p>
 <p>其R语言实现如下:</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TPM &lt;- <span class="keyword">function</span>(x, gene.length)&#123;</span><br><span class="line">  rpk &lt;- 1e3 * x/gene.length</span><br><span class="line">  scale.factor &lt;- <span class="built_in">sum</span>(rpk)</span><br><span class="line">  tpm &lt;- 1e6 * rpk/scale.factor</span><br><span class="line">  <span class="built_in">return</span>(tpm)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>其中<code>x</code>为一个向量存储了每个基因的counts，而<code>gene.length</code>是相应于<code>x</code>中每个基因的长度的一个向量.</p>
 <p>相比于RPKM使用文库大小（<strong>read counts之和</strong>）来作为文库校正因子，TPM使用<strong>RPK之和</strong>作为文库校正因子的好处是考虑了不同样本间的基因长度的分布。因为RPK是一个对基因长度进行校正后的表达量单位，所以<strong>RPK之和</strong>也不会再带入基因长度的bias。因此，如果需要比较的样本之间转录本分布不一致时（例如不同物种RNA-seq的比较），使用TPM是一个较佳的normalization方案。</p>
-<h2 id="例子：RPKM-FPKM-vs-TPM"><a href="#例子：RPKM-FPKM-vs-TPM" class="headerlink" title="例子：RPKM/FPKM vs TPM"></a>例子：RPKM/FPKM vs TPM</h2><p>接下来，我们使用一个例子展示RPKM/FPKM和TPM方法校正的区别。</p>
+<h2 id="例子：RPKM-FPKM-vs-TPM">例子：RPKM/FPKM vs TPM</h2>
+<p>接下来，我们使用一个例子展示RPKM/FPKM和TPM方法校正的区别。</p>
 <p>以下有<strong>ABCD四个基因</strong>，并同时进行了<strong>三次重复的测序（rep1，rep2，rep3）</strong>。首先，可以看出由于<strong>基因长度</strong>的关系，B基因的read counts都是较其余的基因较高的（排除D而言）。其次，可以看出rep3的<strong>测序深度</strong>较高，得到的read counts也较多，同时还检测到其余两个重复中没有检测到的D基因（低丰度基因）。不管是测序深度还是基因长度的严重地干扰了我们对不同样本的基因表达量比较。因此，我们采用RPKM和TPM的方法进行Normalization后，再来比较其中的差异。</p>
-<p><img src="/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/image-20220124111839423.png"></p>
+<p><img src="image-20220124111839423.png" alt=""></p>
 <p>为了方便起见，以下的函数省略了kilo base，million base的转换</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">RPKM &lt;- function(x, gene.length)&#123; </span><br><span class="line">  lib.size &lt;- sum(x)</span><br><span class="line">  rpm &lt;- x/lib.size</span><br><span class="line">  rpkm &lt;- rpm/gene.length</span><br><span class="line">  return(rpkm)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">TPM &lt;- function(x, gene.length)&#123;</span><br><span class="line">  rpk &lt;- x/gene.length</span><br><span class="line">  scale.factor &lt;- sum(rpk)</span><br><span class="line">  tpm &lt;- rpk/scale.factor</span><br><span class="line">  return(tpm)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">expr &lt;- data.frame(rep1=c(10,20,5,0), rep2=c(12,25,8,0), rep3=c(30,60,15,1), </span><br><span class="line">                   row.names = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;))</span><br><span class="line">gl &lt;- c(2,4,1,10)</span><br><span class="line"></span><br><span class="line">rpkm1 &lt;- apply(expr, 2, FUN = RPKM, gene.length = gl)</span><br><span class="line">tpm1 &lt;- apply(expr, 2, FUN = TPM, gene.length = gl)</span><br><span class="line"># 对结果都乘1000，看起来直观点</span><br><span class="line">rbind(rpkm1*1000, colSums(rpkm1)*1000)</span><br><span class="line">##       rep1     rep2        rep3</span><br><span class="line">## A 142.8571 133.3333 141.5094340</span><br><span class="line">## B 142.8571 138.8889 141.5094340</span><br><span class="line">## C 142.8571 177.7778 141.5094340</span><br><span class="line">## D   0.0000   0.0000   0.9433962</span><br><span class="line">##   428.5714 450.0000 425.4716981</span><br><span class="line"></span><br><span class="line">rbind(tpm1*1000, colSums(tpm1)*1000)</span><br><span class="line">##        rep1      rep2        rep3</span><br><span class="line">## A  333.3333  296.2963  332.594235</span><br><span class="line">## B  333.3333  308.6420  332.594235</span><br><span class="line">## C  333.3333  395.0617  332.594235</span><br><span class="line">## D    0.0000    0.0000    2.217295</span><br><span class="line">##   1000.0000 1000.0000 1000.000000</span><br></pre></td></tr></table></figure>
-
 <p>通过以上的例子，我们可以发现RPKM和TPM最重要且直接的区别就是，TPM校正后的表达量之和在不同样本中是相等的，而在RPKM中并不是。</p>
 <p>由于RPKM在各样本之和不一致，导致我们不能<strong>直接</strong>比较同一基因在不同样本间的RPKM。例如，对于基因A而言，<strong>RPKM校正后</strong>，其在rep1和rep2中的占比分别为<code>142.8571/428.5714</code>和<code>133.3333/450</code>。相反，由于<strong>TPM</strong>在各样本之和是一致的，我们可以直接比较不同样本的TPM来比较该基因表达量在样本中的占比。</p>
 <p>简而言之，RPKM和TPM这类方法就是为了使不同样本间的总体表达量趋于一致，让不同样本间的基因表达量有可比较性，而TPM能够更好地校正样本间的差异。</p>
@@ -289,7 +291,8 @@
 <th>使用场景</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>CPM</strong> (counts per million)</td>
 <td>使用read counts的总和校正counts</td>
 <td>测序深度</td>
@@ -319,7 +322,8 @@
 <td>测序深度，RNA组成以及基因长度</td>
 <td>样品之间和样品内部的基因counts比较，适用于差异分析</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>这里要补充的是在进行差异表达分析时，我们实际上并不会用到RPKM/FPKM, TPM，而是使用raw counts给到差异分析的工具。这是由于RPKM/FPKM和TPM都没有考虑到样本间文库组成的差异，因而不适合用于样本间差异分析。例如，直接比较小鼠肝脏与肾脏之间基因表达的TPM是不太合理的。</p>
 <blockquote>
 <p>Ref:</p>
@@ -450,14 +454,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

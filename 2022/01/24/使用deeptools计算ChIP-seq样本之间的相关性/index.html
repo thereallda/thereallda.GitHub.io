@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="整理ChIP-seq &#x2F; CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。  当我们需要评估ChIP-seq类测序数据的相关性时，deeptools 是一个可行且方便的工具。它提供了一系列方便的命令对高通量测序数据进行分析。本文先集中介绍deeptools中计算ChIP-seq样本间相关性所用到的命令，其余的命令有机会再一一介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用deeptools计算ChIP-seq样本之间的相关性">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="整理ChIP-seq &#x2F; CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。  当我们需要评估ChIP-seq类测序数据的相关性时，deeptools 是一个可行且方便的工具。它提供了一系列方便的命令对高通量测序数据进行分析。本文先集中介绍deeptools中计算ChIP-seq样本间相关性所用到的命令，其余的命令有机会再一一介绍。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/image-20220124155058380.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/image-20220124155104933.png">
+<meta property="article:published_time" content="2022-01-24T07:47:57.000Z">
+<meta property="article:modified_time" content="2022-01-24T07:52:23.269Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="Data_analysis">
+<meta property="article:tag" content="deeptools">
+<meta property="article:tag" content="genome">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/image-20220124155058380.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>使用deeptools计算ChIP-seq样本之间的相关性 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用deeptools计算ChIP-seq样本之间的相关性
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:47:57 / Modified: 15:52:23" itemprop="dateCreated datePublished" datetime="2022-01-24T15:47:57+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
+</blockquote>
+<p>当我们需要评估ChIP-seq类测序数据的相关性时，<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/">deeptools</a> 是一个可行且方便的工具。它提供了一系列方便的命令对高通量测序数据进行分析。本文先集中介绍deeptools中计算ChIP-seq<strong>样本间相关性</strong>所用到的命令，其余的命令有机会再一一介绍。</p>
+<span id="more"></span>
+<h2 id="multiBamSummary-multiBigwigSummary">multiBamSummary/multiBigwigSummary</h2>
+<p><code>multiBamSummary</code> / <code>multiBigwigSummary</code> 两个命令可以分别计算 bam/bw 文件在基因组或特定区域测序覆盖度。</p>
+<p>下面的命令将基因组以bin size (eg: 500bp) 为单位分割，计算bam文件在基因组每个bins上的read counts，并以<code>.npz</code>的格式输出，供后面作图使用。另外，使用参数<code>--outRawCounts</code>将read counts保存到文件<code>readCounts.tab</code>中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">multiBamSummary bins --bamfiles file1.bam file2.bam -o results.npz -bs &lt;bin size&gt; --outRawCounts readCounts.tab</span><br></pre></td></tr></table></figure>
+<h3 id="Example">Example</h3>
+<p>使用ENCODE ChIP-Seq 数据作为示例</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ deepTools2.0/bin/multiBigwigSummary bins \</span><br><span class="line"> -b testFiles/H3K4Me1.bigWig testFiles/H3K4Me3.bigWig testFiles/H3K27Me3.bigWig testFiles/Input.bigWig \</span><br><span class="line"> --labels H3K4me1 H3K4me3 H3K27me3 input \</span><br><span class="line"> -out scores_per_bin.npz --outRawCounts scores_per_bin.tab</span><br><span class="line"></span><br><span class="line">$ head scores_per_bin.tab</span><br><span class="line">    <span class="comment">#&#x27;chr&#x27;  &#x27;start&#x27; &#x27;end&#x27;   &#x27;H3K4me1&#x27;       &#x27;H3K4me3&#x27;       &#x27;H3K27me3&#x27;      &#x27;input&#x27;</span></span><br><span class="line">    19      0       10000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      10000   20000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      20000   30000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      30000   40000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      40000   50000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      50000   60000   0.0221538461538 0.0     0.00482142857143        0.0522717391304</span><br><span class="line">    19      60000   70000   4.27391282051   1.625   0.634116071429  1.29124347826</span><br><span class="line">    19      70000   80000   13.0891675214   24.65   1.8180625       2.80073695652</span><br><span class="line">    19      80000   90000   1.74591965812   0.29    4.35576785714   0.92987826087</span><br></pre></td></tr></table></figure>
+<p>或者对bw 文件进行计算</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">multiBigwigSummary bins -b file1.bw file2.bw -o results.npz</span><br></pre></td></tr></table></figure>
+<h2 id="plotCorrelation">plotCorrelation</h2>
+<p><code>plotCorrelation</code> 命令根据<code>multiBamSummary</code> / <code>multiBigwigSummary</code>输出的<code>.npz</code>文件计算样本之间的<code>Pearson</code> or <code>Spearman</code> 相关系数，并进行热图或散点图的绘制。</p>
+<p>还是以上面ENCODE data为例</p>
+<p>使用热图展示样本间相关性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ deepTools2.0/bin/plotCorrelation \</span><br><span class="line">    -<span class="keyword">in</span> readCounts.npz \</span><br><span class="line">    --corMethod spearman --skipZeros \</span><br><span class="line">    --plotTitle <span class="string">&quot;Spearman Correlation of Read Counts&quot;</span> \</span><br><span class="line">    --whatToPlot heatmap --colorMap RdYlBu --plotNumbers \</span><br><span class="line">    -o heatmap_SpearmanCorr_readCounts.png   \</span><br><span class="line">    --outFileCorMatrix SpearmanCorr_readCounts.tab</span><br></pre></td></tr></table></figure>
+<p><img src="image-20220124155058380.png" alt=""></p>
+<p>使用散点图展示样本间相关性，图内每个点代表一个bin，横纵坐标表示相应样本的bins内的counts数目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ deepTools2.0/bin/plotCorrelation \</span><br><span class="line">-<span class="keyword">in</span> scores_per_transcript.npz \</span><br><span class="line">--corMethod pearson --skipZeros \</span><br><span class="line">--plotTitle <span class="string">&quot;Pearson Correlation of Average Scores Per Transcript&quot;</span> \</span><br><span class="line">--whatToPlot scatterplot \</span><br><span class="line">-o scatterplot_PearsonCorr_bigwigScores.png   \</span><br><span class="line">--outFileCorMatrix PearsonCorr_bigwigScores.tab</span><br></pre></td></tr></table></figure>
+<p><img src="image-20220124155104933.png" alt=""></p>
+<p><code>-in</code> ：指定输入的<code>.npz</code>文件 （由<code>multiBamSummary</code> / <code>multiBigwigSummary</code>输出）<br>
+<code>--corMethod</code>：指定相关系数，<code>Pearson</code> or <code>Spearman</code><br>
+<code>--skipZeros</code>：跳过数据中含0的行计算相关系数<br>
+<code>--whatToPlot</code>：绘制的图的种类，<code>heatmap</code> or <code>scatterplot</code><br>
+<code>-o</code>：图片输出的名称<br>
+<code>--outFileCorMatrix</code>：输出相关系数矩阵</p>
+<p>以上就是使用deeptools进行ChIP-seq样本间相关性计算的简单整理，关于计算相关系数之间的normalization和相关系数的选择在此不作展开，以后有机会再写一篇来谈吧。</p>
+<blockquote>
+<p>Ref:<br>
+<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/multiBamSummary.html">https://deeptools.readthedocs.io/en/develop/content/tools/multiBamSummary.html</a><br>
+<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/multiBigwigSummary.html">https://deeptools.readthedocs.io/en/develop/content/tools/multiBigwigSummary.html</a><br>
+<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html">https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html</a></p>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/" title="使用deeptools计算ChIP-seq样本之间的相关性">https://thereallda.github.io/2022/01/24/使用deeptools计算ChIP-seq样本之间的相关性/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
+              <a href="/tags/deeptools/" rel="tag"># deeptools</a>
+              <a href="/tags/genome/" rel="tag"># genome</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/R-%E6%88%AA%E6%96%AD%E8%BF%87%E9%95%BF%E7%9A%84%E5%9D%90%E6%A0%87%E8%BD%B4%E6%A0%87%E7%AD%BE/" rel="prev" title="R-截断过长的坐标轴标签">
+      <i class="fa fa-chevron-left"></i> R-截断过长的坐标轴标签
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/" rel="next" title="使用deeptools生成ChIP-seq信号热图与谱图">
+      使用deeptools生成ChIP-seq信号热图与谱图 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#multiBamSummary-multiBigwigSummary"><span class="nav-number">1.</span> <span class="nav-text">multiBamSummary&#x2F;multiBigwigSummary</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Example"><span class="nav-number">1.1.</span> <span class="nav-text">Example</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#plotCorrelation"><span class="nav-number">2.</span> <span class="nav-text">plotCorrelation</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '089de3b7712dacdceb579777e93d756b',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

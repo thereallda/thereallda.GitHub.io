@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近在处理服务器上的R，顺便就想往服务器上装一个RStudio。因此就有了本文记录一下安装及配置的过程。我们的服务器是CentOS 7系统，其他发行版安装过程其实也大同小异。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RStudio-server">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/RStudio-server/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="最近在处理服务器上的R，顺便就想往服务器上装一个RStudio。因此就有了本文记录一下安装及配置的过程。我们的服务器是CentOS 7系统，其他发行版安装过程其实也大同小异。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/RStudio-server/image-20220124152412011.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/RStudio-server/image-20220124152926648.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/RStudio-server/image-20220124152932071.png">
+<meta property="article:published_time" content="2022-01-24T07:22:10.000Z">
+<meta property="article:modified_time" content="2022-01-24T07:35:28.547Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/RStudio-server/image-20220124152412011.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/RStudio-server/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>RStudio-server | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/RStudio-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RStudio-server
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:22:10 / Modified: 15:35:28" itemprop="dateCreated datePublished" datetime="2022-01-24T15:22:10+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近在处理服务器上的R，顺便就想往服务器上装一个RStudio。因此就有了本文记录一下安装及配置的过程。我们的服务器是CentOS 7系统，其他发行版安装过程其实也大同小异。</p>
+<span id="more"></span>
+<h1>RStudio-server 安装</h1>
+<p>在RStudio-server的官网上选择对应发行版的RStudio-server进行下载<br>
+<a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server">https://rstudio.com/products/rstudio/download-server</a><br>
+<img src="image-20220124152412011.png" alt=""></p>
+<h3 id="Red-Hat-CentOS-6-7">Red Hat/CentOS 6-7</h3>
+<p>如果是Red Hat/CentOS 6-7的话，按照以下命令进行安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br><span class="line">sudo yum install rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h3 id="CentOS-8">CentOS 8</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos8/x86_64/rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br><span class="line">sudo yum install rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br></pre></td></tr></table></figure>
+<p>安装完成后，检查<code>rstudio-server</code> 是否运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -aux | grep rstudio-server</span><br><span class="line">rstudio+   404  0.0  0.0 215620  5096 ?        Ssl  13:37   0:00 /usr/lib/bin/rserver</span><br></pre></td></tr></table></figure>
+<p>看到<code>rstudio-server</code> 在服务器上运行后，可以通过个人的终端在网页上进行连接。默认在8787端口。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://[$IP]:8787/</span><br></pre></td></tr></table></figure>
+<p>服务器的IP地址可以通过<code>ifconfig</code> 命令查询</p>
+<p>上述操作顺利的话，就可以在个人终端的网页打开如下界面<br>
+<img src="image-20220124152926648.png" alt=""></p>
+<p>输入自己在服务器上的账号密码即可登录。</p>
+<p>登录后rstudio的工作目录与登录账号的家目录一致。<br>
+<img src="image-20220124152932071.png" alt=""></p>
+<p>接下来，就可以在服务器上使用RStudio了。</p>
+<h1>RStudio-server 常用管理命令</h1>
+<p>以下命令都需要有root权限才可以执行</p>
+<h2 id="rstudio-server-control">rstudio-server control</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 检查安装是否正常</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server verify-installation</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server stop</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启动</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server start</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 重启</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server restart</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 查看</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server status</span> </span><br></pre></td></tr></table></figure>
+<h2 id="session-control">session control</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 列出正在使用的sessions</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server active-sessions</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止某一个session</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server suspend-session &lt;pid&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止所有sessions</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server suspend-all</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 强制停止运行中sessions, 某个命令卡死的时候可以用</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server force-suspend-session &lt;pid&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server force-suspend-all</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="offline-online">offline/online</h2>
+<p>当服务器需要维护时，例如更改服务器配置或更新RStudio，也可以让<code>rstudio-server</code> offline</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server offline</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server online</span></span><br></pre></td></tr></table></figure>
+<h1>RStudio-server 配置</h1>
+<p>RStudio-server通过在两个配置文件中添加自定义语句进行配置（默认情况下，这两个配置文件可能不存在，则需要自己创建，但我安装后是存在的）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/etc/rstudio/rserver.conf</span><br><span class="line">/etc/rstudio/rsession.conf</span><br></pre></td></tr></table></figure>
+<h3 id="更改网络端口和地址">更改网络端口和地址</h3>
+<p>默认情况下，RStudio server的连接端口是8787，可以通过在<code>rserver.conf</code>中更改</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># In /etc/rstudio/rserver.conf</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 更改端口为80</span></span></span><br><span class="line">www-port=80</span><br></pre></td></tr></table></figure>
+<p>默认情况下，RStudio绑定到地址0.0.0.0（接受来自任何远程IP的连接）。可以使用<code>www-address</code>条目修改此行为。例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www-address=127.0.0.1</span><br></pre></td></tr></table></figure>
+<p>在更改<code>/etc/rstudio/rserver.conf</code>后，都需要重启server以更改配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server restart</span></span><br></pre></td></tr></table></figure>
+<h3 id="外部库">外部库</h3>
+<p>通过修改<code>rsession-ld-library-path</code> 添加系统的库路径作为外部库以供RStudio server调用。有时候R需要依赖系统的一些库的时候，就可以添加上系统库的路径让R也可以调用到，例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsession-ld-library-path=/opt/local/lib:/opt/local/someapp/lib</span><br></pre></td></tr></table></figure>
+<h3 id="更改RStudio-server使用的R版本">更改RStudio-server使用的R版本</h3>
+<p>有时候系统上会装了多个版本的R，当我们想使用某个特定版本的R的时候就可以通过修改配置文件实现，例如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsession-which-r=/usr/local/bin/R</span><br></pre></td></tr></table></figure>
+<h3 id="限定使用的用户组">限定使用的用户组</h3>
+<p>通过修改<code>auth-required-user-group</code>可以限制能够使用RStudio-server的用户组，例如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">auth-required-user-group=rstudio_users</span><br></pre></td></tr></table></figure>
+<hr>
+<p>以下内容在<code>/etc/rstudio/rsession.conf</code> 中修改</p>
+<h3 id="超时设定">超时设定</h3>
+<p>默认情况下，如果用户超过2个小时没有发出命令，RStudio会将该用户的R session挂起到磁盘，这样他们就不再消耗服务器资源（下次用户尝试访问服务器时，他们的会话将被还原）。 可以使用<code>session-timeout-minutes</code>设置更改超时（包括通过指定值为0来禁用它）。 例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">session-timeout-minutes=30</span><br></pre></td></tr></table></figure>
+<p>但是当用户在运行代码时是不会因为超时而被挂起的。</p>
+<h3 id="更改R包安装地址">更改R包安装地址</h3>
+<p>通过修改<code>r-libs-user</code>可以更改用户的默认R包安装地址。这样的好处是确保最终用户安装的R包在路径中没有R版本号。 反过来，这使管理员可以在服务器上升级R版本而不用重置用户安装的软件包（如果安装的R包位于R版本派生的目录中，则会发生这种情况）。例如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r-libs-user=~/R/packages</span><br></pre></td></tr></table></figure>
+<h3 id="更改默认镜像">更改默认镜像</h3>
+<p>例如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r-cran-repos=https://mirrors.nics.utk.edu/cran/</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Ref:</p>
+<ol>
+<li>
+<p><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/200532327-Managing-the-Server">https://support.rstudio.com/hc/en-us/articles/200532327-Managing-the-Server</a></p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server">https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server</a></p>
+</li>
+</ol>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/RStudio-server/" title="RStudio-server">https://thereallda.github.io/2022/01/24/RStudio-server/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="prev" title="Conda安装及环境搭建">
+      <i class="fa fa-chevron-left"></i> Conda安装及环境搭建
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/24/R-%E6%88%AA%E6%96%AD%E8%BF%87%E9%95%BF%E7%9A%84%E5%9D%90%E6%A0%87%E8%BD%B4%E6%A0%87%E7%AD%BE/" rel="next" title="R-截断过长的坐标轴标签">
+      R-截断过长的坐标轴标签 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">RStudio-server 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Red-Hat-CentOS-6-7"><span class="nav-number">1.0.1.</span> <span class="nav-text">Red Hat&#x2F;CentOS 6-7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CentOS-8"><span class="nav-number">1.0.2.</span> <span class="nav-text">CentOS 8</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">RStudio-server 常用管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rstudio-server-control"><span class="nav-number">2.1.</span> <span class="nav-text">rstudio-server control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#session-control"><span class="nav-number">2.2.</span> <span class="nav-text">session control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#offline-online"><span class="nav-number">2.3.</span> <span class="nav-text">offline&#x2F;online</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">RStudio-server 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E7%BD%91%E7%BB%9C%E7%AB%AF%E5%8F%A3%E5%92%8C%E5%9C%B0%E5%9D%80"><span class="nav-number">3.0.1.</span> <span class="nav-text">更改网络端口和地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E5%BA%93"><span class="nav-number">3.0.2.</span> <span class="nav-text">外部库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9RStudio-server%E4%BD%BF%E7%94%A8%E7%9A%84R%E7%89%88%E6%9C%AC"><span class="nav-number">3.0.3.</span> <span class="nav-text">更改RStudio-server使用的R版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%AE%9A%E4%BD%BF%E7%94%A8%E7%9A%84%E7%94%A8%E6%88%B7%E7%BB%84"><span class="nav-number">3.0.4.</span> <span class="nav-text">限定使用的用户组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E6%97%B6%E8%AE%BE%E5%AE%9A"><span class="nav-number">3.0.5.</span> <span class="nav-text">超时设定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9R%E5%8C%85%E5%AE%89%E8%A3%85%E5%9C%B0%E5%9D%80"><span class="nav-number">3.0.6.</span> <span class="nav-text">更改R包安装地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E9%BB%98%E8%AE%A4%E9%95%9C%E5%83%8F"><span class="nav-number">3.0.7.</span> <span class="nav-text">更改默认镜像</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'f64514b6f13dd7601a36611f7b1be07a',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

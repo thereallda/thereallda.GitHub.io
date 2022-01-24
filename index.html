@@ -201,7 +201,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>178</span>
+              <span>68</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -220,10 +220,520 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><span class="github-emoji" alias="wave" style="" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44b.png?v8">&#x1f44b;</span> Hi</p>
+          <p><span class="github-emoji" alias="wave" style="" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44b.png?v8">👋</span> Hi</p>
 <p>这个博客主要用于记录我日常的学习、工作和想法。</p>
-<p>如果有什么问题，可以通过邮箱: <a href="mailto:&#108;&#105;&#100;&#x65;&#x61;&#x6e;&#x6c;&#x64;&#x61;&#x40;&#x66;&#111;&#120;&#109;&#97;&#105;&#108;&#46;&#x63;&#x6f;&#109;">&#108;&#105;&#100;&#x65;&#x61;&#x6e;&#x6c;&#x64;&#x61;&#x40;&#x66;&#111;&#120;&#109;&#97;&#105;&#108;&#46;&#x63;&#x6f;&#109;</a>与我联系。</p>
+<p>如果有什么问题，可以通过邮箱: lideanlda@foxmail.com与我联系。</p>
 
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E5%B0%86bam%E6%96%87%E4%BB%B6%E8%BD%AC%E6%8D%A2%E4%B8%BAbw%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E5%B0%86bam%E6%96%87%E4%BB%B6%E8%BD%AC%E6%8D%A2%E4%B8%BAbw%E6%96%87%E4%BB%B6/" class="post-title-link" itemprop="url">使用deeptools将bam文件转换为bw文件</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:56:47 / Modified: 15:58:50" itemprop="dateCreated datePublished" datetime="2022-01-24T15:56:47+08:00">2022-01-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
+</blockquote>
+<p><img src="image-20220124155836912.png" alt=""></p>
+<p>deeptools 提供两个bam转换为bw的命令，分别是<code>bamCoverage</code>和<code>bamCompare</code>。两者的区别在于<code>bamCoverage</code>是对单个bam文件进行转换，而<code>bamCompare</code>接受两个bam文件，生成两者信号比值的bw文件。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E5%B0%86bam%E6%96%87%E4%BB%B6%E8%BD%AC%E6%8D%A2%E4%B8%BAbw%E6%96%87%E4%BB%B6/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/" class="post-title-link" itemprop="url">使用deeptools生成ChIP-seq信号热图与谱图</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:52:43 / Modified: 15:55:44" itemprop="dateCreated datePublished" datetime="2022-01-24T15:52:43+08:00">2022-01-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
+</blockquote>
+<p><img src="image-20220124155414376.png" alt=""></p>
+<p>deeptools 提供了<code>computeMatrix</code>命令以计算特定基因组区域的ChIP-seq信号，并通过<code>plotHeatmap</code>和<code>plotProfile</code>函数分别产生<strong>ChIP-seq信号热图与谱图</strong>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/" class="post-title-link" itemprop="url">使用deeptools计算ChIP-seq样本之间的相关性</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:47:57 / Modified: 15:52:23" itemprop="dateCreated datePublished" datetime="2022-01-24T15:47:57+08:00">2022-01-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
+</blockquote>
+<p>当我们需要评估ChIP-seq类测序数据的相关性时，<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/">deeptools</a> 是一个可行且方便的工具。它提供了一系列方便的命令对高通量测序数据进行分析。本文先集中介绍deeptools中计算ChIP-seq<strong>样本间相关性</strong>所用到的命令，其余的命令有机会再一一介绍。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/R-%E6%88%AA%E6%96%AD%E8%BF%87%E9%95%BF%E7%9A%84%E5%9D%90%E6%A0%87%E8%BD%B4%E6%A0%87%E7%AD%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/24/R-%E6%88%AA%E6%96%AD%E8%BF%87%E9%95%BF%E7%9A%84%E5%9D%90%E6%A0%87%E8%BD%B4%E6%A0%87%E7%AD%BE/" class="post-title-link" itemprop="url">R-截断过长的坐标轴标签</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:31:03 / Modified: 15:36:04" itemprop="dateCreated datePublished" datetime="2022-01-24T15:31:03+08:00">2022-01-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>837</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1>问题描述</h1>
+<p>近期在使用<code>clusterProfiler</code>的GO/KEGG富集结果进行绘图时，注意到一些条目的描述过于长，需要增加图片的宽度才能看到中间bar/dot的信息。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/24/R-%E6%88%AA%E6%96%AD%E8%BF%87%E9%95%BF%E7%9A%84%E5%9D%90%E6%A0%87%E8%BD%B4%E6%A0%87%E7%AD%BE/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/RStudio-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/24/RStudio-server/" class="post-title-link" itemprop="url">RStudio-server</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:22:10 / Modified: 15:35:28" itemprop="dateCreated datePublished" datetime="2022-01-24T15:22:10+08:00">2022-01-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近在处理服务器上的R，顺便就想往服务器上装一个RStudio。因此就有了本文记录一下安装及配置的过程。我们的服务器是CentOS 7系统，其他发行版安装过程其实也大同小异。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/24/RStudio-server/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" class="post-title-link" itemprop="url">Conda安装及环境搭建</a>
+        </h2>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 15:11:21 / Modified: 15:23:55" itemprop="dateCreated datePublished" datetime="2022-01-24T15:11:21+08:00">2022-01-24</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1>conda是什么</h1>
+<p><strong>Anaconda</strong>是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。</p>
+<p>本文要介绍的<strong>Miniconda</strong>是一个Anaconda的轻量级替代，默认只包含了python 和conda，但是可以通过pip和conda来安装所需要的包。</p>
+<blockquote>
+<p>说白了conda就是一个软件包的管理库，可以方便地安装各种软件，当然也包括生信分析中常用的各种软件。</p>
+</blockquote>
+<p><img src="image-20220124151738577.png" alt=""></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -488,504 +998,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/" class="post-title-link" itemprop="url">笔记-单细胞转录组测序 Smart-seq2</a>
-        </h2>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-24 12:38:20 / Modified: 13:25:22" itemprop="dateCreated datePublished" datetime="2022-01-24T12:38:20+08:00">2022-01-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.5k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Smart-seq是由路德维格癌症研究所的 <a target="_blank" rel="noopener" href="http://sandberg.cmb.ki.se/">Rickard Sandberg实验室</a>所开发的一套在全转录组范围进行<strong>单细胞RNA测序 (scRNA-seq)</strong> 的方法。Smart-seq因为以全长mRNA建库，所以对转录本的测序覆盖度也有所上升。Smart-seq2是由Picelli等人从Smart-seq中改良而来<a target="_blank" rel="noopener" href="http://www.ncbi.nlm.nih.gov/pubmed/24056875">(Picelli et al., 2013)</a> <a target="_blank" rel="noopener" href="http://www.ncbi.nlm.nih.gov/pubmed/24385147">(Picelli et al., 2014)</a>。本文将从Smart-seq2的原理、优点和缺点来为大家介绍这项scRNA-seq技术。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-Neighbor-Joining%E5%BB%BA%E6%A0%91%E6%B5%85%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/24/%E7%90%86%E8%AE%BA-Neighbor-Joining%E5%BB%BA%E6%A0%91%E6%B5%85%E6%9E%90/" class="post-title-link" itemprop="url">理论-Neighbor Joining建树浅析</a>
-        </h2>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-24 12:31:03 / Modified: 13:26:06" itemprop="dateCreated datePublished" datetime="2022-01-24T12:31:03+08:00">2022-01-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.9k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Neighbor Joining是一种bottom-up的聚类方法，常被用于**系统发育树(phylogenetic tree)*<em>的构建当中。 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/w/index.php?title=Naruya_Saitou&action=edit&redlink=1" title="Naruya Saitou (page does not exist)">Naruya Saitou</a> 和 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Masatoshi_Nei" title="Masatoshi Nei">Masatoshi Nei</a>在1987年将NJ法发表在</em>Molecular Biology and Evolution*中，至今已有超5万的引入量，实在是生物信息学中超重量级的文章。</p>
-<p><img src="/2022/01/24/%E7%90%86%E8%AE%BA-Neighbor-Joining%E5%BB%BA%E6%A0%91%E6%B5%85%E6%9E%90/image-20220124123231961.png" alt="The neighbor-joining method: a new method for reconstructing phylogenetic trees"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/01/24/%E7%90%86%E8%AE%BA-Neighbor-Joining%E5%BB%BA%E6%A0%91%E6%B5%85%E6%9E%90/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/" class="post-title-link" itemprop="url">理论-DESeq2-normalization</a>
-        </h2>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-24 12:19:40 / Modified: 12:20:46" itemprop="dateCreated datePublished" datetime="2022-01-24T12:19:40+08:00">2022-01-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.2k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在做基因差异表达分析时，经常会用<code>DESeq2</code>这个包，但一直没有深究其分析的统计流程。因此，在这里记录一下<code>DESeq2</code>校正基因表达的方法 – 比率中值法 (Median of ratios)。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-edgeR-TMM-normalization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/24/%E7%90%86%E8%AE%BA-edgeR-TMM-normalization/" class="post-title-link" itemprop="url">理论-edgeR-TMM-normalization</a>
-        </h2>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-24 12:16:36 / Modified: 12:17:44" itemprop="dateCreated datePublished" datetime="2022-01-24T12:16:36+08:00">2022-01-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.5k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近在看差异分析当中原始read counts是如何被校正的，自然就不会放过差异分析的经典之一 —— <code>edgeR</code>.</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/01/24/%E7%90%86%E8%AE%BA-edgeR-TMM-normalization/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/" class="post-title-link" itemprop="url">理论-简述RPKM-FPKM-AND-TPM</a>
-        </h2>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-24 11:15:43 / Modified: 11:18:54" itemprop="dateCreated datePublished" datetime="2022-01-24T11:15:43+08:00">2022-01-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在高通量测序数据的分析中，仅仅靠raw read counts描述基因的表达量是远远不够的。受限于测序过程中的技术因素影响，read counts对于基因表达量的反映存在一定偏好（bias）。因此，<strong>Mortazavi等人</strong>提出了<strong>RPKM/FPKM</strong>的方法对read counts进行normalization以使基因表达量的比较可以在不同文库间进行。随后，<strong>Mortazavi等人</strong>更是提出了考虑<strong>转录本长度分布</strong>情况的TPM方法。本文将会简要说明为什么我们要对read counts进行normalization，以及RPKM，FPKM，TPM是什么，并通过一个简单地例子阐述为什么TPM才是被更多人认同的方法。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/01/24/%E7%90%86%E8%AE%BA-%E7%AE%80%E8%BF%B0RPKM-FPKM-AND-TPM/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
-      <meta itemprop="name" content="Dean Li">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dean's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">edgeR-简单的转录组差异表达分析</a>
-        </h2>
-
-        <div class="post-meta">
-          
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-01-24 10:15:22 / Modified: 10:18:22" itemprop="dateCreated datePublished" datetime="2022-01-24T10:15:22+08:00">2022-01-24</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>经典的转录组差异分析通常会使用到三个工具<code>limma/voom</code>, <code>edgeR</code>和<code>DESeq2</code>， 今天我们同样使用一个小规模的转录组测序数据来演示<code>edgeR</code>的简单流程。</p>
-<p><img src="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101607596.png"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1053,14 +1069,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
