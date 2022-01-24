@@ -16,15 +16,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="chi-squared testχ2检验主要有三个用途：单样本方差的同质性检验、独立性检验和适合性检验。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验观测值（observed value, O）**与理论值（expected value, E）**之间的偏离程度。 在本文中，我们先介绍独立性检验和适合性检验在R语言当中的应用。">
+  <meta name="description" content="chi-squared test χ2检验主要有三个用途：单样本方差的同质性检验、独立性检验和适合性检验。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验**观测值（observed value, O）与理论值（expected value, E）**之间的偏离程度。 在本文中，我们先介绍独立性检验和适合性检验在R语言当中的应用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R-卡方检验">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="chi-squared testχ2检验主要有三个用途：单样本方差的同质性检验、独立性检验和适合性检验。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验观测值（observed value, O）**与理论值（expected value, E）**之间的偏离程度。 在本文中，我们先介绍独立性检验和适合性检验在R语言当中的应用。">
+<meta property="og:description" content="chi-squared test χ2检验主要有三个用途：单样本方差的同质性检验、独立性检验和适合性检验。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验**观测值（observed value, O）与理论值（expected value, E）**之间的偏离程度。 在本文中，我们先介绍独立性检验和适合性检验在R语言当中的应用。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/image-20220114193346914.png">
 <meta property="article:published_time" content="2022-01-14T11:32:39.000Z">
@@ -225,13 +225,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="chi-squared-test"><a href="#chi-squared-test" class="headerlink" title="chi-squared test"></a>chi-squared test</h1><p>χ2检验主要有三个用途：<strong>单样本方差的同质性检验</strong>、<strong>独立性检验</strong>和<strong>适合性检验</strong>。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验<strong>观测值（observed value, <em>O</em>）**与</strong>理论值（expected value, <em>E</em>）**之间的偏离程度。</p>
+        <h1>chi-squared test</h1>
+<p>χ2检验主要有三个用途：<strong>单样本方差的同质性检验</strong>、<strong>独立性检验</strong>和<strong>适合性检验</strong>。适合性检验和独立性检验都是应用于离散型资料的假设检验，其基本原理是通过χ2值的大小来检验**观测值（observed value, <em>O</em>）<strong>与</strong>理论值（expected value, <em>E</em>）**之间的偏离程度。</p>
 <p>在本文中，我们先介绍<strong>独立性检验</strong>和<strong>适合性检验</strong>在R语言当中的应用。</p>
 <span id="more"></span>
-
 <p>在R中，卡方检验的函数是<code>chisq.test()</code></p>
 <blockquote>
-<p><code>chisq.test()</code> :<br><strong>chisq.test performs chi-squared contingency table tests and goodness-of-fit tests</strong></p>
+<p><code>chisq.test()</code> :<br>
+<strong>chisq.test performs chi-squared contingency table tests and goodness-of-fit tests</strong></p>
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">chisq.test(x, y = NULL, correct = TRUE,</span><br><span class="line">           p = rep(1/length(x), length(x)), rescale.p = FALSE,</span><br><span class="line">           simulate.p.value = FALSE, B = 2000)</span><br></pre></td></tr></table></figure>
 <p><code>x</code> : 进行检验的数据，可以是vector或matrix</p>
@@ -244,26 +245,31 @@
 <hr>
 <p>使用<code>chisq.test</code>要更加注意在卡方检验中：</p>
 <ul>
-<li><p>零假设H0就是观测值与理论值无显著差别。</p>
+<li>
+<p>零假设H0就是观测值与理论值无显著差别。</p>
 </li>
-<li><p>备择假设HA是观测值与理论值有显著差别。</p>
+<li>
+<p>备择假设HA是观测值与理论值有显著差别。</p>
 </li>
 </ul>
 <p>具体到<strong>适合性检验</strong>的话，H0：观测值符合某个理论分布；HA：观测值不符合某个理论分布。</p>
 <p>对于<strong>独立性检验</strong>而言，H0：事件A与事件B无显著关系，即A与B相互独立；HA：事件A与事件B相关。</p>
-<h2 id="适合性检验"><a href="#适合性检验" class="headerlink" title="适合性检验"></a>适合性检验</h2><p>适合性检验（compatibility test）是比较观测值与理论值是否符合的假设检验。在生物学研究中，有很多情况都会使用到适合性检验，也成为拟合优度检验，下面我们以孟德尔经典的例子来展示<code>chisq.test()</code> 在适合性检验方面的应用。</p>
+<h2 id="适合性检验">适合性检验</h2>
+<p>适合性检验（compatibility test）是比较观测值与理论值是否符合的假设检验。在生物学研究中，有很多情况都会使用到适合性检验，也成为拟合优度检验，下面我们以孟德尔经典的例子来展示<code>chisq.test()</code> 在适合性检验方面的应用。</p>
 <p><strong>【例1】</strong> 孟德尔用豌豆的两对相对性状进行杂交实验，黄色圆滑种子与绿色皱缩种子的豌豆杂交后，F2代分离的情况为：黄圆315、黄皱101、绿圆108、绿皱32，共556粒，问此结果是否符合自由组合定律9:3:3:1？</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; x &lt;- c(315, 101, 108, 32)  #输入样本资料</span><br><span class="line">&gt; p &lt;- c(9/16, 3/16, 3/16, 1/16)  #输入待检验的比例</span><br><span class="line">&gt; chisq.test(x, p = p)</span><br><span class="line"></span><br><span class="line">	Chi-squared test for given probabilities</span><br><span class="line"></span><br><span class="line">data:  x</span><br><span class="line">X-squared = 0.47002, df = 3, p-value = 0.9254</span><br></pre></td></tr></table></figure>
 <p><code>chisq.test</code>直接的输出值包括了：卡方值、自由度和p值。</p>
 <p>从以上的p值来看，这次检验也是接受H0，即实验结果符合自由组合定律的。</p>
-<h2 id="独立性检验"><a href="#独立性检验" class="headerlink" title="独立性检验"></a>独立性检验</h2><p>独立性检验（independent test）是判断两个或两个以上因素之间是否具有关联关系的假设检验，常用列联表进行检验。而列联表又可分为2 x 2，2 x c ， r x c的形式（r ≥ 3， c ≥ 3），然而实则上三种列联表的计算大同小异，不同的只是2 x 2列联表需要进行连续性矫正。下面将分别以几个例子展示<code>chisq.test()</code> 在独立性检验方面的应用。</p>
-<h3 id="2-x-2列联表"><a href="#2-x-2列联表" class="headerlink" title="2 x 2列联表"></a>2 x 2列联表</h3><p><strong>【例2】</strong> 现随机抽样对吸烟人群和不吸烟人群是否患有气管炎进行调查，试检验吸烟与患气管炎有无关联？</p>
+<h2 id="独立性检验">独立性检验</h2>
+<p>独立性检验（independent test）是判断两个或两个以上因素之间是否具有关联关系的假设检验，常用列联表进行检验。而列联表又可分为2 x 2，2 x c ， r x c的形式（r ≥ 3， c ≥ 3），然而实则上三种列联表的计算大同小异，不同的只是2 x 2列联表需要进行连续性矫正。下面将分别以几个例子展示<code>chisq.test()</code> 在独立性检验方面的应用。</p>
+<h3 id="2-x-2列联表">2 x 2列联表</h3>
+<p><strong>【例2】</strong> 现随机抽样对吸烟人群和不吸烟人群是否患有气管炎进行调查，试检验吸烟与患气管炎有无关联？</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; tab &lt;- as.table(cbind(c(50,5), c(250,195)))  #创建列联表</span><br><span class="line">&gt; dimnames(tab) &lt;- list(c(&quot;smoker&quot;, &quot;non-smoker&quot;),</span><br><span class="line">+                       c(&quot;illness&quot;, &quot;un-illness&quot;))</span><br><span class="line">&gt; tab</span><br><span class="line">           illness un-illness</span><br><span class="line">smoker          50        250</span><br><span class="line">non-smoker       5        195</span><br><span class="line">&gt; tab_Xsqtest &lt;- chisq.test(tab)</span><br><span class="line">&gt; tab_Xsqtest</span><br><span class="line"></span><br><span class="line">	Pearson&#x27;s Chi-squared test with Yates&#x27; continuity correction</span><br><span class="line"></span><br><span class="line">data:  tab</span><br><span class="line">X-squared = 23.174, df = 1, p-value = 1.48e-06</span><br></pre></td></tr></table></figure>
 <p><strong>在本例中：</strong></p>
 <p>H0：吸烟与患气管炎无关。</p>
 <p>HA：吸烟与患气管炎有关。</p>
 <p>另外，由于是2 x 2列联表独立性检验，自由度小于2，因此进行了连续性矫正。检验的p值小于0.01，说明吸烟与患气管炎有关联。同时，我们还可以注意到<code>chisq.test</code>还会输出其他的内容（但并没有直接打印出来）</p>
-<p><img src="/2022/01/14/R-%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C/image-20220114193346914.png"></p>
+<p><img src="image-20220114193346914.png" alt=""></p>
 <p>包括了：</p>
 <ul>
 <li>样本的观测值</li>
@@ -271,7 +277,8 @@
 <li>计算的残差和标准化后的残差</li>
 </ul>
 <p>当我们需要使用这些数据时，不妨将检验的结果保存在一变量中，以便调用。</p>
-<h3 id="2-x-c列联表"><a href="#2-x-c列联表" class="headerlink" title="2 x c列联表"></a>2 x c列联表</h3><p><strong>【例3】</strong> 现随机抽样对性别和参与的党派进行调查，检验性别与党派是否有关。</p>
+<h3 id="2-x-c列联表">2 x c列联表</h3>
+<p><strong>【例3】</strong> 现随机抽样对性别和参与的党派进行调查，检验性别与党派是否有关。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&gt; M &lt;- as.table(rbind(c(762, 327, 468), c(484, 239, 477)))</span><br><span class="line">&gt; dimnames(M) &lt;- list(gender = c(&quot;F&quot;, &quot;M&quot;),</span><br><span class="line">+                     party = c(&quot;Democrat&quot;,&quot;Independent&quot;, &quot;Republican&quot;))</span><br><span class="line">&gt; M</span><br><span class="line">      party</span><br><span class="line">gender Democrat Independent Republican</span><br><span class="line">     F      762         327        468</span><br><span class="line">     M      484         239        477</span><br><span class="line">&gt; Xsq &lt;- chisq.test(M)</span><br><span class="line">&gt; Xsq</span><br><span class="line"></span><br><span class="line">	Pearson&#x27;s Chi-squared test</span><br><span class="line"></span><br><span class="line">data:  M</span><br><span class="line">X-squared = 30.07, df = 2, p-value = 2.954e-07</span><br></pre></td></tr></table></figure>
 <p>卡方检验的p值小于0.01，说明性别与党派是有显著关系的。</p>
 <p>可以注意到，2 x c 列联表和2 x 2的代码，除了输入数据的差别外，其他也是几乎一致的。而r x c的代码也是更换输入数据的差别而已。</p>
@@ -279,8 +286,8 @@
 <p>当然，Pearson Correlation和Fisher’s exact test也是更为常用的相关性分析，有机会的话也会在后续的文章中向大家介绍这些方法。</p>
 <p>卡方检验的R语言实例就介绍到这了，如有不足，请各位指出。</p>
 <blockquote>
-<p> Ref:</p>
-<p> 《生物统计学》（第五版）李春喜等著</p>
+<p>Ref:</p>
+<p>《生物统计学》（第五版）李春喜等著</p>
 </blockquote>
 <p>完。</p>
 
@@ -338,6 +345,7 @@
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -384,7 +392,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#chi-squared-test"><span class="nav-number">1.</span> <span class="nav-text">chi-squared test</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E5%90%88%E6%80%A7%E6%A3%80%E9%AA%8C"><span class="nav-number">1.1.</span> <span class="nav-text">适合性检验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E6%80%A7%E6%A3%80%E9%AA%8C"><span class="nav-number">1.2.</span> <span class="nav-text">独立性检验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-x-2%E5%88%97%E8%81%94%E8%A1%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">2 x 2列联表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-x-c%E5%88%97%E8%81%94%E8%A1%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">2 x c列联表</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">chi-squared test</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E5%90%88%E6%80%A7%E6%A3%80%E9%AA%8C"><span class="nav-number">1.1.</span> <span class="nav-text">适合性检验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E6%80%A7%E6%A3%80%E9%AA%8C"><span class="nav-number">1.2.</span> <span class="nav-text">独立性检验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-x-2%E5%88%97%E8%81%94%E8%A1%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">2 x 2列联表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-x-c%E5%88%97%E8%81%94%E8%A1%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">2 x c列联表</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -542,6 +550,26 @@ var options = {
 const darkmode = new Darkmode(options);
 window.darkmode = darkmode;
 darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '2a12fb084621b6781f1771fc8876d39c',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
 </script>
 
 </body>
