@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="经典的转录组差异分析通常会使用到三个工具limma&#x2F;voom, edgeR和DESeq2。今天我们就通过一个小规模的转录组测序数据来演示DESeq2的简单流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DESeq2-简单的转录组差异表达分析">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="经典的转录组差异分析通常会使用到三个工具limma&#x2F;voom, edgeR和DESeq2。今天我们就通过一个小规模的转录组测序数据来演示DESeq2的简单流程。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100835156.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100901306.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100909011.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100936724.png">
+<meta property="article:published_time" content="2022-01-24T02:07:46.000Z">
+<meta property="article:modified_time" content="2022-01-24T02:09:48.684Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="RNA-seq">
+<meta property="article:tag" content="Data_analysis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100835156.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>DESeq2-简单的转录组差异表达分析 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DESeq2-简单的转录组差异表达分析
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 10:07:46 / Modified: 10:09:48" itemprop="dateCreated datePublished" datetime="2022-01-24T10:07:46+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>经典的转录组差异分析通常会使用到三个工具<code>limma/voom</code>, <code>edgeR</code>和<code>DESeq2</code>。今天我们就通过一个小规模的转录组测序数据来演示<code>DESeq2</code>的简单流程。<br><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100835156.png"></p>
+<span id="more"></span>
+
+<blockquote>
+<pre><code>    文中使用的数据来自Standford 大学的一个拟南芥的small RNA-seq数据（https://bios221.stanford.edu/data/mobData.RData）
+![](image-20220124100841935.png)
+该数据包含6个样本：**SL236，SL260，SL237，SL238，SL239，SL240**， 并分成了三组，分别是：
+
+    MM=&quot;triple mutatnt shoot grafted onto triple mutant root&quot;
+    
+    WM=&quot;wild-type shoot grafted onto triple mutant root&quot;
+    
+    WW=&quot;wild-type shoot grafted onto wild-type root&quot; 
+
+简而言之，`WW`组可以认为是实验的对照组，而`MM`和`WM`则是两个处理组。
+</code></pre>
+</blockquote>
+<p>  对于<code>DESeq2</code>的分析流程而言，我们需要输入的数据包括：</p>
+<ol>
+<li>  表达矩阵（<code>countData</code>）</li>
+<li>  分组信息（<code>colData</code>）</li>
+<li>  拟合信息（<code>design</code>）：指明如何根据样本的分组进行建模</li>
+</ol>
+<p>下面就以<code>mobData</code> 中的数据为例简单介绍<code>DESeq2</code> 的分析流程</p>
+<h2 id="载入数据及生成DESeqDataSet"><a href="#载入数据及生成DESeqDataSet" class="headerlink" title="载入数据及生成DESeqDataSet"></a>载入数据及生成DESeqDataSet</h2><p>由于<code>mobData</code> 中的行名没有提供基因的ID，我们也不是为了探究生物学问题，就以<code>mobData</code> 的行数作为其ID</p>
+<figure class="highlight plaintext"><figcaption><span>cars&#125;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">library(DESeq2)</span><br><span class="line">library(dplyr)</span><br><span class="line">load(&quot;data/mobData.RData&quot;)</span><br><span class="line">head(mobData)</span><br><span class="line">##      SL236 SL260 SL237 SL238 SL239 SL240</span><br><span class="line">## [1,]    21    52     4     4    86    68</span><br><span class="line">## [2,]    18    21     1     5     1     1</span><br><span class="line">## [3,]     1     2     2     3     0     0</span><br><span class="line">## [4,]    68    87   270   184   396   368</span><br><span class="line">## [5,]    68    87   270   183   396   368</span><br><span class="line">## [6,]     1     0     6    10     6    12</span><br><span class="line">dim(mobData)</span><br><span class="line">## 3000    6</span><br><span class="line"></span><br><span class="line">row.names(mobData) &lt;- as.character(c(1:dim(mobData)[1]))</span><br><span class="line">mobGroups &lt;- c(&quot;MM&quot;, &quot;MM&quot;, &quot;WM&quot;, &quot;WM&quot;, &quot;WW&quot;, &quot;WW&quot;)</span><br><span class="line">colData &lt;- data.frame(row.names=colnames(mobData),</span><br><span class="line">                      group_list=mobGroups)</span><br><span class="line">dds &lt;- DESeqDataSetFromMatrix(countData = mobData,</span><br><span class="line">                              colData = colData,</span><br><span class="line">                              design = ~group_list,</span><br><span class="line">                              tidy = F)</span><br><span class="line">dds</span><br><span class="line">## class: DESeqDataSet </span><br><span class="line">## dim: 3000 6 </span><br><span class="line">## metadata(1): version</span><br><span class="line">## assays(1): counts</span><br><span class="line">## rownames(3000): 1 2 ... 2999 3000</span><br><span class="line">## rowData names(0):</span><br><span class="line">## colnames(6): SL236 SL260 ... SL239 SL240</span><br><span class="line">## colData names(1): group_list</span><br></pre></td></tr></table></figure>
+
+<p><code>DESeqDataSet</code> 是<code>DESeq2</code>流程中储存read counts和中间统计分析数据的对象，之后的分析都建立在该对象之上进行。</p>
+<blockquote>
+<p><code>DESeqDataSet</code> 可以通过以下四种方法产生：</p>
+<ol>
+<li>From <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#tximport">transcript abundance files and tximport</a> —— <code>DESeqDataSetFromTximport</code></li>
+<li>From a <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#countmat">count matrix</a> —— <code>DESeqDataSetFromMatrix</code></li>
+<li>From <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#htseq">htseq-count files</a> —— <code>DESeqDataSetFromHTseqCount</code></li>
+<li>From a <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#se">SummarizedExperiment</a> object —— <code>DESeqDataSet</code></li>
+</ol>
+</blockquote>
+<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><p>在进行差异分析之前，需要对样本数据的表达矩阵进行预处理，包括：</p>
+<ol>
+<li>去除低表达量基因</li>
+<li>探索样本分组信息 – 有助于挖掘潜在的差异样本</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">table(rowSums(counts(dds)==0))</span><br><span class="line">## </span><br><span class="line">##    0    1    2    3    4    5    6 </span><br><span class="line">## 1833  442  324  170   92   84   55</span><br><span class="line">keep &lt;- rowSums(counts(dds)==0) &lt; 6</span><br><span class="line">dds.keep &lt;- dds[keep, ]</span><br><span class="line">dim(dds.keep)</span><br><span class="line">## [1] 2945    6</span><br><span class="line"></span><br><span class="line">library(factoextra)</span><br><span class="line">library(FactoMineR)</span><br><span class="line">count.pca &lt;- counts(dds.keep) %&gt;% as.matrix %&gt;% t %&gt;% PCA(.,graph = F)</span><br><span class="line">fviz_pca_ind(count.pca,</span><br><span class="line">             col.ind = mobGroups, </span><br><span class="line">             addEllipses = F, </span><br><span class="line">             mean.point = F,</span><br><span class="line">             legend.title = &quot;Groups&quot;)</span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100901306.png" alt="PCA"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">colnames(dds.keep) &lt;- c(paste(colnames(dds.keep),mobGroups, sep =&quot;.&quot;)) </span><br><span class="line">counts(dds.keep) %&gt;% as.matrix %&gt;% t %&gt;% dist %&gt;% hclust %&gt;% plot</span><br><span class="line">colnames(dds.keep) &lt;- colnames(dds)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100909011.png" alt="Hierarchical clustering"></p>
+<p>通过PCA结果来看各组样本分组情况还是不错的，但hclust的聚类结果反映的分组就略微有点混杂了，可能要聚类计算的距离函数选用不当有关。</p>
+<h2 id="差异分析"><a href="#差异分析" class="headerlink" title="差异分析"></a>差异分析</h2><p>使用<code>DESeq()</code>函数进行差异分析时，该函数干了以下三件事：</p>
+<ol>
+<li>计算文库大小，预测用于标准化的size factor</li>
+<li>预测离散度（dispersions）</li>
+<li>使用负二项分布的广义线性回归模型（GLM）进行拟合，以及进行Wald test</li>
+</ol>
+<blockquote>
+<p>The <strong>Wald test</strong> (also called the Wald Chi-Squared Test) is a way to find out if <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/explanatory-variable/">explanatory variables</a> in a model are <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/what-is-statistical-significance/">significant</a>. </p>
+<p>ref : <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/wald-test/">https://www.statisticshowto.com/wald-test/</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">degobj &lt;- DESeq(dds.keep);degobj</span><br><span class="line">## class: DESeqDataSet </span><br><span class="line">## dim: 2945 6 </span><br><span class="line">## metadata(1): version</span><br><span class="line">## assays(4): counts mu H cooks</span><br><span class="line">## rownames(2945): 1 2 ... 2999 3000</span><br><span class="line">## rowData names(26): baseMean baseVar ... deviance maxCooks</span><br><span class="line">## colnames(6): SL236 SL260 ... SL239 SL240</span><br><span class="line">## colData names(2): group_list sizeFactor</span><br><span class="line">countdds &lt;- counts(degobj, normalized = T)</span><br><span class="line">deg.res1 &lt;- results(degobj, contrast=c(&quot;group_list&quot;,&quot;MM&quot;,&quot;WW&quot;), pAdjustMethod = &#x27;fdr&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><code>counts()</code> 可以提取<code>DESeq object</code>中的表达矩阵，而<code>results()</code> 可以提取差异分析的结果，其中包括了：</p>
+<p><strong>baseMean (样本间的normalized counts均值), log2 fold changes (lfc), lfc standard errors, test statistics, p-values and adjusted p-values.</strong></p>
+<p>使用<code>results()</code>函数时需要指明进行比较的样本，这里用 <code>contrast=c(&quot;group_list&quot;,&quot;MM&quot;,&quot;WW&quot;)</code> 提取<code>MM</code>组和<code>WW</code>组进行差异分析的结果。如果想要比较<code>WM</code>组和<code>WW</code>组，只要改变<code>contrast=c(&quot;group_list&quot;,&quot;WM&quot;,&quot;WW&quot;)</code> 即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># result default</span><br><span class="line">results(object, contrast, name, lfcThreshold = 0,</span><br><span class="line">	altHypothesis = c(&quot;greaterAbs&quot;, &quot;lessAbs&quot;, &quot;greater&quot;, &quot;less&quot;),</span><br><span class="line">	listValues = c(1, -1), cooksCutoff, independentFiltering = TRUE,</span><br><span class="line">	alpha = 0.1, filter, theta, pAdjustMethod = &quot;BH&quot;, filterFun,</span><br><span class="line">	format = c(&quot;DataFrame&quot;, &quot;GRanges&quot;, &quot;GRangesList&quot;), test,</span><br><span class="line">	addMLE = FALSE, tidy = FALSE, parallel = FALSE,</span><br><span class="line">	BPPARAM = bpparam(), minmu = 0.5)</span><br></pre></td></tr></table></figure>
+
+<p>检查结果中是否包含<code>NA</code>值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dim(deg.res1)</span><br><span class="line">## [1] 2945    6</span><br><span class="line">apply(deg.res1,2, function(x) sum(is.na(x)))</span><br><span class="line">##       baseMean log2FoldChange          lfcSE           stat         pvalue </span><br><span class="line">##              0              0              0              0              0 </span><br><span class="line">##           padj </span><br><span class="line">##           1142</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>padj</code>中有1142个<code>NA</code>值是因为使用<code>results()</code>提取差异分析结果时，大于<code>alpha</code>值（这里是0.1）的矫正后p-value都会被当做是<code>NA</code>。因此，我们将这些<code>padj</code>值都设为<code>1</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">deg.res1$padj[is.na(deg.res1$padj)] &lt;- 1</span><br><span class="line">table(is.na(deg.res1$padj))</span><br><span class="line">## </span><br><span class="line">## FALSE </span><br><span class="line">##  2945</span><br><span class="line">summary(deg.res1)</span><br><span class="line">## </span><br><span class="line">## out of 2945 with nonzero total read count</span><br><span class="line">## adjusted p-value &lt; 0.1</span><br><span class="line">## LFC &gt; 0 (up)       : 102, 3.5%</span><br><span class="line">## LFC &lt; 0 (down)     : 215, 7.3%</span><br><span class="line">## outliers [1]       : 0, 0%</span><br><span class="line">## low counts [2]     : 0, 0%</span><br><span class="line">## (mean count &lt; 4)</span><br><span class="line">## [1] see &#x27;cooksCutoff&#x27; argument of ?results</span><br><span class="line">## [2] see &#x27;independentFiltering&#x27; argument of ?results</span><br><span class="line">plotMA(deg.res1)</span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100936724.png" alt="MA-plot"></p>
+<p>排序后以<code>log2FoldChange</code>绝对值大于1， <code>padj</code>小于0.05为条件筛选显著的差异表达基因</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">deg.ord1 &lt;- deg.res1[order(deg.res1$padj, decreasing = F),]</span><br><span class="line">deg.sig1 &lt;- subset(deg.ord1,abs(deg.ord1$log2FoldChange)&gt;1 &amp; deg.ord1$padj&lt;0.05)</span><br><span class="line">deg.sig1</span><br><span class="line">## log2 fold change (MLE): group_list MM vs WW </span><br><span class="line">## Wald test p-value: group_list MM vs WW </span><br><span class="line">## DataFrame with 217 rows and 6 columns</span><br><span class="line">##              baseMean    log2FoldChange             lfcSE              stat</span><br><span class="line">##             &lt;numeric&gt;         &lt;numeric&gt;         &lt;numeric&gt;         &lt;numeric&gt;</span><br><span class="line">## 2500 159.774533763595 -4.11069945121082 0.432943287486228 -9.49477580557611</span><br><span class="line">## 1212 112.711030407211  3.96456274705605 0.449008108800994  8.82960166942819</span><br><span class="line">## 1917  303.58162963147  3.45479344900962 0.406885893259752  8.49081648255649</span><br><span class="line">## 490   71.687159921068 -6.18926587678444 0.753506435554632 -8.21395224345857</span><br><span class="line">## 1317 222.718984861955 -3.03292643435534  0.37190983516799 -8.15500464779421</span><br><span class="line">## ...               ...               ...               ...               ...</span><br><span class="line">## 1792 5.98829479907705 -4.93244157414254  1.77616534224116 -2.77701712607386</span><br><span class="line">## 98   6699.69196582045  1.19245883058489 0.429894831042278   2.7738384936934</span><br><span class="line">## 295  6699.58197403621  1.19259109051591 0.429948214187822  2.77380170718637</span><br><span class="line">## 662  5.15806783175131 -5.09298667756621  1.83903942690847 -2.76937329512713</span><br><span class="line">## 899  18.1185589826749 -3.43948745771197  1.24400277511213 -2.76485513257955</span><br><span class="line">##                    pvalue                 padj</span><br><span class="line">##                 &lt;numeric&gt;            &lt;numeric&gt;</span><br><span class="line">## 2500 2.20685744092375e-21 3.97896396598552e-18</span><br><span class="line">## 1212 1.05049159823894e-18 9.47018175812401e-16</span><br><span class="line">## 1917 2.05190369014182e-17 1.23319411777524e-14</span><br><span class="line">## 490  2.14024730609951e-16 9.64716473224354e-14</span><br><span class="line">## 1317  3.4916644951535e-16 1.25909421695235e-13</span><br><span class="line">## ...                   ...                  ...</span><br><span class="line">## 1792  0.00548602882496584    0.046221074632773</span><br><span class="line">## 98    0.00553991737467495   0.0462481504691228</span><br><span class="line">## 295    0.0055405438166004   0.0462481504691228</span><br><span class="line">## 662   0.00561642447454876   0.0466654992055826</span><br><span class="line">## 899   0.00569480805304419   0.0468846526010898</span><br></pre></td></tr></table></figure>
+
+<pre><code>至此，便筛选出了**217个**在`MM`组和`WW`组之间的显著差异表达基因。至于后续的可视化分析则是因课题而异了，等以后有空了再补坑吧！
+有同学可能注意到，虽然我们的样本有多个组，但在差异分析时进行的还是pairwise的分析，为什么我们不可以三个组一起分析呢？学过ANOVA的同学应该都知道，ANOVA就是可以应对这种多组差异分析的情况。但要注意的是，ANOVA只可以告诉我们对于某个基因在这三组中是否存在差异，想要找出是哪一组有其他组别有差异还是需要进行pairwise t-test之类的分析。所以，在这里我们两组两组地进行分析正是出于这个考虑，并且有更方便我们解释差异分析的结果，说明在A组基因的表达量相对于B组的是上调还是下调。另外，本文的差异分析还是处于单因子水平（只有一个变量），至于多因子的差异分析以后研究透了再和大家进行分享。
+</code></pre>
+<p><strong>一点想法：</strong></p>
+<p>最近想要整理这些转录组常规分析流程，一来是因为之前学习的时候很零碎，想借此机会系统性地整理这方面的知识。另一方面也是因为我感觉平时做湿实验的时候都讲究个protocol，一些基本的实验，像PCR这种我们只要根据具体实验调整一些参数就都可以跟着protocol来做了。所以，一些经典的生信分析也可以有一个这样的“protocol”，要用的时候调整参数就可以了。</p>
+<blockquote>
+<p>Ref：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://web.stanford.edu/class/bios221/labs/rnaseq/lab_4_rnaseq.html">https://web.stanford.edu/class/bios221/labs/rnaseq/lab_4_rnaseq.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.researchgate.net/post/How_to_interpret_results_of_DESeq2_with_more_than_two_experimental_groups">https://www.researchgate.net/post/How_to_interpret_results_of_DESeq2_with_more_than_two_experimental_groups</a></li>
+<li><a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#htseq">https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#htseq</a></li>
+<li><a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf">https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf</a></li>
+</ol>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/" title="DESeq2-简单的转录组差异表达分析">https://thereallda.github.io/2022/01/24/DESeq2-简单的转录组差异表达分析/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/RNA-seq/" rel="tag"># RNA-seq</a>
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/23/R-TCGA%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98%E5%A4%8D%E7%8E%B0%E4%B9%8BBRCA/" rel="prev" title="R-TCGA数据挖掘复现之BRCA">
+      <i class="fa fa-chevron-left"></i> R-TCGA数据挖掘复现之BRCA
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/" rel="next" title="edgeR-简单的转录组差异表达分析">
+      edgeR-简单的转录组差异表达分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BD%E5%85%A5%E6%95%B0%E6%8D%AE%E5%8F%8A%E7%94%9F%E6%88%90DESeqDataSet"><span class="nav-number">1.</span> <span class="nav-text">载入数据及生成DESeqDataSet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">差异分析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '9f23ae883eacd47c0b41727114c39381',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

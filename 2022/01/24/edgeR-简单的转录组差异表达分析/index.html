@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="经典的转录组差异分析通常会使用到三个工具limma&#x2F;voom, edgeR和DESeq2， 今天我们同样使用一个小规模的转录组测序数据来演示edgeR的简单流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="edgeR-简单的转录组差异表达分析">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="经典的转录组差异分析通常会使用到三个工具limma&#x2F;voom, edgeR和DESeq2， 今天我们同样使用一个小规模的转录组测序数据来演示edgeR的简单流程。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101607596.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101621290.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101634891.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101655672.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101703986.png">
+<meta property="article:published_time" content="2022-01-24T02:15:22.000Z">
+<meta property="article:modified_time" content="2022-01-24T02:18:22.292Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="RNA-seq">
+<meta property="article:tag" content="Data_analysis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101607596.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>edgeR-简单的转录组差异表达分析 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          edgeR-简单的转录组差异表达分析
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 10:15:22 / Modified: 10:18:22" itemprop="dateCreated datePublished" datetime="2022-01-24T10:15:22+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>经典的转录组差异分析通常会使用到三个工具<code>limma/voom</code>, <code>edgeR</code>和<code>DESeq2</code>， 今天我们同样使用一个小规模的转录组测序数据来演示<code>edgeR</code>的简单流程。</p>
+<p><img src="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101607596.png"></p>
+<span id="more"></span>
+
+
+
+<p>由于，<code>edgeR</code>和<code>DESeq2</code>都是使用基于<strong>负二项分布</strong>的<strong>广义线性回归模型（GLM）</strong>来对RNA-seq数据进行拟合和差异分析，所以我们都用同一个数据来分析。</p>
+<blockquote>
+<p> 文中使用的数据来自Standford 大学的一个拟南芥的small RNA-seq数据（<a target="_blank" rel="noopener" href="https://bios221.stanford.edu/data/mobData.RData%EF%BC%89">https://bios221.stanford.edu/data/mobData.RData）</a></p>
+<p> <img src="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101621290.png"></p>
+<p> 该数据包含6个样本：<strong>SL236，SL260，SL237，SL238，SL239，SL240</strong>， 并分成了三组，分别是：</p>
+<p> MM=”triple mutatnt shoot grafted onto triple mutant root”</p>
+<p> WM=”wild-type shoot grafted onto triple mutant root”</p>
+<p> WW=”wild-type shoot grafted onto wild-type root” </p>
+<p> 简而言之，<code>WW</code>组可以认为是实验的对照组，而<code>MM</code>和<code>WM</code>则是两个处理组。</p>
+</blockquote>
+<p><strong>P.S.</strong> 本文的分析是基于有生物学重复的单因子差异分析，关于无生物学重复或者多因子的情况，以后有机会再做展开。</p>
+<p>  对于<code>edgeR</code>的分析流程而言，我们需要输入的数据包括：</p>
+<ol>
+<li>  表达矩阵（<code>counts</code>）</li>
+<li>  分组信息（<code>group</code>）</li>
+<li>  拟合信息（<code>design</code>）：指明如何根据样本的分组进行建模</li>
+</ol>
+<p>下面就以<code>mobData</code> 中的数据为例简单介绍<code>edgeR</code> 的分析流程</p>
+<h1 id="载入数据及生成DGEList"><a href="#载入数据及生成DGEList" class="headerlink" title="载入数据及生成DGEList"></a>载入数据及生成DGEList</h1><p>由于<code>mobData</code> 中的行名没有提供基因的ID，我们也不是为了探究生物学问题，就以<code>mobData</code> 的行数作为其ID</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">library(edgeR)</span><br><span class="line">load(&quot;data/mobData.RData&quot;)</span><br><span class="line">head(mobData)</span><br><span class="line">##      SL236 SL260 SL237 SL238 SL239 SL240</span><br><span class="line">## [1,]    21    52     4     4    86    68</span><br><span class="line">## [2,]    18    21     1     5     1     1</span><br><span class="line">## [3,]     1     2     2     3     0     0</span><br><span class="line">## [4,]    68    87   270   184   396   368</span><br><span class="line">## [5,]    68    87   270   183   396   368</span><br><span class="line">## [6,]     1     0     6    10     6    12</span><br><span class="line">row.names(mobData) &lt;- as.character(c(1:dim(mobData)[1]))</span><br><span class="line"># MM=&quot;triple mutatnt shoot grafted onto triple mutant root&quot;</span><br><span class="line"># WM=&quot;wild-type shoot grafted onto triple mutant root&quot;</span><br><span class="line"># WW=&quot;wild-type shoot grafted onto wild-type root&quot;</span><br><span class="line">mobGroups &lt;- c(&quot;MM&quot;, &quot;MM&quot;, &quot;WM&quot;, &quot;WM&quot;, &quot;WW&quot;, &quot;WW&quot;)</span><br><span class="line">degs &lt;- DGEList(counts = mobData, group = mobGroups);degs</span><br><span class="line">## An object of class &quot;DGEList&quot;</span><br><span class="line">## $counts</span><br><span class="line">##   SL236 SL260 SL237 SL238 SL239 SL240</span><br><span class="line">## 1    21    52     4     4    86    68</span><br><span class="line">## 2    18    21     1     5     1     1</span><br><span class="line">## 3     1     2     2     3     0     0</span><br><span class="line">## 4    68    87   270   184   396   368</span><br><span class="line">## 5    68    87   270   183   396   368</span><br><span class="line">## 2995 more rows ...</span><br><span class="line">## </span><br><span class="line">## $samples</span><br><span class="line">##       group lib.size norm.factors</span><br><span class="line">## SL236    MM   152461            1</span><br><span class="line">## SL260    MM   309995            1</span><br><span class="line">## SL237    WM   216924            1</span><br><span class="line">## SL238    WM   208841            1</span><br><span class="line">## SL239    WW   258404            1</span><br><span class="line">## SL240    WW   276434            1</span><br></pre></td></tr></table></figure>
+
+<p><code>edgeR</code>将数据存储在列表形式的<code>DGEList</code>对象中，需要指定的参数包括<code>counts</code> 和<code>group</code> . <code>DGEList</code> 将表达矩阵存储在<code>$counts</code>中，将样本的信息，例如分组情况和文库大小等存储在<code>$samples</code>中。</p>
+<h1 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h1><p>在进行差异分析之前，需要对样本数据的表达矩阵进行预处理，包括：</p>
+<ol>
+<li>去除低表达量基因</li>
+<li>探索样本分组信息 – 有助于挖掘潜在的差异样本</li>
+</ol>
+<p>这里我们根据CPM normalization后的基因表达量作为过滤低表达基因的指标</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># cpm normalization</span><br><span class="line">countsPerMillion &lt;- cpm(degs)</span><br><span class="line">countCheck &lt;- countsPerMillion &gt; 1</span><br><span class="line">keep &lt;- which(rowSums(countCheck) &gt;= 2)</span><br><span class="line">degs.keep &lt;- degs[keep,]</span><br><span class="line">dim(degs.keep)</span><br><span class="line">## [1] 2861    6</span><br></pre></td></tr></table></figure>
+
+<p><code>edgeR</code>默认使用 trimmed mean of M-values (TMM) 计算文库的scale factor进行normalization，以最大程度地缩小样本间基因表达量的log-fold change。这是因为TMM法认为样本间大部分的基因都没有发生差异表达，而那些真正差异表达的基因并不会受到normalization的严重影响。如此一来，便将那些由于测序引起的差异表达基因的表达量给校正了，消除了一部分的假阳性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">degs.norm &lt;- calcNormFactors(degs.keep, method = &#x27;TMM&#x27;)</span><br><span class="line">plotMDS(degs.norm, col=as.numeric(degs.norm$samples$group))</span><br><span class="line">legend(&quot;bottomleft&quot;,as.character(unique(degs.norm$samples$group)), col=1:3, pch=20)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101634891.png" alt="MDS-plot"></p>
+<p>这里使用<code>plotMDS</code> 查看样本的分组情况（通过logFC），各组都分得很开。<code>plotMDS</code>在多因子的情况下可以更好地观察各个样本组是否有良好的分组。</p>
+<blockquote>
+<ul>
+<li><p>关于Normalization</p>
+<p>  在差异分析中，我们常常更关注的是相对表达量的变化，例如处理组的A基因表达量相对于对照组的而言是上调还是下调了。而基因表达量的定量准确性则在差异分析中不太重要，因此，在进行差异分析时，像RPKM/FPKM这种对转录本长度进行normalization方法是并不常用，也是没有必要的。</p>
+<p>  在常规的RNA-seq中，影响基因表达量更大的技术因素往往是<strong>测序深度</strong>以及<strong>有效文库大小（effective libraries size）</strong>。这也是一般的差异分析软件会进行normalize的部分。</p>
+</li>
+</ul>
+</blockquote>
+<h1 id="差异分析"><a href="#差异分析" class="headerlink" title="差异分析"></a>差异分析</h1><p>首先，我们构建出<code>design</code>矩阵，指明差异分析所要比较的关系</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">designMat &lt;- model.matrix(~0+mobGroups);designMat</span><br><span class="line">##   mobGroupsMM mobGroupsWM mobGroupsWW</span><br><span class="line">## 1           1           0           0</span><br><span class="line">## 2           1           0           0</span><br><span class="line">## 3           0           1           0</span><br><span class="line">## 4           0           1           0</span><br><span class="line">## 5           0           0           1</span><br><span class="line">## 6           0           0           1</span><br><span class="line">## attr(,&quot;assign&quot;)</span><br><span class="line">## [1] 1 1 1</span><br><span class="line">## attr(,&quot;contrasts&quot;)</span><br><span class="line">## attr(,&quot;contrasts&quot;)$mobGroups</span><br><span class="line">## [1] &quot;contr.treatment&quot;</span><br></pre></td></tr></table></figure>
+
+<p>然后，进行dispersion的估计</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">degs.norm &lt;- estimateGLMCommonDisp(degs.norm,design=designMat)</span><br><span class="line">degs.norm &lt;- estimateGLMTrendedDisp(degs.norm, design=designMat)</span><br><span class="line">degs.norm &lt;- estimateGLMTagwiseDisp(degs.norm, design=designMat)</span><br><span class="line">plotBCV(degs.norm)</span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101655672.png"></p>
+<p><code>plotBCV</code> 反映不同表达量的基因与模型拟合的情况，如果模型拟合得好则”Tagwise”点的分布会拟合到“Trend”这条曲线上，如上图所展示的情况。但也可以看到低表达量的基因有点离散。</p>
+<blockquote>
+<ul>
+<li><p>关于dispersion estimation </p>
+<p>一般而言，样本间的<strong>变异系数（coefficient of variance，CV）</strong>是由两部分组成的，一是<strong>技术差异（Technical CV）</strong>，另一个是<strong>生物学差异（Biological coefficient of variance，BCV）</strong>。前者是会随着测序通量的提升而消失的，而后者则是样本间真实存在的差异。所以，对于一个基因<em>g</em>而言，它的BCV在样本间足够大的话，就可以认为基因<em>g</em>是一个差异表达基因。而<code>edgeR</code>正是通过估计dispersion来估计BCV，进而拟合出线性回归模型的参数。</p>
+<p><code>estimateGLMCommonDisp(x,design)</code>：为所有基因都计算同样的dispersion</p>
+<p><code>estimateGLMTrendedDisp(x,design)</code>：根据不同基因的均值–方差之间的关系来计算dispersion，并拟合一个trended model</p>
+<p><code>estimateGLMTagwiseDisp(x,design)</code>：计算每个基因的dispersion，并利用经验性贝叶斯方法（empirical bayes）压缩至Trend Didspersion。<em>个人认为这一项相当于GLM中每个基因的beta值</em></p>
+</li>
+</ul>
+</blockquote>
+<p>最后，根据<code>design</code>进行拟合，并利用likelihood ratio test（LRT）进行统计检验</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fit &lt;- glmFit(degs.norm, designMat)</span><br><span class="line"># LRT=likelihood ratio test</span><br><span class="line"># group1-group2</span><br><span class="line">lrt.1vs2 &lt;- glmLRT(fit, contrast = c(1,-1,0))</span><br><span class="line"># group1-group3</span><br><span class="line">lrt.1vs3 &lt;- glmLRT(fit, contrast = c(1,0,-1))</span><br><span class="line"># group2-group3</span><br><span class="line">lrt.2vs3 &lt;- glmLRT(fit, contrast = c(0,1,-1))</span><br></pre></td></tr></table></figure>
+<p>下面以<code>MM</code>组和 <code>WW</code>组的比较为例</p>
+<p><code>topTags</code> 提取出差异分析的数据，其中的<code>contrast</code>参数指定比较的组，<code>1</code>为“分子”，<code>-1</code>为“分母”，<code>0</code>即不考虑的变量；</p>
+<p><code>decideTestsDGE</code> 可以根据条件筛选差异基因，对每个基因分别赋予<code>-1,0,1</code>三个数值，分别代表下调，不显著和上调；</p>
+<p><code>plotSmear</code> 画一个简单的表达量与fold change的关系图。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">degs.res.1vs3 &lt;- topTags(lrt.1vs3, n = <span class="literal">Inf</span>, adjust.method = <span class="string">&#x27;BH&#x27;</span>, sort.by = <span class="string">&#x27;PValue&#x27;</span>)</span><br><span class="line">degs.res.1vs3[<span class="number">1</span>:<span class="number">5</span>, ]</span><br><span class="line"><span class="comment">## Coefficient:  1*mobGroupsMM -1*mobGroupsWW </span></span><br><span class="line"><span class="comment">##           logFC   logCPM        LR       PValue          FDR</span></span><br><span class="line"><span class="comment">## 74   -10.364020 9.042115 130.95167 2.537092e-30 7.258620e-27</span></span><br><span class="line"><span class="comment">## 490   -6.043444 8.401692 119.28833 9.056111e-28 1.295477e-24</span></span><br><span class="line"><span class="comment">## 1717  -7.056255 9.921304 114.37749 1.077199e-26 1.027289e-23</span></span><br><span class="line"><span class="comment">## 1963   6.492175 6.868420 102.37925 4.584800e-24 3.279278e-21</span></span><br><span class="line"><span class="comment">## 1111  -9.565662 8.284244  97.26908 6.051792e-23 3.462836e-20</span></span><br><span class="line"></span><br><span class="line">deGenes.1vs3 &lt;- decideTestsDGE(lrt.1vs3, p=<span class="number">0.05</span>, lfc = <span class="number">1</span>)</span><br><span class="line">summary(deGenes.1vs3)</span><br><span class="line"><span class="comment">##        1*mobGroupsMM -1*mobGroupsWW</span></span><br><span class="line"><span class="comment">## Down                            430</span></span><br><span class="line"><span class="comment">## NotSig                         2094</span></span><br><span class="line"><span class="comment">## Up                              337</span></span><br><span class="line">detag &lt;- rownames(lrt.1vs3)[<span class="built_in">as.logical</span>(deGenes.1vs3)]</span><br><span class="line">plotSmear(lrt.1vs3, de.tags=detag)</span><br><span class="line">abline(h=<span class="built_in">c</span>(-<span class="number">1</span>, <span class="number">1</span>), col=<span class="string">&#x27;blue&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124101703986.png" alt="MA-plot"></p>
+<p>图中红色的是统计学上的显著差异表达基因，横轴的<code>Average logCPM</code>是校正后的样本间logCPM的均值</p>
+<blockquote>
+<p>至于edgeR与DESeq2的比较其实已经有很多benchmark的文献做过了，这里就先鸽一下，以后有机会再来填坑。</p>
+<p>benchmark ref：<a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/SummarizedBenchmark/inst/doc/Feature-Iterative.html">https://bioconductor.org/packages/release/bioc/vignettes/SummarizedBenchmark/inst/doc/Feature-Iterative.html</a></p>
+</blockquote>
+<blockquote>
+<p>参考文章：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf">https://bioconductor.org/packages/release/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.biostars.org/p/319957/">https://www.biostars.org/p/319957/</a></li>
+<li><a target="_blank" rel="noopener" href="https://web.stanford.edu/class/bios221/labs/rnaseq/lab_4_rnaseq.html">https://web.stanford.edu/class/bios221/labs/rnaseq/lab_4_rnaseq.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://bioinformatics-core-shared-training.github.io/cruk-bioinf-sschool/Day3/rnaSeq_DE.pdf">https://bioinformatics-core-shared-training.github.io/cruk-bioinf-sschool/Day3/rnaSeq_DE.pdf</a></li>
+</ol>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/edgeR-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/" title="edgeR-简单的转录组差异表达分析">https://thereallda.github.io/2022/01/24/edgeR-简单的转录组差异表达分析/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/RNA-seq/" rel="tag"># RNA-seq</a>
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/" rel="prev" title="DESeq2-简单的转录组差异表达分析">
+      <i class="fa fa-chevron-left"></i> DESeq2-简单的转录组差异表达分析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BD%BD%E5%85%A5%E6%95%B0%E6%8D%AE%E5%8F%8A%E7%94%9F%E6%88%90DGEList"><span class="nav-number">1.</span> <span class="nav-text">载入数据及生成DGEList</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">差异分析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'e4a3ff86ba2f16257be8a9c74aaf5214',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
