@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="10X Genomics 是一个综合的单细胞测序技术平台，可以应用于多种单细胞测序上，包括Single cell gene expression, Single cell Immune Profiling, Single cell CNV, Single cell ATAC。这篇文章将主要简述10X Genomics在单细胞基因表达检测方面，也就是scRNA-seq上的应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="笔记-单细胞转录组测序 10X Genomics">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="10X Genomics 是一个综合的单细胞测序技术平台，可以应用于多种单细胞测序上，包括Single cell gene expression, Single cell Immune Profiling, Single cell CNV, Single cell ATAC。这篇文章将主要简述10X Genomics在单细胞基因表达检测方面，也就是scRNA-seq上的应用。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131835861.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131851039.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131900937.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131924764.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131935711.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131946904.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131956654.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124132013421.png">
+<meta property="article:published_time" content="2022-01-24T05:17:59.000Z">
+<meta property="article:modified_time" content="2022-01-24T05:20:34.861Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="scRNA-seq">
+<meta property="article:tag" content="tech">
+<meta property="article:tag" content="note">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131835861.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>笔记-单细胞转录组测序 10X Genomics | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          笔记-单细胞转录组测序 10X Genomics
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 13:17:59 / Modified: 13:20:34" itemprop="dateCreated datePublished" datetime="2022-01-24T13:17:59+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>10X Genomics 是一个综合的单细胞测序技术平台，可以应用于多种单细胞测序上，包括Single cell gene expression, Single cell Immune Profiling, Single cell CNV, Single cell ATAC。这篇文章将主要简述10X Genomics在<strong>单细胞基因表达</strong>检测方面，也就是scRNA-seq上的应用。</p>
+<span id="more"></span>
+
+<p>10X Genomics 一次测序可以捕捉<strong>100-80,000个细胞</strong>，具有极高的细胞通量。单细胞的测序通量平均也在<strong>50,000 reads/per cell <strong>左右，而如果使用细胞核进行测序则平均通量为</strong>25,000 reads/per nuclei</strong>。比起使用FACS进行细胞分选的单细胞测序技术而言，10X Genomics的细胞通量有显著的提高。</p>
+<h1 id="10X-Genomics-Workflow"><a href="#10X-Genomics-Workflow" class="headerlink" title="10X Genomics Workflow"></a>10X Genomics Workflow</h1><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131835861.png" alt="Workflow of 10X Genomics"></p>
+<ol>
+<li>将样品组织/细胞分散成单细胞悬液</li>
+<li>在微流控系统中与sequencing beads形成GEMs</li>
+<li>在GEMs中细胞被裂解–建库</li>
+<li>进行文库测序</li>
+<li>下载数据进行分析（cellranger）</li>
+</ol>
+<p>10X Genomics与其他测序技术的主要区别在于其<strong>barcode和建库</strong>的操作。虽然上样之后都是自动化操作，但了解其建库原理对后续的生物信息学分析也是有必要的。</p>
+<h2 id="Cell-sorting"><a href="#Cell-sorting" class="headerlink" title="Cell sorting"></a>Cell sorting</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131851039.png" alt="Cell sorting"></p>
+<p>10X Genomics运用微流控系统进行细胞分选，带有Barcode的Gel Beads 匀速地从左方进入，待分选的细胞和酶从下方以一定时间间隔进入，并与Gel Beads结合，进入油相中形成<strong>GEMs (Gel Bead in emulsion)</strong></p>
+<h2 id="Barcoding"><a href="#Barcoding" class="headerlink" title="Barcoding"></a>Barcoding</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131900937.png" alt="Barcoding"></p>
+<p>Gel Beads上的Barcode带有一段每个细胞特异的<strong>UMI</strong>，在随后的文库构建中，只要是由该细胞扩增出的cDNA都会带上这段UMI以及前面的10x Barcode。因此，便可区分出不同细胞扩增出的cDNA。要注意的是，10X Genomics也是通过poly(dT)富集细胞的mRNA，会有无法避免的3‘ bias.<br><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131924764.png" alt="GEMs"></p>
+<p>一般而言，每个GEMs会形成如上图一般的结构，即一个细胞一个gel beads。但有时候也会出现一个GEM里有0或多个细胞(empty droplet or doublet)，对于这种GEMs则需要通过我们在后续分析中识别出来并进行排除。</p>
+<h2 id="Library-construction"><a href="#Library-construction" class="headerlink" title="Library construction"></a>Library construction</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131935711.png" alt="library construction"></p>
+<p>形成GEMs后，<strong>细胞裂解后经过反转录(RT) —— cDNA generation</strong> 便形成cDNA文库。这一系列建库过程都在GEMs中发生，因此GEMs的存在相当于一个物理隔离，保证每个单细胞都在独特的“小室”中发生。另外，由于GEMs是在油相中形成了一种乳浊液(emulsion) 的形态 ，而乳浊液中会形成上万个微液滴，每一个微液滴就是一个GEMs，这也解释了为何10X Geonmics细胞通量如此之高的原因。</p>
+<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131946904.png"></p>
+<p>建库完成后，采用Illumina的测序仪进行测序，通常进行<strong>双端不等长测序</strong>。其中5’测28nt检测barcode与UMI，3’测90nt用于定量基因表达。<br><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131956654.png"></p>
+<p>最后，测序完成后，现在的10X Genomics测序仪会同时进行一些简单的数据分析，包括每个样品的数据量，mapping rate，data filtering ，每细胞reads等等。当然，我们也可以自己拿数据跑Cell Ranger，随后可以用seurat包等进行后续的个性化分析也是没有问题的。</p>
+<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124132013421.png"></p>
+<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><ul>
+<li><p>优点</p>
+<ol>
+<li><p>细胞通量高，可达到80,000 cells/per run</p>
+</li>
+<li><p>可以进行单细胞和单细胞核测序</p>
+</li>
+<li><p>单细胞测序覆盖度高，平均为50,000 reads/per cell </p>
+</li>
+</ol>
+</li>
+<li><p>缺点</p>
+<ol>
+<li><p>存在一定doublet or empty droplet 的情况，导致部分数据不可用。</p>
+</li>
+<li><p>构建出3’ cDNA文库，一方面存在3’ bias。另一方面检测不到转录剪接等转录后加工事件。</p>
+</li>
+</ol>
+</li>
+</ul>
+<p>以上就是对10X Genomics平台的简单介绍。</p>
+<p>完。</p>
+<blockquote>
+<p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="https://www.10xgenomics.com/solutions/single-cell/">https://www.10xgenomics.com/solutions/single-cell/</a><br><a target="_blank" rel="noopener" href="https://tgc.net.technion.ac.il/the-chromium-single-cell-gene-expression-solution/">https://tgc.net.technion.ac.il/the-chromium-single-cell-gene-expression-solution/</a><br><a target="_blank" rel="noopener" href="https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-">https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/" title="笔记-单细胞转录组测序 10X Genomics">https://thereallda.github.io/2022/01/24/笔记-单细胞转录组测序-10X-Genomics/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/scRNA-seq/" rel="tag"># scRNA-seq</a>
+              <a href="/tags/tech/" rel="tag"># tech</a>
+              <a href="/tags/note/" rel="tag"># note</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/" rel="prev" title="笔记-单细胞转录组测序 Microwell-seq">
+      <i class="fa fa-chevron-left"></i> 笔记-单细胞转录组测序 Microwell-seq
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#10X-Genomics-Workflow"><span class="nav-number">1.</span> <span class="nav-text">10X Genomics Workflow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cell-sorting"><span class="nav-number">1.1.</span> <span class="nav-text">Cell sorting</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Barcoding"><span class="nav-number">1.2.</span> <span class="nav-text">Barcoding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Library-construction"><span class="nav-number">1.3.</span> <span class="nav-text">Library construction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '031fe67dedad2799a64692b917a4e0e1',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

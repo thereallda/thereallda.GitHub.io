@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在做基因差异表达分析时，经常会用DESeq2这个包，但一直没有深究其分析的统计流程。因此，在这里记录一下DESeq2校正基因表达的方法 – 比率中值法 (Median of ratios)。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理论-DESeq2-normalization">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="在做基因差异表达分析时，经常会用DESeq2这个包，但一直没有深究其分析的统计流程。因此，在这里记录一下DESeq2校正基因表达的方法 – 比率中值法 (Median of ratios)。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/image-20220124122033380.png">
+<meta property="article:published_time" content="2022-01-24T04:19:40.000Z">
+<meta property="article:modified_time" content="2022-01-24T04:20:46.909Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="RNA-seq">
+<meta property="article:tag" content="Statistics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/image-20220124122033380.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>理论-DESeq2-normalization | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          理论-DESeq2-normalization
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 12:19:40 / Modified: 12:20:46" itemprop="dateCreated datePublished" datetime="2022-01-24T12:19:40+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在做基因差异表达分析时，经常会用<code>DESeq2</code>这个包，但一直没有深究其分析的统计流程。因此，在这里记录一下<code>DESeq2</code>校正基因表达的方法 – 比率中值法 (Median of ratios)。</p>
+<span id="more"></span>
+
+<p>开篇明义，比率中值法考虑的因素是<strong>测序深度</strong>和文库的<strong>RNA组成</strong>。</p>
+<p>以下我们使用<code>airway</code>数据具体展示比率中值法的校正过程</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">library(airway)</span><br><span class="line"><span class="comment"># Airway smooth muscle cells lines RNA-Seq experiment</span></span><br><span class="line">data(<span class="string">&quot;airway&quot;</span>)</span><br><span class="line"><span class="comment"># randomly sample 5k genes for testing</span></span><br><span class="line">set.seed(<span class="number">123</span>)</span><br><span class="line">df1 &lt;- as.data.frame(assay(airway)[sample(<span class="number">1</span>:nrow(airway), <span class="number">5000</span>), <span class="number">1</span>:<span class="number">4</span>])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>比率中值法具体实现如下：</p>
+<h2 id="Step-1-创建假参考样本-（每个基因的几何平均值）"><a href="#Step-1-创建假参考样本-（每个基因的几何平均值）" class="headerlink" title="Step 1: 创建假参考样本 （每个基因的几何平均值）"></a>Step 1: 创建假参考样本 （每个基因的几何平均值）</h2><p>首先，我们为每一个基因创建一个假参考样本(pseudo-reference sample)表达量，这代表理想的基因表达量。该值通过计算每个基因的几何平均值得到</p>
+<blockquote>
+<p>几何平均值：n个数的乘积开n次根</p>
+<p>${\displaystyle \left(\prod <em>{i=1}^{n}x</em>{i}\right)^{\frac {1}{n}}={\sqrt[{n}]{x_{1}x_{2}\cdots x_{n}}}}$</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gm &lt;- apply(df1, <span class="number">1</span>, <span class="keyword">function</span>(x) <span class="built_in">exp</span>(mean(<span class="built_in">log</span>(x))))</span><br><span class="line">df1$pseudo &lt;- gm</span><br><span class="line">knitr::kable(head(df1))</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="right">SRR1039508</th>
+<th align="right">SRR1039509</th>
+<th align="right">SRR1039512</th>
+<th align="right">SRR1039513</th>
+<th align="right">pseudo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">ENSG00000260166</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000266931</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000104774</td>
+<td align="right">1939</td>
+<td align="right">1906</td>
+<td align="right">2294</td>
+<td align="right">1205</td>
+<td align="right">1787.806</td>
+</tr>
+<tr>
+<td align="left">ENSG00000267583</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000227581</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000227317</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+</tr>
+</tbody></table>
+<h2 id="Step-2-计算每一个样本相对于参考样本的比值"><a href="#Step-2-计算每一个样本相对于参考样本的比值" class="headerlink" title="Step 2: 计算每一个样本相对于参考样本的比值"></a>Step 2: 计算每一个样本相对于参考样本的比值</h2><p>接着，对于样本的每一个基因，我们计算一个 sample/reference 的比值。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># step 2: calculates ratio of each sample to the reference</span></span><br><span class="line">ratios &lt;- df1[, -<span class="number">5</span>]/gm</span><br><span class="line">colnames(ratios) &lt;- paste0(<span class="string">&#x27;R_&#x27;</span>,colnames(ratios))</span><br><span class="line">df2 &lt;- merge(df1, ratios, by=<span class="number">0</span>)</span><br><span class="line">knitr::kable(head(df2))</span><br></pre></td></tr></table></figure>
+
+<p>以第一行基因的ratio为例，写出具体计算过程：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Row.names</th>
+<th align="right">SRR1039508</th>
+<th align="right">SRR1039509</th>
+<th align="right">SRR1039512</th>
+<th align="right">SRR1039513</th>
+<th align="right">pseudo</th>
+<th align="right">R_SRR1039508</th>
+<th align="right">R_SRR1039509</th>
+<th align="right">R_SRR1039512</th>
+<th align="right">R_SRR1039513</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">ENSG00000000460</td>
+<td align="right">60</td>
+<td align="right">55</td>
+<td align="right">40</td>
+<td align="right">35</td>
+<td align="right">46.36182</td>
+<td align="right">60/46.36182=1.2941683</td>
+<td align="right">55/46.36182=1.1863209</td>
+<td align="right">40/46.36182=0.8627789</td>
+<td align="right">35/46.36182=0.7549315</td>
+</tr>
+<tr>
+<td align="left">ENSG00000000971</td>
+<td align="right">3251</td>
+<td align="right">3679</td>
+<td align="right">6177</td>
+<td align="right">4252</td>
+<td align="right">4209.97390</td>
+<td align="right">0.7722138</td>
+<td align="right">0.8738772</td>
+<td align="right">1.4672300</td>
+<td align="right">1.0099825</td>
+</tr>
+<tr>
+<td align="left">ENSG00000002919</td>
+<td align="right">234</td>
+<td align="right">246</td>
+<td align="right">298</td>
+<td align="right">211</td>
+<td align="right">245.28016</td>
+<td align="right">0.9540111</td>
+<td align="right">1.0029348</td>
+<td align="right">1.2149372</td>
+<td align="right">0.8602408</td>
+</tr>
+<tr>
+<td align="left">ENSG00000003436</td>
+<td align="right">4373</td>
+<td align="right">4183</td>
+<td align="right">5794</td>
+<td align="right">3230</td>
+<td align="right">4301.42236</td>
+<td align="right">1.0166405</td>
+<td align="right">0.9724690</td>
+<td align="right">1.3469963</td>
+<td align="right">0.7509144</td>
+</tr>
+<tr>
+<td align="left">ENSG00000004660</td>
+<td align="right">95</td>
+<td align="right">55</td>
+<td align="right">59</td>
+<td align="right">35</td>
+<td align="right">57.31279</td>
+<td align="right">1.6575705</td>
+<td align="right">0.9596461</td>
+<td align="right">1.0294385</td>
+<td align="right">0.6106839</td>
+</tr>
+<tr>
+<td align="left">ENSG00000004766</td>
+<td align="right">492</td>
+<td align="right">413</td>
+<td align="right">546</td>
+<td align="right">337</td>
+<td align="right">439.72831</td>
+<td align="right">1.1188727</td>
+<td align="right">0.9392163</td>
+<td align="right">1.2416758</td>
+<td align="right">0.7663823</td>
+</tr>
+</tbody></table>
+<p>由于大部分基因不会发生差异表达，所以样本内的ratios应是相当的。</p>
+<h2 id="Step-3-计算每个样本的校正因子"><a href="#Step-3-计算每个样本的校正因子" class="headerlink" title="Step 3: 计算每个样本的校正因子"></a>Step 3: 计算每个样本的校正因子</h2><p>样本内（column-wise）所有比率的中值即为校正因子(normalization factor), 也就是DESeq2 的size factor</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># step 3: size factor</span></span><br><span class="line">df2 &lt;- na.omit(df2)</span><br><span class="line"></span><br><span class="line">sf1 &lt;- median(df2$R_SRR1039508, na.rm = <span class="built_in">T</span>)</span><br><span class="line">sf2 &lt;- median(df2$R_SRR1039509, na.rm = <span class="built_in">T</span>)</span><br><span class="line">sf3 &lt;- median(df2$R_SRR1039512, na.rm = <span class="built_in">T</span>)</span><br><span class="line">sf4 &lt;- median(df2$R_SRR1039513, na.rm = <span class="built_in">T</span>)</span><br><span class="line">sfs &lt;- <span class="built_in">c</span>(sf1, sf2, sf3, sf4)</span><br><span class="line">&gt; sfs</span><br><span class="line">[<span class="number">1</span>] <span class="number">1.1241342</span> <span class="number">0.9892460</span> <span class="number">1.2740402</span> <span class="number">0.7208434</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里展示一个样本基因比率分布图，红线即为比率的中值</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hist(df2$R_SRR1039508, main=<span class="string">&#x27;sample / pseudo-reference sample&#x27;</span>, xlab=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">abline(v=median(df2$R_SRR1039508), col=<span class="string">&#x27;red&#x27;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/image-20220124122033380.png"></p>
+</blockquote>
+<h2 id="Step-4-计算normalized-coutns"><a href="#Step-4-计算normalized-coutns" class="headerlink" title="Step 4: 计算normalized coutns"></a>Step 4: 计算normalized coutns</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df1_norm &lt;- t(t(df1[,-<span class="number">5</span>])/sfs)</span><br><span class="line">knitr::kable(head(df1_norm))</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="right">SRR1039508</th>
+<th align="right">SRR1039509</th>
+<th align="right">SRR1039512</th>
+<th align="right">SRR1039513</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">ENSG00000260166</td>
+<td align="right">0.0000000</td>
+<td align="right">0.000000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000266931</td>
+<td align="right">0.0000000</td>
+<td align="right">0.000000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000104774</td>
+<td align="right">1724.8830895</td>
+<td align="right">1926.719981</td>
+<td align="right">1800.571</td>
+<td align="right">1671.653</td>
+</tr>
+<tr>
+<td align="left">ENSG00000267583</td>
+<td align="right">0.0000000</td>
+<td align="right">1.010871</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000227581</td>
+<td align="right">0.8895735</td>
+<td align="right">0.000000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr>
+<td align="left">ENSG00000227317</td>
+<td align="right">0.0000000</td>
+<td align="right">0.000000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+</tbody></table>
+<p>我们可以与<code>DESeq2</code>的sizefactor对比一下，看看我们算的是否正确</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># using deseq2</span></span><br><span class="line">library(DESeq2)</span><br><span class="line"></span><br><span class="line">dds &lt;- DESeqDataSetFromMatrix(countData = df1[,-<span class="number">5</span>], colData = colData(airway)[<span class="number">1</span>:<span class="number">4</span>,], design=~dex)</span><br><span class="line">dds &lt;- estimateSizeFactors(dds)</span><br><span class="line">DESeq_SFs &lt;- dds$sizeFactor</span><br><span class="line"></span><br><span class="line">sfs == DESeq_SFs</span><br><span class="line">SRR1039508 SRR1039509 SRR1039512 SRR1039513 </span><br><span class="line">      <span class="literal">TRUE</span>       <span class="literal">TRUE</span>       <span class="literal">TRUE</span>       <span class="literal">TRUE</span></span><br></pre></td></tr></table></figure>
+
+<p>以上就是<code>DESeq2</code>计算size factors，以及校正counts的方法。事实上<code>DESeq2</code>在差异分析时并不会真正地用normalized counts进行分析，而是使用raw counts，并将size factor作为其广义线性回归模型（generalized linear model）的一个因子进行考虑。</p>
+<p>完。</p>
+<blockquote>
+<p>ref:</p>
+<p><a target="_blank" rel="noopener" href="https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html">https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/%E7%90%86%E8%AE%BA-DESeq2-normalization/" title="理论-DESeq2-normalization">https://thereallda.github.io/2022/01/24/理论-DESeq2-normalization/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RNA-seq/" rel="tag"># RNA-seq</a>
+              <a href="/tags/Statistics/" rel="tag"># Statistics</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/%E7%90%86%E8%AE%BA-edgeR-TMM-normalization/" rel="prev" title="理论-edgeR-TMM-normalization">
+      <i class="fa fa-chevron-left"></i> 理论-edgeR-TMM-normalization
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/24/%E7%90%86%E8%AE%BA-Neighbor-Joining%E5%BB%BA%E6%A0%91%E6%B5%85%E6%9E%90/" rel="next" title="理论-Neighbor Joining建树浅析">
+      理论-Neighbor Joining建树浅析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Step-1-%E5%88%9B%E5%BB%BA%E5%81%87%E5%8F%82%E8%80%83%E6%A0%B7%E6%9C%AC-%EF%BC%88%E6%AF%8F%E4%B8%AA%E5%9F%BA%E5%9B%A0%E7%9A%84%E5%87%A0%E4%BD%95%E5%B9%B3%E5%9D%87%E5%80%BC%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">Step 1: 创建假参考样本 （每个基因的几何平均值）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step-2-%E8%AE%A1%E7%AE%97%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%A0%B7%E6%9C%AC%E7%9B%B8%E5%AF%B9%E4%BA%8E%E5%8F%82%E8%80%83%E6%A0%B7%E6%9C%AC%E7%9A%84%E6%AF%94%E5%80%BC"><span class="nav-number">2.</span> <span class="nav-text">Step 2: 计算每一个样本相对于参考样本的比值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step-3-%E8%AE%A1%E7%AE%97%E6%AF%8F%E4%B8%AA%E6%A0%B7%E6%9C%AC%E7%9A%84%E6%A0%A1%E6%AD%A3%E5%9B%A0%E5%AD%90"><span class="nav-number">3.</span> <span class="nav-text">Step 3: 计算每个样本的校正因子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step-4-%E8%AE%A1%E7%AE%97normalized-coutns"><span class="nav-number">4.</span> <span class="nav-text">Step 4: 计算normalized coutns</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '8206ac5c2b7316c22e708e7a87d00a47',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
