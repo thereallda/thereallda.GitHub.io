@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="STAR简单记录STAR的常用命令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STAR-转录组比对">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/STAR-%E8%BD%AC%E5%BD%95%E7%BB%84%E6%AF%94%E5%AF%B9/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="STAR简单记录STAR的常用命令。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-01-24T08:16:16.000Z">
+<meta property="article:modified_time" content="2022-01-24T08:30:16.420Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="Data_analysis">
+<meta property="article:tag" content="RNA-seq">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/STAR-%E8%BD%AC%E5%BD%95%E7%BB%84%E6%AF%94%E5%AF%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>STAR-转录组比对 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/STAR-%E8%BD%AC%E5%BD%95%E7%BB%84%E6%AF%94%E5%AF%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          STAR-转录组比对
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 16:16:16 / Modified: 16:30:16" itemprop="dateCreated datePublished" datetime="2022-01-24T16:16:16+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="STAR"><a href="#STAR" class="headerlink" title="STAR"></a>STAR</h1><p>简单记录STAR的常用命令。</p>
+<span id="more"></span>
+
+<h2 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">STAR --runMode genomeGenerate \</span><br><span class="line">	--genomeDir /path/to/store/index/ \</span><br><span class="line">	--genomeFastaFiles /path/to/ref \</span><br><span class="line">	--runThreadN &lt;processorsN&gt; \</span><br><span class="line">	--sjdbGTFfile /path/to/gtf</span><br></pre></td></tr></table></figure>
+
+<p><code>--sjdbGTFfile</code> improve alternative splicing detection</p>
+<p><code>--genomeFastaFile</code>: location of the reference sequence that were used to generate index</p>
+<p><code>--genomeDir</code>: location for storing index, directory is preferable </p>
+<p>With limit computional resource</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">STAR --runThreadN 32 \</span><br><span class="line">	--runMode genomeGenerate \</span><br><span class="line">	--genomeDir /path/to/store/index/ \</span><br><span class="line">    --genomeFastaFiles /path/to/ref \ </span><br><span class="line">    --limitGenomeGenerateRAM 96000000000  \</span><br><span class="line">    --genomeChrBinNbits 16</span><br></pre></td></tr></table></figure>
+
+<p>add <code>--limitGenomeGenerateRAM</code> to specify RAM when STAR terminated by small RAM</p>
+<p>add <code>--genomeChrBinNbits</code> when STAR encounters error:  <code>terminate called after throwing an instance of &#39;std::bad_alloc&#39;</code> </p>
+<blockquote>
+<p>from <a target="_blank" rel="noopener" href="https://github.com/alexdobin/STAR/issues/103#issuecomment-173009628">https://github.com/alexdobin/STAR/issues/103#issuecomment-173009628</a></p>
+<p>If you are using a genome with a large &gt; 5,000 number of references (chrosomes/scaffolds), you may need to reduce the –{genomeChrBinNbits to reduce RAM consumption. The following scaling is recommended: –genomeChrBinNbits} = min(18, log2(GenomeLength/NumberOfReferences)). For example, for 3~gigaBase genome with 100,000 chromosomes/scaffolds, this is equal to 15.</p>
+</blockquote>
+<h2 id="Aligning"><a href="#Aligning" class="headerlink" title="Aligning"></a>Aligning</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> paired-end mode</span></span><br><span class="line">if $&#123;PAIR&#125;; then</span><br><span class="line">	STAR --genomeDir /path/to/index \</span><br><span class="line">	--readFilesIn &lt;fq1&gt; &lt;fq2&gt; \</span><br><span class="line">	--runThreadN &lt;processorsN&gt; \</span><br><span class="line">	--outSAMtype SAM \</span><br><span class="line">	--outFileNamePrefix /path/to/output</span><br><span class="line">else # single-end mode</span><br><span class="line">	STAR --genomeDir /path/to/index  \</span><br><span class="line">	--readFilesIn &lt;fq1&gt; \</span><br><span class="line">	--runThreadN &lt;processorsN&gt; \</span><br><span class="line">	--outSAMtype SAM \</span><br><span class="line">	--outFileNamePrefix /path/to/output</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<p><code>--readFilesIn</code>: input fastq files</p>
+<h2 id="Output"><a href="#Output" class="headerlink" title="Output"></a>Output</h2><p>By default, STAR output following files</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- -rw-rw-r-- Aligned.out.sam</span><br><span class="line">- -rw-rw-r-- Log.final.out</span><br><span class="line">- -rw-rw-r-- Log.out</span><br><span class="line">- -rw-rw-r-- Log.progress.out</span><br><span class="line">- -rw-rw-r-- SJ.out.tab</span><br><span class="line">- drwx------ _STARtmp</span><br></pre></td></tr></table></figure>
+
+<p><code>Aligned.out.sam</code> holds the alignment results</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view Aligned.out.sam |head -n1</span><br><span class="line">A00582:731:HHGVJDSX2:1:1106:3586:16845  99      chr11   74699355        255     149M    =       74699383        24655   GTCAAGCTTATTTGATATAGTGGTATGTCCCTCCAGAAAAATCAAAAGTTGTGATCCCTGGATTTGAATTAAATATGCCACTATGTGGCTTCCACAGAGGGAAAAATGATTCTTTTTTTCAAGTGAATCCAATCAGCAACCAGTCAACA   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF   NH:i:1 HI:i:1   AS:i:294        nM:i:0</span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>Log.final.out</code> records the alignment status</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">cat Log.final.out</span><br><span class="line">                                 Started job on |       Sep 15 17:26:21</span><br><span class="line">                             Started mapping on |       Sep 15 17:27:00</span><br><span class="line">                                    Finished on |       Sep 15 17:30:05</span><br><span class="line">       Mapping speed, Million of reads per hour |       318.71</span><br><span class="line"></span><br><span class="line">                          Number of input reads |       16378402</span><br><span class="line">                      Average input <span class="built_in">read</span> length |       288</span><br><span class="line">                                    UNIQUE READS:</span><br><span class="line">                   Uniquely mapped reads number |       14279182</span><br><span class="line">                        Uniquely mapped reads % |       87.18%</span><br><span class="line">                          Average mapped length |       287.27</span><br><span class="line">                       Number of splices: Total |       14764233</span><br><span class="line">            Number of splices: Annotated (sjdb) |       0</span><br><span class="line">                       Number of splices: GT/AG |       14660617</span><br><span class="line">                       Number of splices: GC/AG |       82087</span><br><span class="line">                       Number of splices: AT/AC |       6046</span><br><span class="line">               Number of splices: Non-canonical |       15483</span><br><span class="line">                      Mismatch rate per base, % |       0.17%</span><br><span class="line">                         Deletion rate per base |       0.01%</span><br><span class="line">                        Deletion average length |       2.28</span><br><span class="line">                        Insertion rate per base |       0.01%</span><br><span class="line">                       Insertion average length |       1.86</span><br><span class="line">                             MULTI-MAPPING READS:</span><br><span class="line">        Number of reads mapped to multiple loci |       1337685</span><br><span class="line">             % of reads mapped to multiple loci |       8.17%</span><br><span class="line">        Number of reads mapped to too many loci |       54922</span><br><span class="line">             % of reads mapped to too many loci |       0.34%</span><br><span class="line">                                  UNMAPPED READS:</span><br><span class="line">  Number of reads unmapped: too many mismatches |       0</span><br><span class="line">       % of reads unmapped: too many mismatches |       0.00%</span><br><span class="line">            Number of reads unmapped: too short |       342060</span><br><span class="line">                 % of reads unmapped: too short |       2.09%</span><br><span class="line">                Number of reads unmapped: other |       364553</span><br><span class="line">                     % of reads unmapped: other |       2.23%</span><br><span class="line">                                  CHIMERIC READS:</span><br><span class="line">                       Number of chimeric reads |       0</span><br><span class="line">                            % of chimeric reads |       0.00%</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<blockquote>
+<p>Ref: </p>
+<p><a target="_blank" rel="noopener" href="https://github.com/alexdobin/STAR">https://github.com/alexdobin/STAR</a></p>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/STAR-%E8%BD%AC%E5%BD%95%E7%BB%84%E6%AF%94%E5%AF%B9/" title="STAR-转录组比对">https://thereallda.github.io/2022/01/24/STAR-转录组比对/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
+              <a href="/tags/RNA-seq/" rel="tag"># RNA-seq</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/BOWTIE2-%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%AF%94%E5%AF%B9/" rel="prev" title="BOWTIE2-进行基因组比对">
+      <i class="fa fa-chevron-left"></i> BOWTIE2-进行基因组比对
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/24/MACS2-Peak-calling/" rel="next" title="MACS2-Peak-calling">
+      MACS2-Peak-calling <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#STAR"><span class="nav-number">1.</span> <span class="nav-text">STAR</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Index"><span class="nav-number">1.1.</span> <span class="nav-text">Index</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Aligning"><span class="nav-number">1.2.</span> <span class="nav-text">Aligning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Output"><span class="nav-number">1.3.</span> <span class="nav-text">Output</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'd2db90681ce680f3faf01666b5477aa7',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

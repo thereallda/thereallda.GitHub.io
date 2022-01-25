@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="整理高通量测序数据分析中使用的软件。  samtools view samtools是常用的对sam&#x2F;bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="samtools-view-简单介绍">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="整理高通量测序数据分析中使用的软件。  samtools view samtools是常用的对sam&#x2F;bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170551931.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170603333.png">
+<meta property="article:published_time" content="2022-01-24T09:01:33.000Z">
+<meta property="article:modified_time" content="2022-01-24T09:06:26.069Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="tools">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170551931.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>samtools-view-简单介绍 | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          samtools-view-简单介绍
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 17:01:33 / Modified: 17:06:26" itemprop="dateCreated datePublished" datetime="2022-01-24T17:01:33+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>整理高通量测序数据分析中使用的软件。</p>
+</blockquote>
+<h1 id="samtools-view"><a href="#samtools-view" class="headerlink" title="samtools view"></a>samtools view</h1><p><img src="/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170551931.png"></p>
+<p>samtools是常用的对sam/bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。</p>
+<span id="more"></span>
+
+<h2 id="查看序列"><a href="#查看序列" class="headerlink" title="查看序列"></a>查看序列</h2><p>如果只是查看sam文件的序列比对结果的前几行，可以用该命令简单的查看.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">samtools view test.sam | head -n2</span><br><span class="line">SRR6924174.1    163     chr11   106049782       255     80M     =       106049950       248     GCCAAACACAGAACAAACTTTTTAGAATCTTGGTAATAATGACAACTGACATCAGGGTGGAAGATAAGAATATCTCACTA   @BBBCGGGGGEFGGG;EFGGGGGFGGGCGGCDGG&gt;FFEGGGEGGGGBF&gt;1EFB:@GGGGGGGDEGGG@GGDFGGGF1@FC NH:i:1  HI:i:1  AS:i:157        nM:i:0</span><br><span class="line">SRR6924174.1    83      chr11   106049950       255     80M     =       106049782       -248    TTGTCTACAGATCAAGTTCCAGGACAGCCAGGAACAGAGAAATGCTGTCTTGAAAACTAAAAAAACACCTTTAATCCCAN   GGGGGGGGGGGEGCEGEBFGGBDGFEFGGGGGGGGGEGGGGGFGGGGGGGGGGGEGGFGGGGGGGGFGGGGGGGGBA&lt;&lt;<span class="comment"># NH:i:1  HI:i:1  AS:i:157        nM:i:0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>默认情况，samtools view输出序列到屏幕，可以重导向到别的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view test.sam &gt; test2.sam</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="sam-bam文件格式转换"><a href="#sam-bam文件格式转换" class="headerlink" title="sam-bam文件格式转换"></a>sam-bam文件格式转换</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 16 -bh test.sam -o test.bam</span><br></pre></td></tr></table></figure>
+<p><code>-b</code>：声明输出为bam格式的文件。<br><code>-h</code>：保留sam文件的header（如果有的话），header信息常包括比对的参考基因组的染色体信息和比对的命令<br><code>-@</code> ：指明使用的线程数</p>
+<h2 id="过滤序列"><a href="#过滤序列" class="headerlink" title="过滤序列"></a>过滤序列</h2><p>以下简单介绍samtools view 过滤序列的参数</p>
+<h3 id="根据MAPQ过滤"><a href="#根据MAPQ过滤" class="headerlink" title="根据MAPQ过滤"></a>根据MAPQ过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -q 30 test.bam -o test.q30.bam</span><br></pre></td></tr></table></figure>
+<p><code>-q</code>参数只输出MAPQ（比对质量）大于等于该值的序列，上述命令过滤了MAPQ小于30的序列</p>
+<h3 id="根据FLAG过滤"><a href="#根据FLAG过滤" class="headerlink" title="根据FLAG过滤"></a>根据FLAG过滤</h3><p>另外，通过<code>-f</code>和<code>-F</code>参数，我们可以根据FLAG的值过滤序列。两者的区别在于：<br><code>-f</code>：保留该flag值的序列（相当于<code>grep </code>）<br><code>-F</code>：保留除了该flag值以外的所有序列（相当于<code>grep -v</code>）</p>
+<p><strong>对于单端测序的比对结果</strong></p>
+<p>因此，假设我们需要取比对上的reads，可以使用<code>-F 4</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -F 4 test.bam -o test.mapped.bam</span><br></pre></td></tr></table></figure>
+<p>或者取出比对不上的reads（前提是比对软件也输出了比对不上的reads）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -f 4 test.bam -o test.unmapped.bam</span><br></pre></td></tr></table></figure>
+<p><strong>对于双端测序的比对结果</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8  -bh -f 2 test.bam &gt; test.mapped.bam</span><br><span class="line">samtools view -@ 8  -bh -F 2 test.bam &gt; test.unmapped.bam</span><br></pre></td></tr></table></figure>
+<p>这里提供一个小工具可以快速查询flag值所对应的含义 (<a target="_blank" rel="noopener" href="https://broadinstitute.github.io/picard/explain-flags.html">https://broadinstitute.github.io/picard/explain-flags.html</a>)<br><img src="/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170603333.png"></p>
+<p>在左下侧的框中勾选会给出相应的flag值<br>在上方搜索栏中输入数值会在右侧给出flag值对应的含义。</p>
+<h3 id="根据染色体坐标进行过滤"><a href="#根据染色体坐标进行过滤" class="headerlink" title="根据染色体坐标进行过滤"></a>根据染色体坐标进行过滤</h3><p>如果bam文件已经使用<code>samtools index</code>建好index的话，可以输出特定染色体坐标内的reads</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -b test.bam chr1:10420000-10421000 &gt; subset.bam </span><br></pre></td></tr></table></figure>
+<p>如果想取出多个染色体区域的reads的话，就不再建议使用上述的方法了，可以使用<code>bedtools</code>之类的工具根据bed文件进行提取。对samtools view命令的简单介绍就到此结束，以后使用有心得再作更新。</p>
+<blockquote>
+<p>Ref:<br><strong>samtools view manual</strong>: <a target="_blank" rel="noopener" href="http://www.htslib.org/doc/samtools-view.html">http://www.htslib.org/doc/samtools-view.html</a><br><strong>How To Filter Mapped Reads With Samtools</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/56246/">https://www.biostars.org/p/56246/</a><br><strong>Decoding SAM flags</strong>: <a target="_blank" rel="noopener" href="https://broadinstitute.github.io/picard/explain-flags.html">https://broadinstitute.github.io/picard/explain-flags.html</a><br><strong>Extract Alignment by genomic coordinates</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/45936/">https://www.biostars.org/p/45936/</a></p>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" title="samtools-view-简单介绍">https://thereallda.github.io/2022/01/24/samtools-view-简单介绍/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/tools/" rel="tag"># tools</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/sortmerna-%E5%8E%BB%E9%99%A4rRNA/" rel="prev" title="sortmerna-去除rRNA">
+      <i class="fa fa-chevron-left"></i> sortmerna-去除rRNA
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/24/samtools-sort-and-index/" rel="next" title="samtools-sort-and-index">
+      samtools-sort-and-index <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#samtools-view"><span class="nav-number">1.</span> <span class="nav-text">samtools view</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%BA%8F%E5%88%97"><span class="nav-number">1.1.</span> <span class="nav-text">查看序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sam-bam%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.2.</span> <span class="nav-text">sam-bam文件格式转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E5%BA%8F%E5%88%97"><span class="nav-number">1.3.</span> <span class="nav-text">过滤序列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEMAPQ%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.1.</span> <span class="nav-text">根据MAPQ过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEFLAG%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.2.</span> <span class="nav-text">根据FLAG过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E6%9F%93%E8%89%B2%E4%BD%93%E5%9D%90%E6%A0%87%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.3.</span> <span class="nav-text">根据染色体坐标进行过滤</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '8b2a632228bcefa67d9c4ba944432a93',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

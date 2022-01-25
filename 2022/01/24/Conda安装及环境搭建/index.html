@@ -19,12 +19,12 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="conda是什么 Anaconda是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。 本文要介绍的Miniconda是一个Anaconda的轻量级替代，默认只包含了python 和conda，但是可以通过pip和conda来安装所需要的包。  说白了conda就是一个软件包的管理库，可以方便地安装各种软件，">
+  <meta name="description" content="conda是什么Anaconda是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。 本文要介绍的Miniconda是一个Anaconda的轻量级替代，默认只包含了python 和conda，但是可以通过pip和conda来安装所需要的包。  说白了conda就是一个软件包的管理库，可以方便地安装各种软件，当">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Conda安装及环境搭建">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="conda是什么 Anaconda是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。 本文要介绍的Miniconda是一个Anaconda的轻量级替代，默认只包含了python 和conda，但是可以通过pip和conda来安装所需要的包。  说白了conda就是一个软件包的管理库，可以方便地安装各种软件，">
+<meta property="og:description" content="conda是什么Anaconda是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。 本文要介绍的Miniconda是一个Anaconda的轻量级替代，默认只包含了python 和conda，但是可以通过pip和conda来安装所需要的包。  说白了conda就是一个软件包的管理库，可以方便地安装各种软件，当">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124151738577.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124151929064.png">
@@ -232,76 +232,86 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1>conda是什么</h1>
-<p><strong>Anaconda</strong>是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。</p>
+        <h1 id="conda是什么"><a href="#conda是什么" class="headerlink" title="conda是什么"></a>conda是什么</h1><p><strong>Anaconda</strong>是一个用于科学计算的Python发行版，支持Linux, Mac, Windows, 包含了众多流行的科学计算、数据分析的 Python 包。</p>
 <p>本文要介绍的<strong>Miniconda</strong>是一个Anaconda的轻量级替代，默认只包含了python 和conda，但是可以通过pip和conda来安装所需要的包。</p>
 <blockquote>
 <p>说白了conda就是一个软件包的管理库，可以方便地安装各种软件，当然也包括生信分析中常用的各种软件。</p>
 </blockquote>
-<p><img src="image-20220124151738577.png" alt=""></p>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124151738577.png"></p>
 <span id="more"></span>
-<h1>Miniconda的下载</h1>
-<p>Miniconda的下载有两种方式：</p>
+
+
+<h1 id="Miniconda的下载"><a href="#Miniconda的下载" class="headerlink" title="Miniconda的下载"></a>Miniconda的下载</h1><p>Miniconda的下载有两种方式：</p>
 <ol>
 <li>从官网上（<a target="_blank" rel="noopener" href="https://docs.conda.io/en/latest/miniconda.html%EF%BC%89%E4%B8%8B%E8%BD%BD%E6%9C%80%E6%96%B0%E7%9A%84%E7%89%88%E6%9C%AC">https://docs.conda.io/en/latest/miniconda.html）下载最新的版本</a></li>
 </ol>
-<p><img src="image-20220124151929064.png" alt=""></p>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124151929064.png"></p>
 <p>根据自己python的版本以及32/64位下载即可，右键“复制链接地址”</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> wget -c https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh</span></span><br></pre></td></tr></table></figure>
+
+
+
 <ol start="2">
 <li>从清华源（<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/%EF%BC%89%E4%B8%8A%E4%B8%8B%E8%BD%BD%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89">https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/）上下载（推荐）</a></li>
 </ol>
-<p><img src="image-20220124151953307.png" alt=""></p>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124151953307.png"></p>
 <p>下载这个最新版的即可</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh</span><br></pre></td></tr></table></figure>
-<h1>Miniconda的安装</h1>
-<p>下载的文件<code>Miniconda3-latest-Linux-x86_64.sh</code> 是没有执行权限的，这里我们修改一下该文件的权限。</p>
+
+
+
+<h1 id="Miniconda的安装"><a href="#Miniconda的安装" class="headerlink" title="Miniconda的安装"></a>Miniconda的安装</h1><p>下载的文件<code>Miniconda3-latest-Linux-x86_64.sh</code> 是没有执行权限的，这里我们修改一下该文件的权限。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ chmod 777 Miniconda3-latest-Linux-x86_64.sh</span><br><span class="line">$ bash Miniconda3-latest-Linux-x86_64.sh</span><br></pre></td></tr></table></figure>
+
 <p>这里要注意的是不要将conda加入环境变量，避免环境变量被污染</p>
-<p><img src="image-20220124152009135.png" alt=""></p>
-<h1>Miniconda启动</h1>
-<p>因为我们没有将conda加入到环境变量中，所以我们需要手动启动conda</p>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124152009135.png"></p>
+<h1 id="Miniconda启动"><a href="#Miniconda启动" class="headerlink" title="Miniconda启动"></a>Miniconda启动</h1><p>因为我们没有将conda加入到环境变量中，所以我们需要手动启动conda</p>
 <p>先切换到<code>./miniconda3/bin</code>，找到activate文件</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cd ~/software/miniconda3/bin/</span><br><span class="line">$ ll miniconda3/bin/ | grep activate</span><br><span class="line">## -rwxrwxr-x 1 ldaforreal ldaforreal      210 Jun  8 11:18 activate*</span><br><span class="line">## -rwxrwxr-x 1 ldaforreal ldaforreal      298 Jun  8 11:18 deactivate*</span><br></pre></td></tr></table></figure>
+
 <p>如果activate文件是有执行权限<code>x</code>的话就无需修改权限，否则就用<code>chmod 777</code>使其可执行</p>
 <p>之后，使用以下命令即可启用conda</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ source ./activate</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220124152031702.png" alt=""></p>
+
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124152031702.png"></p>
 <p>启动后会在命令行首出现当前conda环境的标志<code>(base)</code></p>
-<h1>添加channels</h1>
-<p>添加channels后，就可以下载该channel下的软件了，这边顺便把清华的镜像channels添加进去（国内用户使用快点）</p>
+<h1 id="添加channels"><a href="#添加channels" class="headerlink" title="添加channels"></a>添加channels</h1><p>添加channels后，就可以下载该channel下的软件了，这边顺便把清华的镜像channels添加进去（国内用户使用快点）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ conda config --add channels bioconda</span><br><span class="line">$ conda config --add channels conda-forge</span><br><span class="line">$ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">$ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">$ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/</span><br><span class="line">$ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/</span><br><span class="line">$ conda config --set show_channel_urls yes ## 显示channels的链接</span><br></pre></td></tr></table></figure>
 <p>查看已添加的channels</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ conda config --get channels</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220124152026561.png" alt=""></p>
+
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124152026561.png"></p>
 <p>要注意的是最后添加的channels是最高优先级的。</p>
-<h1>conda常用操作</h1>
-<h2 id="使用conda安装软件">使用conda安装软件</h2>
-<p>conda 安装软件十分简单</p>
+<h1 id="conda常用操作"><a href="#conda常用操作" class="headerlink" title="conda常用操作"></a>conda常用操作</h1><h2 id="使用conda安装软件"><a href="#使用conda安装软件" class="headerlink" title="使用conda安装软件"></a>使用conda安装软件</h2><p>conda 安装软件十分简单</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ conda install fastqc</span><br></pre></td></tr></table></figure>
+
 <p>以下是一些常用的生信软件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> conda install multiqc</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> conda install trimmomatic</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> conda install star</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> conda install samtools</span></span><br></pre></td></tr></table></figure>
-<h2 id="退出conda">退出conda</h2>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ conda deactivate</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="退出conda"><a href="#退出conda" class="headerlink" title="退出conda"></a>退出conda</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ conda deactivate</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>在conda环境下安装的软件在退出conda后无法使用，可以通过为软件创建软连接的方式解决：</p>
 <p><strong>“ 卖萌哥” 提供的解决方案：</strong></p>
-<p><img src="image-20220124152040409.png" alt=""></p>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124152040409.png"></p>
 </blockquote>
-<h2 id="环境操作">环境操作</h2>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ conda create --name env python=2.7 ## 创建一个名为‘env’的python版本为2.7的环境</span><br><span class="line">$ conda create --name clone --clone env ## 复制‘env’环境到‘clone’环境</span><br><span class="line">$ conda remove --name env --all ## 移除‘env’环境</span><br></pre></td></tr></table></figure>
-<h2 id="快速启动conda">快速启动conda</h2>
-<p>由于我们没有把conda加入环境变量<code>$PATH</code> ，所以每次想使用conda时，都需要敲入<code>$ source ./miniconda3/bin/activate</code> 这样一长串命令。但我们也可以通过<code>alias</code>这个别名命令省点功夫。</p>
-<p>我们需要在<code>.bashrc</code>文件中创建一个快速启动conda 的命令，其实就是相当于将我们启动conda的那一长串代码赋予了一个别名<code>conact</code></p>
-<p><img src="image-20220124152051174.png" alt=""></p>
+<h2 id="环境操作"><a href="#环境操作" class="headerlink" title="环境操作"></a>环境操作</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ conda create --name env python=2.7 ## 创建一个名为‘env’的python版本为2.7的环境</span><br><span class="line">$ conda create --name clone --clone env ## 复制‘env’环境到‘clone’环境</span><br><span class="line">$ conda remove --name env --all ## 移除‘env’环境</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="快速启动conda"><a href="#快速启动conda" class="headerlink" title="快速启动conda"></a>快速启动conda</h2><p>由于我们没有把conda加入环境变量<code>$PATH</code> ，所以每次想使用conda时，都需要敲入<code>$ source ./miniconda3/bin/activate</code> 这样一长串命令。但我们也可以通过<code>alias</code>这个别名命令省点功夫。</p>
+<p>我们需要在<code>.bashrc</code>文件中创建一个快速启动conda 的命令，其实就是相当于将我们启动conda的那一长串代码赋予了一个别名<code>conact</code> </p>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124152051174.png"></p>
 <blockquote>
 <p><strong>注意千万不要修改<code>.bashrc</code>文件中的其他内容！！！</strong>（在你对linux系统并不十分熟悉的时候，不建议你这样做）</p>
 <p><code>.bashrc</code>文件相当于一个系统配置文件，我们在这里设置别名命令就不用每次登录时都设置一遍。</p>
 </blockquote>
 <p>总而言之，conda是一个十分好用的软件管理工具，最直接的当然是方便我们安装各种软件和工具包。但除此之外它提供的更加是一个简洁的开发环境，我们可以通过创建不同的环境来进行不同的分析操作，例如设置<code>genome</code>环境专门处理基因数据，设置一个<code>proteome</code>环境分析蛋白质组数据等等。不同环境的设置保证了我们分析的简洁性，避免了其间软件的相互干扰。</p>
-<p><img src="image-20220124152113725.png" alt=""></p>
-<h1>持续更新：conda常用命令</h1>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">## 查看已安装命令</span><br><span class="line">conda list </span><br><span class="line">## 安装软件到指定环境</span><br><span class="line">conda install -n &lt;env name&gt; &lt;pkg name&gt;</span><br><span class="line">## 指定环境的路径安装包</span><br><span class="line">conda install --prefix=/path/to/install &lt;pkg name&gt;</span><br><span class="line">## 安装指定channel的指定版本软件</span><br><span class="line">conda install -c conda-forge R r=4.0</span><br><span class="line">## 卸载包</span><br><span class="line">conda uninstall &lt;pkgs name&gt;</span><br><span class="line">## 更新包</span><br><span class="line">conda update &lt;pkgs name&gt;</span><br><span class="line">## 显示所有的虚拟环境                   </span><br><span class="line">conda info --envs         </span><br><span class="line">## 搜索包</span><br><span class="line">conda search &lt;pkgs name&gt;</span><br><span class="line">       </span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/24/Conda%E5%AE%89%E8%A3%85%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20220124152113725.png"></p>
+<h1 id="持续更新：conda常用命令"><a href="#持续更新：conda常用命令" class="headerlink" title="持续更新：conda常用命令"></a>持续更新：conda常用命令</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">## 查看已安装命令</span><br><span class="line">conda list </span><br><span class="line">## 安装软件到指定环境</span><br><span class="line">conda install -n &lt;env name&gt; &lt;pkg name&gt;</span><br><span class="line">## 指定环境的路径安装包</span><br><span class="line">conda install --prefix=/path/to/install &lt;pkg name&gt;</span><br><span class="line">## 安装指定channel的指定版本软件</span><br><span class="line">conda install -c conda-forge R r=4.0</span><br><span class="line">## 卸载包</span><br><span class="line">conda uninstall &lt;pkgs name&gt;</span><br><span class="line">## 更新包</span><br><span class="line">conda update &lt;pkgs name&gt;</span><br><span class="line">## 显示所有的虚拟环境                   </span><br><span class="line">conda info --envs         </span><br><span class="line">## 搜索包</span><br><span class="line">conda search &lt;pkgs name&gt;</span><br><span class="line">       </span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>Ref：</p>
 <ol>
@@ -412,7 +422,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">conda是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">Miniconda的下载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">Miniconda的安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">Miniconda启动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">添加channels</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">conda常用操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8conda%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6"><span class="nav-number">6.1.</span> <span class="nav-text">使用conda安装软件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%80%E5%87%BAconda"><span class="nav-number">6.2.</span> <span class="nav-text">退出conda</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%93%8D%E4%BD%9C"><span class="nav-number">6.3.</span> <span class="nav-text">环境操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E5%90%AF%E5%8A%A8conda"><span class="nav-number">6.4.</span> <span class="nav-text">快速启动conda</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">持续更新：conda常用命令</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#conda%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">conda是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Miniconda%E7%9A%84%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.</span> <span class="nav-text">Miniconda的下载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Miniconda%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">Miniconda的安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Miniconda%E5%90%AF%E5%8A%A8"><span class="nav-number">4.</span> <span class="nav-text">Miniconda启动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0channels"><span class="nav-number">5.</span> <span class="nav-text">添加channels</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#conda%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="nav-number">6.</span> <span class="nav-text">conda常用操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8conda%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6"><span class="nav-number">6.1.</span> <span class="nav-text">使用conda安装软件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%80%E5%87%BAconda"><span class="nav-number">6.2.</span> <span class="nav-text">退出conda</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%93%8D%E4%BD%9C"><span class="nav-number">6.3.</span> <span class="nav-text">环境操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E5%90%AF%E5%8A%A8conda"><span class="nav-number">6.4.</span> <span class="nav-text">快速启动conda</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%9Aconda%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">持续更新：conda常用命令</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -428,14 +438,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -446,6 +456,9 @@
       </span>
       <span class="links-of-author-item">
         <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
       </span>
   </div>
 

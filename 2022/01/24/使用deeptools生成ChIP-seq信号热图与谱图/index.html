@@ -34,9 +34,9 @@
 <meta property="article:published_time" content="2022-01-24T07:52:43.000Z">
 <meta property="article:modified_time" content="2022-01-24T07:55:44.481Z">
 <meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="genome">
 <meta property="article:tag" content="Data_analysis">
 <meta property="article:tag" content="deeptools">
-<meta property="article:tag" content="genome">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/image-20220124155414376.png">
 
@@ -233,53 +233,36 @@
         <blockquote>
 <p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
 </blockquote>
-<p><img src="image-20220124155414376.png" alt=""></p>
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/image-20220124155414376.png"></p>
 <p>deeptools 提供了<code>computeMatrix</code>命令以计算特定基因组区域的ChIP-seq信号，并通过<code>plotHeatmap</code>和<code>plotProfile</code>函数分别产生<strong>ChIP-seq信号热图与谱图</strong>。</p>
 <span id="more"></span>
-<h2 id="用法">用法</h2>
-<h3 id="computeMatrix">computeMatrix</h3>
-<p><code>computeMatrix</code>提供以下两种用法以不同的参考系计算ChIP-seq的信号</p>
+
+<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><h3 id="computeMatrix"><a href="#computeMatrix" class="headerlink" title="computeMatrix"></a>computeMatrix</h3><p><code>computeMatrix</code>提供以下两种用法以不同的参考系计算ChIP-seq的信号</p>
 <ul>
-<li>
-<p><code>computeMatrix scale-regions</code> ：以一段区域为参考系，将所有参考的基因组区域缩放至指定的区域长度，计算该区域内的ChIP-seq信号</p>
+<li><p><code>computeMatrix scale-regions</code> ：以一段区域为参考系，将所有参考的基因组区域缩放至指定的区域长度，计算该区域内的ChIP-seq信号</p>
 </li>
-<li>
-<p><code>computeMatrix reference-point</code>：以某一坐标为参考系，取上下游一定长度作为窗口计算区域内的ChIP-seq信号值</p>
+<li><p><code>computeMatrix reference-point</code>：以某一坐标为参考系，取上下游一定长度作为窗口计算区域内的ChIP-seq信号值</p>
 </li>
 </ul>
-<p><img src="image-20220124155425949.png" alt=""></p>
-<h2 id="示例与参数介绍（结合plotHeatmap与plotProfile）">示例与参数介绍（结合<code>plotHeatmap</code>与<code>plotProfile</code>）</h2>
-<h3 id="scale-regions">scale-regions</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ computeMatrix scale-regions -S H3K27Me3-input.bigWig \</span><br><span class="line">                                 H3K4Me1-Input.bigWig  \</span><br><span class="line">                                 H3K4Me3-Input.bigWig \</span><br><span class="line">                              -R genes19.bed genesX.bed \</span><br><span class="line">                              --beforeRegionStartLength 3000 \</span><br><span class="line">                              --regionBodyLength 5000 \</span><br><span class="line">                              --afterRegionStartLength 3000</span><br><span class="line">                              --skipZeros -o matrix.mat.gz</span><br></pre></td></tr></table></figure>
-<p><code>--scoreFileName, -S</code>：输入的bw文件，可以是校正后的bw文件<br>
-<code>--regionsFileName, -R</code>：BED/GTF 格式的文件，指定需要计算的基因组区域<br>
-<code>--outFileName, -out, -o</code>：输出的文件<br>
-<code>--regionBodyLength, -m</code>：缩放后的基因组区域长度（bp），指定的基因组区域都会被缩放至该长度<br>
-<code>--beforeRegionStartLength, -b, --upstream</code>：基因组区域起始位点上游需要延伸的长度（bp）<br>
-<code>--afterRegionStartLength, -a, --downstream</code>：基因组区域终止位点下游需要延伸的长度（bp）<br>
-<code>--skipZeros</code>：设置后跳过只有0的位点。</p>
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/image-20220124155425949.png"></p>
+<h2 id="示例与参数介绍（结合plotHeatmap与plotProfile）"><a href="#示例与参数介绍（结合plotHeatmap与plotProfile）" class="headerlink" title="示例与参数介绍（结合plotHeatmap与plotProfile）"></a>示例与参数介绍（结合<code>plotHeatmap</code>与<code>plotProfile</code>）</h2><h3 id="scale-regions"><a href="#scale-regions" class="headerlink" title="scale-regions"></a>scale-regions</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ computeMatrix scale-regions -S H3K27Me3-input.bigWig \</span><br><span class="line">                                 H3K4Me1-Input.bigWig  \</span><br><span class="line">                                 H3K4Me3-Input.bigWig \</span><br><span class="line">                              -R genes19.bed genesX.bed \</span><br><span class="line">                              --beforeRegionStartLength 3000 \</span><br><span class="line">                              --regionBodyLength 5000 \</span><br><span class="line">                              --afterRegionStartLength 3000</span><br><span class="line">                              --skipZeros -o matrix.mat.gz</span><br></pre></td></tr></table></figure>
+
+<p><code>--scoreFileName, -S</code>：输入的bw文件，可以是校正后的bw文件<br><code>--regionsFileName, -R</code>：BED/GTF 格式的文件，指定需要计算的基因组区域<br><code>--outFileName, -out, -o</code>：输出的文件<br><code>--regionBodyLength, -m</code>：缩放后的基因组区域长度（bp），指定的基因组区域都会被缩放至该长度<br><code>--beforeRegionStartLength, -b, --upstream</code>：基因组区域起始位点上游需要延伸的长度（bp）<br><code>--afterRegionStartLength, -a, --downstream</code>：基因组区域终止位点下游需要延伸的长度（bp）<br><code>--skipZeros</code>：设置后跳过只有0的位点。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ plotHeatmap -m matrix.mat.gz \</span><br><span class="line">      -out ExampleHeatmap1.png \</span><br><span class="line">      --whatToShow “plot, heatmap and colorbar”</span><br></pre></td></tr></table></figure>
-<p><code>--matrixFile, -m</code>：<code>computeMatrix</code>输出的结果文件<br>
-<code>--outFileName, -out, -o</code>：输出的图片名称，格式可选 “png”, “eps”, “pdf”, “svg”等<br>
-<code>--whatToShow</code>：输出图片中的内容，可选： “plot and heatmap”, “heatmap only”, “heatmap and colorbar”</p>
-<p><img src="image-20220124155441895.png" alt=""></p>
-<h3 id="reference-point">reference-point</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ computeMatrix reference-point \</span><br><span class="line"> -S DNase_mouse.bigwig \</span><br><span class="line"> -R Whyte_TypicalEnhancers_ESC.bed \</span><br><span class="line"> --referencePoint center \</span><br><span class="line"> -a 2000 -b 2000 \ <span class="comment">## regions before and after the enhancer centers</span></span><br><span class="line"> -out matrix_Enhancers_DNase_ESC.tab.gz</span><br></pre></td></tr></table></figure>
-<p>该模式大部分参数与<code>scale-regions</code>模式一致，不同的是：<br>
-<code>--referencePoint</code>：指定参考点，可选：TSS, TES, center</p>
+<p><code>--matrixFile, -m</code>：<code>computeMatrix</code>输出的结果文件<br><code>--outFileName, -out, -o</code>：输出的图片名称，格式可选 “png”, “eps”, “pdf”, “svg”等<br><code>--whatToShow</code>：输出图片中的内容，可选： “plot and heatmap”, “heatmap only”, “heatmap and colorbar”</p>
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/image-20220124155441895.png"></p>
+<h3 id="reference-point"><a href="#reference-point" class="headerlink" title="reference-point"></a>reference-point</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ computeMatrix reference-point \</span><br><span class="line"> -S DNase_mouse.bigwig \</span><br><span class="line"> -R Whyte_TypicalEnhancers_ESC.bed \</span><br><span class="line"> --referencePoint center \</span><br><span class="line"> -a 2000 -b 2000 \ <span class="comment">## regions before and after the enhancer centers</span></span><br><span class="line"> -out matrix_Enhancers_DNase_ESC.tab.gz</span><br></pre></td></tr></table></figure>
+<p>该模式大部分参数与<code>scale-regions</code>模式一致，不同的是：<br><code>--referencePoint</code>：指定参考点，可选：TSS, TES, center</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ plotHeatmap \</span><br><span class="line"> -m matrix_Enhancers_DNase_ESC.tab.gz\</span><br><span class="line"> -out hm_DNase_ESC.png \</span><br><span class="line"> --heatmapHeight 15  \</span><br><span class="line"> --refPointLabel enh.center \</span><br><span class="line"> --regionsLabel enhancers \</span><br><span class="line"> --plotTitle <span class="string">&#x27;DNase signal&#x27;</span> \</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220124155523987.png" alt=""></p>
+
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/image-20220124155523987.png"></p>
 <p>如果只想单独生成ChIP-seq信号谱图可以使用<code>plotProfile</code>命令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ computeMatrix scale-regions -S H3K27Me3-input.bigWig \</span><br><span class="line">                                 H3K4Me1-Input.bigWig  \</span><br><span class="line">                                 H3K4Me3-Input.bigWig \</span><br><span class="line">                              -R genes19.bed genesX.bed \</span><br><span class="line">                              --beforeRegionStartLength 3000 \</span><br><span class="line">                              --regionBodyLength 5000 \</span><br><span class="line">                              --afterRegionStartLength 3000</span><br><span class="line">                              --skipZeros -o matrix.mat.gz</span><br><span class="line"></span><br><span class="line">$ plotProfile -m matrix.mat.gz \</span><br><span class="line">              -out ExampleProfile1.png \</span><br><span class="line">              --numPlotsPerRow 2 \</span><br><span class="line">              --plotTitle <span class="string">&quot;Test data profile&quot;</span></span><br></pre></td></tr></table></figure>
 <p><code>plotProfile</code>的基本使用参数与<code>plotHeatmap</code>一致，这里就不再过多介绍。</p>
-<p><img src="image-20220124155533725.png" alt=""></p>
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E7%94%9F%E6%88%90ChIP-seq%E4%BF%A1%E5%8F%B7%E7%83%AD%E5%9B%BE%E4%B8%8E%E8%B0%B1%E5%9B%BE/image-20220124155533725.png"></p>
 <p>以上就是使用deeptools生成ChIP-seq信号热图和谱图的简单例子，deeptools官方文档及其Gallery还有许多高级的用法与例子，有兴趣的同学可以深入学习。</p>
 <blockquote>
-<p>ref<br>
-<strong>computeMatrix</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/computeMatrix.html#deepBlue%20arguments">https://deeptools.readthedocs.io/en/develop/content/tools/computeMatrix.html#deepBlue arguments</a><br>
-<strong>plotHeatmap</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotHeatmap.html?highlight=plotheatmap">https://deeptools.readthedocs.io/en/develop/content/tools/plotHeatmap.html?highlight=plotheatmap</a><br>
-<strong>plotProfile</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotProfile.html?highlight=plotheatmap">https://deeptools.readthedocs.io/en/develop/content/tools/plotProfile.html?highlight=plotheatmap</a><br>
-<strong>deeptools gallery</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/latest/content/example_gallery.html#normalized-chip-seq-signals-and-peak-regions">https://deeptools.readthedocs.io/en/latest/content/example_gallery.html#normalized-chip-seq-signals-and-peak-regions</a></p>
+<p>ref<br><strong>computeMatrix</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/computeMatrix.html#deepBlue%20arguments">https://deeptools.readthedocs.io/en/develop/content/tools/computeMatrix.html#deepBlue%20arguments</a><br><strong>plotHeatmap</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotHeatmap.html?highlight=plotheatmap">https://deeptools.readthedocs.io/en/develop/content/tools/plotHeatmap.html?highlight=plotheatmap</a><br><strong>plotProfile</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotProfile.html?highlight=plotheatmap">https://deeptools.readthedocs.io/en/develop/content/tools/plotProfile.html?highlight=plotheatmap</a><br><strong>deeptools gallery</strong>: <a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/latest/content/example_gallery.html#normalized-chip-seq-signals-and-peak-regions">https://deeptools.readthedocs.io/en/latest/content/example_gallery.html#normalized-chip-seq-signals-and-peak-regions</a></p>
 </blockquote>
 <p>完。</p>
 
@@ -308,9 +291,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/genome/" rel="tag"># genome</a>
               <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
               <a href="/tags/deeptools/" rel="tag"># deeptools</a>
-              <a href="/tags/genome/" rel="tag"># genome</a>
           </div>
 
         
@@ -401,14 +384,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -419,6 +402,9 @@
       </span>
       <span class="links-of-author-item">
         <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
       </span>
   </div>
 

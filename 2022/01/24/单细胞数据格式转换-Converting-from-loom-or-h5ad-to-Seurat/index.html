@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近看到Fly Cell Atlas (FCA) 公布果蝇的多个组织的单细胞核转录组测序数据，虽然FCA组织提供了多个在线平台（例如SCope）进行非常方便的可视化和多种分析。然而，由于网速的原因，还是希望将数据下载到本地进行分析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单细胞数据格式转换:Converting from loom or h5ad to Seurat">
+<meta property="og:url" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="最近看到Fly Cell Atlas (FCA) 公布果蝇的多个组织的单细胞核转录组测序数据，虽然FCA组织提供了多个在线平台（例如SCope）进行非常方便的可视化和多种分析。然而，由于网速的原因，还是希望将数据下载到本地进行分析。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173210341.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173227730.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173238166.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173243964.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173248300.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173259446.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173312125.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173326072.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173331142.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173338041.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173344834.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173353872.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173400272.png">
+<meta property="article:published_time" content="2022-01-24T09:31:16.000Z">
+<meta property="article:modified_time" content="2022-01-24T09:34:25.850Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="Data_analysis">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="scRNA-seq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173210341.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>单细胞数据格式转换:Converting from loom or h5ad to Seurat | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          单细胞数据格式转换:Converting from loom or h5ad to Seurat
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-24 17:31:16 / Modified: 17:34:25" itemprop="dateCreated datePublished" datetime="2022-01-24T17:31:16+08:00">2022-01-24</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>10k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>9 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近看到Fly Cell Atlas (FCA) 公布果蝇的多个组织的单细胞核转录组测序数据，虽然FCA组织提供了多个在线平台（例如SCope）进行非常方便的可视化和多种分析。然而，由于网速的原因，还是希望将数据下载到本地进行分析。</p>
+<span id="more"></span>
+
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173210341.png"></p>
+<p><em>Figure Source: SCope (<a target="_blank" rel="noopener" href="https://scope.aertslab.org/#/FlyCellAtlas/">https://scope.aertslab.org/#/FlyCellAtlas/</a>)</em></p>
+<p>FCA提供了<code>.loom</code> 和 <code>.h5ad</code>格式的数据，而我比较习惯使用R的<code>Seurat</code>处理单细胞的数据，便想看看有没有方法将这两种格式的文件转换成<code>Seurat</code>对象。</p>
+<p>实际上，<code>Seurat</code>也开发了<code>SeuratDisk</code>这一软件包支持将<code>.loom</code>转换为<code>Seurat</code>对象（还支持多种单细胞数据格式的转换）。</p>
+<p>不巧的是，FCA的数据存储格式似乎与<code>Seurat</code>设置的格式不一致，导致简单的数据转换变得十分复杂…因此，本文记录我在转换<code>.loom</code>/<code>.h5ad</code>为<code>Seurat</code>对象时踩过的坑。</p>
+<h2 id="数据下载"><a href="#数据下载" class="headerlink" title="数据下载"></a>数据下载</h2><p>FCA的测序数据都可以在该网站下载：<a target="_blank" rel="noopener" href="https://flycellatlas.org/">https://flycellatlas.org/</a></p>
+<p>我这篇文章先尝试了使用果蝇头部的数据进行转换</p>
+<img src="image-20220124173227730.png" style="zoom:33%;" />
+
+<p><em>Figure Source: Fly Cell Atlas (<a target="_blank" rel="noopener" href="https://flycellatlas.org/">https://flycellatlas.org/</a>)</em></p>
+<h2 id="loom-文件"><a href="#loom-文件" class="headerlink" title="loom 文件"></a>loom 文件</h2><p><code>.loom</code>格式是一种用于处理大型单细胞数据的文件格式，它并不直接将单细胞数据读入（R中），而是与文件创建链接。这样可以只在使用到数据时，读入其中的一部分，避免内存的过度占用（<em>个人理解</em>）。</p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173238166.png"></p>
+<p><em>Figure Source: Loompy (<a target="_blank" rel="noopener" href="http://linnarssonlab.org/loompy/index.html">http://linnarssonlab.org/loompy/index.html</a>)</em></p>
+<blockquote>
+<p>FCA 中使用的是3.0.0版本的loom，以下我只对这个版本的格式进行介绍。</p>
+</blockquote>
+<p><code>.loom</code>实质上是基于<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Hierarchical_Data_Format">HDF5</a> (<strong>Hierarchical Data Format</strong>)格式的。所以，我们可以使用HDFView 这种查看HDF格式的软件观察其中的数据格式。</p>
+<blockquote>
+<p>HDFView可在<a target="_blank" rel="noopener" href="https://www.hdfgroup.org/downloads/hdf5/">https://www.hdfgroup.org/downloads/hdf5/</a> 下载</p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173243964.png"></p>
+<p>邮箱注册之后选择相应系统版本下载就行。</p>
+</blockquote>
+<p> loom v3的文件包含了以下几个层级的数据：</p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173248300.png"></p>
+<ul>
+<li><code>/matrix</code>(must): 基因*细胞的矩阵</li>
+<li><code>/attrs</code> (must): 全局的属性信息，例如使用的参考基因组、数据创建日期等信息</li>
+<li><code>/col_attrs</code> (must): 列（细胞）的属性，例如barcode, cell id, cell annotation</li>
+</ul>
+<img src="image-20220124173259446.png" style="zoom:50%;" />
+
+<ul>
+<li><code>/row_attrs</code> (must): 行（基因）的属性，包括基因ID，细胞marker之类的</li>
+</ul>
+<img src="image-20220124173312125.png" style="zoom:50%;" />
+
+<ul>
+<li><p><code>/layers</code> (optional): 另外的基因*细胞矩阵，例如可以保存<code>Seurat</code>的data以及scale.data</p>
+</li>
+<li><p><code>/col_graphs</code> (optional): 细胞的图信息，例如最近邻图（nearest-neighbor graphs）</p>
+</li>
+<li><p><code>/row_graphs</code> (optional): 基因的图信息</p>
+</li>
+</ul>
+<h2 id="loom-to-Seurat"><a href="#loom-to-Seurat" class="headerlink" title="loom to Seurat"></a>loom to Seurat</h2><p>简单了解loom文件格式后，我们就可以在R中着手将其转换为<code>Seurat</code>对象</p>
+<p><code>SeuratDisk</code>提供了在R中处理 loom v3文件所需的函数。</p>
+<p>目前<code>SeuratDisk</code>还只能安装其Github上的版本</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">remotes::install_github(repo = <span class="string">&#x27;mojaveazure/seurat-disk&#x27;</span>, ref = <span class="string">&#x27;develop&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建loom链接"><a href="#创建loom链接" class="headerlink" title="创建loom链接"></a>创建loom链接</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">library(SeuratDisk)</span><br><span class="line">library(SeuratObject)</span><br><span class="line">library(Seurat)</span><br><span class="line"><span class="comment"># Connect to the file</span></span><br><span class="line"><span class="comment"># Loom v3 standards</span></span><br><span class="line">ds &lt;- Connect(filename = <span class="string">&quot;data/ref/s_fca_biohub_head_10x.loom&quot;</span>, mode = <span class="string">&quot;r&quot;</span>) <span class="comment"># r for read-only and r+ for read/write</span></span><br><span class="line"></span><br><span class="line">&gt; ds</span><br><span class="line">Class: loom</span><br><span class="line">Filename: ~\data\ref\s_fca_biohub_head_10x.loom</span><br><span class="line">Access type: H5F_ACC_RDONLY</span><br><span class="line">Attributes: last_modified</span><br><span class="line">Listing:</span><br><span class="line">       name    obj_type   dataset.dims dataset.type_class</span><br><span class="line">      attrs   H5I_GROUP           &lt;<span class="literal">NA</span>&gt;               &lt;<span class="literal">NA</span>&gt;</span><br><span class="line">  col_attrs   H5I_GROUP           &lt;<span class="literal">NA</span>&gt;               &lt;<span class="literal">NA</span>&gt;</span><br><span class="line"> col_graphs   H5I_GROUP           &lt;<span class="literal">NA</span>&gt;               &lt;<span class="literal">NA</span>&gt;</span><br><span class="line">     layers   H5I_GROUP           &lt;<span class="literal">NA</span>&gt;               &lt;<span class="literal">NA</span>&gt;</span><br><span class="line">     matrix H5I_DATASET <span class="number">100527</span> x <span class="number">13056</span>          H5T_FLOAT</span><br><span class="line">  row_attrs   H5I_GROUP           &lt;<span class="literal">NA</span>&gt;               &lt;<span class="literal">NA</span>&gt;</span><br><span class="line"> row_graphs   H5I_GROUP           &lt;<span class="literal">NA</span>&gt;               &lt;<span class="literal">NA</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="访问loom中的数据"><a href="#访问loom中的数据" class="headerlink" title="访问loom中的数据"></a>访问loom中的数据</h3><p>可以通过<code>[[</code>的方法访问loom文件中的数据，注意到我们是通过一种路径的方式来访问其中的数据</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gene * cell matrix </span></span><br><span class="line">&gt; ds[[<span class="string">&quot;/matrix&quot;</span>]]</span><br><span class="line">Class: H5D</span><br><span class="line">Dataset: /matrix</span><br><span class="line">Filename: ~\data\ref\s_fca_biohub_head_10x.loom</span><br><span class="line">Access type: H5F_ACC_RDONLY</span><br><span class="line">Datatype: H5T_IEEE_F32LE</span><br><span class="line">Space: Type=Simple     Dims=<span class="number">100527</span> x <span class="number">13056</span>     Maxdims=<span class="literal">Inf</span> x <span class="number">13056</span></span><br><span class="line">Chunk: <span class="number">64</span> x <span class="number">64</span></span><br><span class="line"></span><br><span class="line">&gt; ds[[<span class="string">&quot;/matrix&quot;</span>]][<span class="number">1</span>:<span class="number">3</span>,<span class="number">1</span>:<span class="number">3</span>]</span><br><span class="line">     [,<span class="number">1</span>] [,<span class="number">2</span>] [,<span class="number">3</span>]</span><br><span class="line">[<span class="number">1</span>,]    <span class="number">0</span>    <span class="number">7</span>   <span class="number">19</span></span><br><span class="line">[<span class="number">2</span>,]    <span class="number">0</span>    <span class="number">1</span>    <span class="number">2</span></span><br><span class="line">[<span class="number">3</span>,]    <span class="number">0</span>    <span class="number">1</span>    <span class="number">4</span></span><br><span class="line"></span><br><span class="line">&gt; ds[[<span class="string">&quot;/matrix&quot;</span>]]$dims</span><br><span class="line">[<span class="number">1</span>] <span class="number">100527</span>  <span class="number">13056</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># cell annotation</span></span><br><span class="line">&gt; ds[[<span class="string">&quot;/col_attrs/annotation&quot;</span>]][<span class="number">1</span>:<span class="number">3</span>]</span><br><span class="line">[<span class="number">1</span>] <span class="string">&quot;unannotated&quot;</span>                <span class="string">&quot;unannotated&quot;</span>                <span class="string">&quot;lamina wide-field 2 neuron&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在R中，<code>HDF5</code>格式的文件被转换为<code>H5D</code>类的对象，类似于R6对象，<code>H5D</code>也定义了一系列的方法</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; ds[[<span class="string">&#x27;/matrix&#x27;</span>]]$methods()</span><br><span class="line">&lt;H5D&gt;</span><br><span class="line">  Inherits from: &lt;H5RefClass&gt;</span><br><span class="line">  Public:</span><br><span class="line">    attr_delete: <span class="keyword">function</span> (attr_name) </span><br><span class="line">    attr_delete_by_idx: <span class="keyword">function</span> (n, obj_name, idx_type = h5const$H5_INDEX_NAME, order = h5const$H5_ITER_NATIVE, </span><br><span class="line">...</span><br><span class="line">  Private:</span><br><span class="line">    closeFun: <span class="keyword">function</span> (id) </span><br><span class="line">    get_robj_dim: <span class="keyword">function</span> (reg_eval_res) </span><br><span class="line">    pid: environment</span><br><span class="line">    pmessage: </span><br><span class="line">    stopOnInvalid: <span class="keyword">function</span> (error.msg = <span class="string">&quot;The object is invalid&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>由于我没有深入去探究<code>H5D</code>类的各种方法是如何调用，这里就不做展开了，有兴趣的朋友可以查看R<code>hdf5r</code>包的文档：</p>
+<p><a target="_blank" rel="noopener" href="https://www.rdocumentation.org/packages/hdf5r/versions/1.3.3/topics/H5D-class">https://www.rdocumentation.org/packages/hdf5r/versions/1.3.3/topics/H5D-class</a></p>
+</blockquote>
+<h3 id="Converting-from-loom-to-seurat"><a href="#Converting-from-loom-to-seurat" class="headerlink" title="Converting from loom to seurat"></a>Converting from loom to seurat</h3><p>接下来，我尝试通过<code>Seurat::as.Seurat()</code>将loom格式转换为<code>Seurat</code>对象。但在运行几个步骤后就报错了…</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; fca_head_seurat &lt;- as.Seurat(ds)</span><br><span class="line"><span class="comment"># Reading in /matrix</span></span><br><span class="line"><span class="comment"># Storing /matrix as counts</span></span><br><span class="line"><span class="comment"># Saving /matrix to assay &#x27;RNA&#x27;</span></span><br><span class="line"><span class="comment"># Error in `[&lt;-.data.frame`(`*tmp*`, names.intersect, i[index], value = c(`128up` = 0,  : </span></span><br><span class="line"><span class="comment">#    missing values are not allowed in subscripted assignments of data frames</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>搜索该报错，可以找到<code>seurat</code> github上的一个issue有讨论这种错误。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/satijalab/seurat/issues/5124">https://github.com/satijalab/seurat/issues/5124</a></p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173326072.png"></p>
+</blockquote>
+<p>大意是FCA存储loom文件的格式跟Seurat识别的格式不太一样，所以就报错了。目前这种格式对应的问题还没解决，只能通过使用<code>H5AD</code>格式的文件转换为Seurat对象来绕过这个问题。</p>
+<h2 id="H5AD"><a href="#H5AD" class="headerlink" title="H5AD"></a>H5AD</h2><p><code>H5AD</code> 也是一种<code>HDF5</code>格式的文件，其中包含额外的<code>AnnData</code></p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173331142.png"></p>
+<p><em>Figure Source: AnnData (<a target="_blank" rel="noopener" href="https://anndata.readthedocs.io/en/latest/">https://anndata.readthedocs.io/en/latest/</a>)</em></p>
+<blockquote>
+<p> 这里不再过多介绍<code>H5AD</code>，我们大概知道它也是用于存储单细胞数据就可以了，有兴趣的朋友可以自行了解：<a target="_blank" rel="noopener" href="https://anndata.readthedocs.io/en/latest/">https://anndata.readthedocs.io/en/latest/</a></p>
+</blockquote>
+<h3 id="Converting-h5ad-to-seurat"><a href="#Converting-h5ad-to-seurat" class="headerlink" title="Converting h5ad to seurat"></a>Converting h5ad to seurat</h3><p>接下来，我们将<code>H5AD</code>转换为<code>h5seurat</code>格式，再读入R中就是<code>Seurat</code>对象了</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">library(Seurat)</span><br><span class="line">library(SeuratData)</span><br><span class="line">library(SeuratDisk)</span><br><span class="line"><span class="comment"># Converting from AnnData to Seurat via h5Seurat</span></span><br><span class="line">Convert(<span class="string">&quot;data/ref/s_fca_biohub_head_10x.h5ad&quot;</span>, dest=<span class="string">&quot;h5seurat&quot;</span>, overwrite=<span class="built_in">T</span>)</span><br><span class="line">fca_head &lt;- LoadH5Seurat(<span class="string">&quot;data/ref/s_fca_biohub_head_10x.h5seurat&quot;</span>)</span><br><span class="line"></span><br><span class="line">&gt; fca_head</span><br><span class="line">An object of <span class="built_in">class</span> Seurat </span><br><span class="line"><span class="number">1838</span> features across <span class="number">100527</span> samples within <span class="number">1</span> assay </span><br><span class="line">Active assay: RNA (<span class="number">1838</span> features, <span class="number">0</span> variable features)</span><br><span class="line"> <span class="number">3</span> dimensional reductions calculated: pca, tsne, umap</span><br></pre></td></tr></table></figure>
+
+<p>这次转换成功了，我们获得<code>Seurat</code>对象 😃</p>
+<p>但是，注意到<code>h5ad</code>转换过来的对象只有1838个基因，而不是<code>loom</code>文件中的13056个。有可能是因为这个数据中的基因是经过一定过滤的。</p>
+<blockquote>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173338041.png"></p>
+<p>读入的这个对象居然有10.1 GB这么大，难怪他们会用loom/h5ad的文件格式来进行分析</p>
+</blockquote>
+<p>在读入数据后，事情也还没结束。因为我们需要的是它的细胞注释信息。但是读入的数据结构中，有关细胞信息的<code>meta.data</code>居然是空的。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; fca_head@meta.data</span><br><span class="line">data frame with <span class="number">0</span> columns and <span class="number">100527</span> rows</span><br></pre></td></tr></table></figure>
+
+<p>仔细观察其数据结构发现，相关的注释信息都存储在<code>fca_head@misc</code>当中，但问题在于找不到一个注释数据与细胞ID是匹配的。换言之，我也不能借助<code>h5ad</code>这组数据获得细胞注释。</p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173344834.png"></p>
+<h2 id="Create-seurat-object"><a href="#Create-seurat-object" class="headerlink" title="Create seurat object"></a>Create seurat object</h2><p>在转换的办法行不通后，自然想到直接使用loom文件和h5ad文件中的数据构建seurat对象.</p>
+<p>首先，提取loom文件中的基因 X 细胞矩阵，注意将其转换为稀疏矩阵（<em>节省空间</em>）。由于提取出的矩阵是细胞 X 基因的形式，故对其转置</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">library(tidyverse)</span><br><span class="line">library(SeuratDisk)</span><br><span class="line">library(SeuratObject)</span><br><span class="line">library(Seurat)</span><br><span class="line"><span class="comment"># gene * cell matrix </span></span><br><span class="line">fca_head_mat &lt;- ds[[<span class="string">&quot;/matrix&quot;</span>]][,]</span><br><span class="line">fca_head_mat &lt;- Matrix::Matrix(fca_head_mat, sparse=<span class="built_in">T</span>)</span><br><span class="line">fca_head_mat &lt;- Matrix::t(fca_head_mat)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接着，提取cell id and gene id，并设置为矩阵的列名和行名</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cell id -- 100,527</span></span><br><span class="line">fca_head_cellid &lt;- ds[[<span class="string">&quot;/col_attrs/CellID&quot;</span>]][]</span><br><span class="line"><span class="comment"># gene -- 13,056</span></span><br><span class="line">fca_head_geneid &lt;- ds[[<span class="string">&quot;/row_attrs/Gene&quot;</span>]][]</span><br><span class="line"></span><br><span class="line">colnames(fca_head_mat) &lt;- fca_head_cellid</span><br><span class="line">rownames(fca_head_mat) &lt;- fca_head_geneid</span><br></pre></td></tr></table></figure>
+
+<p>提取我们需要的meta data. 由于我找不到一个<strong>H5D类的方法</strong>可以直接通过字符向量提取相应meta data，这里用了一个循环的方法。</p>
+<p><strong>注意将<code>meta.data</code>的行名设置为与基因 X 细胞矩阵匹配的细胞ID</strong></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pull metadata from loom</span></span><br><span class="line">attrs &lt;- <span class="built_in">c</span>(<span class="string">&#x27;Barcode&#x27;</span>, <span class="string">&#x27;CellID&#x27;</span>, <span class="string">&#x27;ClusterID&#x27;</span>, <span class="string">&#x27;n_counts&#x27;</span>, <span class="string">&#x27;n_genes&#x27;</span>, <span class="string">&#x27;percent_mito&#x27;</span>,</span><br><span class="line">           <span class="string">&#x27;annotation&#x27;</span>, <span class="string">&#x27;annotation_broad&#x27;</span>, <span class="string">&#x27;annotation_broad_extrapolated&#x27;</span>,<span class="string">&#x27;sex&#x27;</span>)</span><br><span class="line"><span class="comment"># can&#x27;t find method from loom to directly extract attributes</span></span><br><span class="line">attrs_df &lt;- map_dfc(attrs, ~ ds[[paste0(<span class="string">&quot;col_attrs/&quot;</span>, .)]][]) %&gt;% as.data.frame()</span><br><span class="line">colnames(attrs_df) &lt;- attrs</span><br><span class="line">rownames(attrs_df) &lt;- fca_head_cellid</span><br></pre></td></tr></table></figure>
+
+<p>构建<code>Seurat</code>对象</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create seurat object from loom data</span></span><br><span class="line">fca_head_seurat &lt;- CreateSeuratObject(counts = fca_head_mat,</span><br><span class="line">                                      meta.data = attrs_df)</span><br></pre></td></tr></table></figure>
+
+<p>又由于我找不到loom文件中降维的信息在哪一个section，这里用h5ad的降维信息 😓</p>
+<p>同时，注意到h5ad的细胞ID和loom的细胞ID是不一样的，将其转为loom的细胞ID</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fca_head_h5 &lt;- LoadH5Seurat(<span class="string">&quot;data/ref/s_fca_biohub_head_10x.h5seurat&quot;</span>)</span><br><span class="line">fca_head_seurat@reductions &lt;- fca_head_h5@reductions</span><br><span class="line">rownames(fca_head_seurat@reductions$pca@cell.embeddings) &lt;- fca_head_cellid</span><br><span class="line">rownames(fca_head_seurat@reductions$tsne@cell.embeddings) &lt;- fca_head_cellid</span><br><span class="line">rownames(fca_head_seurat@reductions$umap@cell.embeddings) &lt;- fca_head_cellid</span><br></pre></td></tr></table></figure>
+
+<p>画一个tsne plot 看看我们构建的数据是否正确</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DimPlot(fca_head_seurat, </span><br><span class="line">        reduction = <span class="string">&#x27;tsne&#x27;</span>, </span><br><span class="line">        group.by = <span class="string">&#x27;annotation&#x27;</span>, </span><br><span class="line">        label = <span class="built_in">T</span>, </span><br><span class="line">        label.size = <span class="number">4</span>) + NoLegend()</span><br></pre></td></tr></table></figure>
+
+<p>label 太多看不清了，但整体结构是一致的，说明我们构建成功了 😃</p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173353872.png"></p>
+<p><em>补充一点</em>： Seurat团队有提到Seurat相关包可以直接对loom文件进行分析。但他这里提到的版本是Seurat V2，而现在Seurat都是V4了，而V4的函数也不能直接使用loom对象作为输入。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/mojaveazure/loomR/issues/35">https://github.com/mojaveazure/loomR/issues/35</a></p>
+<p><img src="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/image-20220124173400272.png"></p>
+</blockquote>
+<p>总结这次数据转换的折腾过程，问题主要是由于我对单细胞数据、文件格式和分析流程的熟悉度不足够所导致的。这让我感觉到当接触一个新的领域时，我们都只能参考软件文档中的例子进行分析，超出例子范围的操作就只能一个error、一个error的去搜索解决方案。这种debug的过程很痛苦，因为面对海量的信息，我们需要仔细地甄别哪一种是能为我们所用的，但这种debug的能力也是做生信必不可缺的。</p>
+<p><strong>最后，要说明我这里分享的是我探索的路径，它并不一定是最优的解决方案。</strong></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">&gt; sessionInfo()</span><br><span class="line">R version <span class="number">4.0</span>.3 (<span class="number">2020</span>-<span class="number">10</span>-<span class="number">10</span>)</span><br><span class="line">Platform: x86_64-w64-mingw32/x64 (<span class="number">64</span>-bit)</span><br><span class="line">Running under: Windows <span class="number">10</span> x64 (build <span class="number">19041</span>)</span><br><span class="line"></span><br><span class="line">Matrix products: default</span><br><span class="line"></span><br><span class="line">locale:</span><br><span class="line">[<span class="number">1</span>] LC_COLLATE=Chinese (Simplified)_China.936  LC_CTYPE=Chinese (Simplified)_China.936   </span><br><span class="line">[<span class="number">3</span>] LC_MONETARY=Chinese (Simplified)_China.936 LC_NUMERIC=C                              </span><br><span class="line">[<span class="number">5</span>] LC_TIME=Chinese (Simplified)_China.936    </span><br><span class="line"></span><br><span class="line">attached base packages:</span><br><span class="line">[<span class="number">1</span>] stats     graphics  grDevices utils     datasets  methods   base     </span><br><span class="line"></span><br><span class="line">other attached packages:</span><br><span class="line"> [<span class="number">1</span>] Seurat_4.0.5          SeuratObject_4.0.2    SeuratDisk_0.0.0.9019 forcats_0.5.0        </span><br><span class="line"> [<span class="number">5</span>] stringr_1.4.0         dplyr_1.0.2           purrr_0.3.4           readr_1.4.0          </span><br><span class="line"> [<span class="number">9</span>] tidyr_1.1.2           tibble_3.0.4          ggplot2_3.3.5         tidyverse_1.3.0      </span><br><span class="line"></span><br><span class="line">loaded via a namespace (and not attached):</span><br><span class="line">  [<span class="number">1</span>] Rtsne_0.15            colorspace_2.0-<span class="number">0</span>      deldir_1.0-<span class="number">2</span>          ellipsis_0.3.1       </span><br><span class="line">  [<span class="number">5</span>] ggridges_0.5.2        fs_1.5.0              spatstat.data_2.1-<span class="number">0</span>   rstudioapi_0.13      </span><br><span class="line">  [<span class="number">9</span>] leiden_0.3.6          listenv_0.8.0         bit64_4.0.5           ggrepel_0.9.0        </span><br><span class="line"> [<span class="number">13</span>] lubridate_1.7.9.2     xml2_1.3.2            codetools_0.2-<span class="number">16</span>      splines_4.0.3        </span><br><span class="line"> [<span class="number">17</span>] polyclip_1.10-<span class="number">0</span>       jsonlite_1.7.2        broom_0.7.5           ica_1.0-<span class="number">2</span>            </span><br><span class="line"> [<span class="number">21</span>] cluster_2.1.0         dbplyr_2.0.0          png_0.1-<span class="number">7</span>             uwot_0.1.10          </span><br><span class="line"> [<span class="number">25</span>] spatstat.sparse_2.0-<span class="number">0</span> shiny_1.6.0           sctransform_0.3.2     compiler_4.0.3       </span><br><span class="line"> [<span class="number">29</span>] httr_1.4.2            backports_1.2.0       assertthat_0.2.1      Matrix_1.3-<span class="number">4</span>         </span><br><span class="line"> [<span class="number">33</span>] fastmap_1.0.1         lazyeval_0.2.2        cli_2.5.0             later_1.1.0.1        </span><br><span class="line"> [<span class="number">37</span>] htmltools_0.5.1.1     tools_4.0.3           igraph_1.2.6          gtable_0.3.0         </span><br><span class="line"> [<span class="number">41</span>] glue_1.4.2            reshape2_1.4.4        RANN_2.6.1            tinytex_0.28         </span><br><span class="line"> [<span class="number">45</span>] Rcpp_1.0.7            scattermore_0.7       cellranger_1.1.0      vctrs_0.3.6          </span><br><span class="line"> [<span class="number">49</span>] nlme_3.1-<span class="number">149</span>          lmtest_0.9-<span class="number">38</span>         xfun_0.19             globals_0.14.0       </span><br><span class="line"> [<span class="number">53</span>] rvest_0.3.6           mime_0.9              miniUI_0.1.1.1        lifecycle_1.0.0      </span><br><span class="line"> [<span class="number">57</span>] irlba_2.3.3           goftest_1.2-<span class="number">2</span>         future_1.21.0         MASS_7.3-<span class="number">53</span>          </span><br><span class="line"> [<span class="number">61</span>] zoo_1.8-<span class="number">8</span>             scales_1.1.1          spatstat.core_2.3-<span class="number">0</span>   spatstat.utils_2.2-<span class="number">0</span> </span><br><span class="line"> [<span class="number">65</span>] hms_0.5.3             promises_1.1.1        parallel_4.0.3        RColorBrewer_1.1-<span class="number">2</span>   </span><br><span class="line"> [<span class="number">69</span>] gridExtra_2.3         reticulate_1.18       pbapply_1.4-<span class="number">3</span>         rpart_4.1-<span class="number">15</span>         </span><br><span class="line"> [<span class="number">73</span>] stringi_1.5.3         rlang_0.4.11          pkgconfig_2.0.3       matrixStats_0.57.0   </span><br><span class="line"> [<span class="number">77</span>] lattice_0.20-<span class="number">41</span>       tensor_1.5            ROCR_1.0-<span class="number">11</span>           patchwork_1.1.1      </span><br><span class="line"> [<span class="number">81</span>] htmlwidgets_1.5.3     bit_4.0.4             cowplot_1.1.0         tidyselect_1.1.0     </span><br><span class="line"> [<span class="number">85</span>] parallelly_1.22.0     RcppAnnoy_0.0.18      plyr_1.8.6            magrittr_2.0.1       </span><br><span class="line"> [<span class="number">89</span>] R6_2.5.0              generics_0.1.0        DBI_1.1.1             mgcv_1.8-<span class="number">33</span>          </span><br><span class="line"> [<span class="number">93</span>] pillar_1.4.7          haven_2.3.1           withr_2.4.2           fitdistrplus_1.1-<span class="number">3</span>   </span><br><span class="line"> [<span class="number">97</span>] abind_1.4-<span class="number">5</span>           survival_3.2-<span class="number">7</span>        future.apply_1.6.0    hdf5r_1.3.4          </span><br><span class="line">[<span class="number">101</span>] modelr_0.1.8          crayon_1.3.4          KernSmooth_2.23-<span class="number">17</span>    spatstat.geom_2.2-<span class="number">2</span>  </span><br><span class="line">[<span class="number">105</span>] plotly_4.9.4.1        grid_4.0.3            readxl_1.3.1          data.table_1.13.4    </span><br><span class="line">[<span class="number">109</span>] reprex_0.3.0          digest_0.6.27         xtable_1.8-<span class="number">4</span>          httpuv_1.5.4         </span><br><span class="line">[<span class="number">113</span>] munsell_0.5.0         viridisLite_0.3.0   </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Ref:</p>
+<p><strong>Loom file format specs</strong>: <a target="_blank" rel="noopener" href="https://linnarssonlab.org/loompy/format/index.html">https://linnarssonlab.org/loompy/format/index.html</a></p>
+<p><code>Seurat::as.loom</code> Doc: <a target="_blank" rel="noopener" href="https://www.rdocumentation.org/packages/Seurat/versions/3.1.4/topics/as.loom">https://www.rdocumentation.org/packages/Seurat/versions/3.1.4/topics/as.loom</a></p>
+<p><strong>Introduction to loomR</strong>: <a target="_blank" rel="noopener" href="https://satijalab.org/loomr/loomr_tutorial">https://satijalab.org/loomr/loomr_tutorial</a></p>
+<p><strong>Interoperability between single-cell object formats</strong>: <a target="_blank" rel="noopener" href="https://satijalab.org/seurat/articles/conversion_vignette.html">https://satijalab.org/seurat/articles/conversion_vignette.html</a></p>
+<p><strong>Conversions: h5Seurat and AnnData</strong>: <a target="_blank" rel="noopener" href="https://mojaveazure.github.io/seurat-disk/articles/convert-anndata.html#converting-from-anndata-to-seurat-via-h5seurat-1">https://mojaveazure.github.io/seurat-disk/articles/convert-anndata.html#converting-from-anndata-to-seurat-via-h5seurat-1</a></p>
+<p><strong>R convert matrix or data frame to sparseMatrix</strong>: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/10555210/r-convert-matrix-or-data-frame-to-sparsematrix">https://stackoverflow.com/questions/10555210/r-convert-matrix-or-data-frame-to-sparsematrix</a></p>
+<p><strong>loom文件转换成seurat对象</strong>: <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7067e0ec6ed8">https://www.jianshu.com/p/7067e0ec6ed8</a></p>
+</blockquote>
+<p>完。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/" title="单细胞数据格式转换:Converting from loom or h5ad to Seurat">https://thereallda.github.io/2022/01/24/单细胞数据格式转换-Converting-from-loom-or-h5ad-to-Seurat/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/scRNA-seq/" rel="tag"># scRNA-seq</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/24/R-ggpairs-%E5%8F%AF%E8%A7%86%E5%8C%96%E7%9B%B8%E5%85%B3%E6%80%A7/" rel="prev" title="R-ggpairs-可视化相关性">
+      <i class="fa fa-chevron-left"></i> R-ggpairs-可视化相关性
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.</span> <span class="nav-text">数据下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loom-%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">loom 文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loom-to-Seurat"><span class="nav-number">3.</span> <span class="nav-text">loom to Seurat</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAloom%E9%93%BE%E6%8E%A5"><span class="nav-number">3.1.</span> <span class="nav-text">创建loom链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AEloom%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">3.2.</span> <span class="nav-text">访问loom中的数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Converting-from-loom-to-seurat"><span class="nav-number">3.3.</span> <span class="nav-text">Converting from loom to seurat</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#H5AD"><span class="nav-number">4.</span> <span class="nav-text">H5AD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Converting-h5ad-to-seurat"><span class="nav-number">4.1.</span> <span class="nav-text">Converting h5ad to seurat</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Create-seurat-object"><span class="nav-number">5.</span> <span class="nav-text">Create seurat object</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '048073a6470ea27d2b9bc04e4870d2ae',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
