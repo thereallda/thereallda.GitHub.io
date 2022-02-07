@@ -228,74 +228,96 @@
       
         <p>最近在处理服务器上的R，顺便就想往服务器上装一个RStudio。因此就有了本文记录一下安装及配置的过程。我们的服务器是CentOS 7系统，其他发行版安装过程其实也大同小异。</p>
 <span id="more"></span>
-<h1>RStudio-server 安装</h1>
-<p>在RStudio-server的官网上选择对应发行版的RStudio-server进行下载<br>
-<a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server">https://rstudio.com/products/rstudio/download-server</a><br>
-<img src="image-20220124152412011.png" alt=""></p>
-<h3 id="Red-Hat-CentOS-6-7">Red Hat/CentOS 6-7</h3>
-<p>如果是Red Hat/CentOS 6-7的话，按照以下命令进行安装</p>
+
+<h1 id="RStudio-server-安装"><a href="#RStudio-server-安装" class="headerlink" title="RStudio-server 安装"></a>RStudio-server 安装</h1><p>在RStudio-server的官网上选择对应发行版的RStudio-server进行下载<br><a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server">https://rstudio.com/products/rstudio/download-server</a><br><img src="/2022/01/24/RStudio-server/image-20220124152412011.png"></p>
+<h3 id="Red-Hat-CentOS-6-7"><a href="#Red-Hat-CentOS-6-7" class="headerlink" title="Red Hat/CentOS 6-7"></a>Red Hat/CentOS 6-7</h3><p>如果是Red Hat/CentOS 6-7的话，按照以下命令进行安装</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br><span class="line">sudo yum install rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br></pre></td></tr></table></figure>
-<h3 id="CentOS-8">CentOS 8</h3>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos8/x86_64/rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br><span class="line">sudo yum install rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="CentOS-8"><a href="#CentOS-8" class="headerlink" title="CentOS 8"></a>CentOS 8</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos8/x86_64/rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br><span class="line">sudo yum install rstudio-server-rhel-1.3.1093-x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+
+
 <p>安装完成后，检查<code>rstudio-server</code> 是否运行</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -aux | grep rstudio-server</span><br><span class="line">rstudio+   404  0.0  0.0 215620  5096 ?        Ssl  13:37   0:00 /usr/lib/bin/rserver</span><br></pre></td></tr></table></figure>
+
+
 <p>看到<code>rstudio-server</code> 在服务器上运行后，可以通过个人的终端在网页上进行连接。默认在8787端口。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://[$IP]:8787/</span><br></pre></td></tr></table></figure>
+
 <p>服务器的IP地址可以通过<code>ifconfig</code> 命令查询</p>
-<p>上述操作顺利的话，就可以在个人终端的网页打开如下界面<br>
-<img src="image-20220124152926648.png" alt=""></p>
+<p>上述操作顺利的话，就可以在个人终端的网页打开如下界面<br><img src="/2022/01/24/RStudio-server/image-20220124152926648.png"></p>
 <p>输入自己在服务器上的账号密码即可登录。</p>
-<p>登录后rstudio的工作目录与登录账号的家目录一致。<br>
-<img src="image-20220124152932071.png" alt=""></p>
+<p>登录后rstudio的工作目录与登录账号的家目录一致。<br><img src="/2022/01/24/RStudio-server/image-20220124152932071.png"></p>
 <p>接下来，就可以在服务器上使用RStudio了。</p>
-<h1>RStudio-server 常用管理命令</h1>
-<p>以下命令都需要有root权限才可以执行</p>
-<h2 id="rstudio-server-control">rstudio-server control</h2>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 检查安装是否正常</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server verify-installation</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server stop</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启动</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server start</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 重启</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server restart</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 查看</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server status</span> </span><br></pre></td></tr></table></figure>
-<h2 id="session-control">session control</h2>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 列出正在使用的sessions</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server active-sessions</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止某一个session</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server suspend-session &lt;pid&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止所有sessions</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server suspend-all</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 强制停止运行中sessions, 某个命令卡死的时候可以用</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server force-suspend-session &lt;pid&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server force-suspend-all</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="offline-online">offline/online</h2>
-<p>当服务器需要维护时，例如更改服务器配置或更新RStudio，也可以让<code>rstudio-server</code> offline</p>
+<h1 id="RStudio-server-常用管理命令"><a href="#RStudio-server-常用管理命令" class="headerlink" title="RStudio-server 常用管理命令"></a>RStudio-server 常用管理命令</h1><p>以下命令都需要有root权限才可以执行</p>
+<h2 id="rstudio-server-control"><a href="#rstudio-server-control" class="headerlink" title="rstudio-server control"></a>rstudio-server control</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 检查安装是否正常</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server verify-installation</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server stop</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 启动</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server start</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 重启</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server restart</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 查看</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server status</span> </span><br></pre></td></tr></table></figure>
+
+<h2 id="session-control"><a href="#session-control" class="headerlink" title="session control"></a>session control</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 列出正在使用的sessions</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server active-sessions</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止某一个session</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server suspend-session &lt;pid&gt;</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 停止所有sessions</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server suspend-all</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 强制停止运行中sessions, 某个命令卡死的时候可以用</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server force-suspend-session &lt;pid&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server force-suspend-all</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="offline-online"><a href="#offline-online" class="headerlink" title="offline/online"></a>offline/online</h2><p>当服务器需要维护时，例如更改服务器配置或更新RStudio，也可以让<code>rstudio-server</code> offline</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server offline</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server online</span></span><br></pre></td></tr></table></figure>
-<h1>RStudio-server 配置</h1>
-<p>RStudio-server通过在两个配置文件中添加自定义语句进行配置（默认情况下，这两个配置文件可能不存在，则需要自己创建，但我安装后是存在的）</p>
+
+
+
+<h1 id="RStudio-server-配置"><a href="#RStudio-server-配置" class="headerlink" title="RStudio-server 配置"></a>RStudio-server 配置</h1><p>RStudio-server通过在两个配置文件中添加自定义语句进行配置（默认情况下，这两个配置文件可能不存在，则需要自己创建，但我安装后是存在的）</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/etc/rstudio/rserver.conf</span><br><span class="line">/etc/rstudio/rsession.conf</span><br></pre></td></tr></table></figure>
-<h3 id="更改网络端口和地址">更改网络端口和地址</h3>
-<p>默认情况下，RStudio server的连接端口是8787，可以通过在<code>rserver.conf</code>中更改</p>
+
+
+
+<h3 id="更改网络端口和地址"><a href="#更改网络端口和地址" class="headerlink" title="更改网络端口和地址"></a>更改网络端口和地址</h3><p>默认情况下，RStudio server的连接端口是8787，可以通过在<code>rserver.conf</code>中更改</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># In /etc/rstudio/rserver.conf</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 更改端口为80</span></span></span><br><span class="line">www-port=80</span><br></pre></td></tr></table></figure>
+
+
+
 <p>默认情况下，RStudio绑定到地址0.0.0.0（接受来自任何远程IP的连接）。可以使用<code>www-address</code>条目修改此行为。例如：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www-address=127.0.0.1</span><br></pre></td></tr></table></figure>
+
+
+
 <p>在更改<code>/etc/rstudio/rserver.conf</code>后，都需要重启server以更改配置</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo rstudio-server restart</span></span><br></pre></td></tr></table></figure>
-<h3 id="外部库">外部库</h3>
-<p>通过修改<code>rsession-ld-library-path</code> 添加系统的库路径作为外部库以供RStudio server调用。有时候R需要依赖系统的一些库的时候，就可以添加上系统库的路径让R也可以调用到，例如：</p>
+
+
+
+<h3 id="外部库"><a href="#外部库" class="headerlink" title="外部库"></a>外部库</h3><p>通过修改<code>rsession-ld-library-path</code> 添加系统的库路径作为外部库以供RStudio server调用。有时候R需要依赖系统的一些库的时候，就可以添加上系统库的路径让R也可以调用到，例如：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsession-ld-library-path=/opt/local/lib:/opt/local/someapp/lib</span><br></pre></td></tr></table></figure>
-<h3 id="更改RStudio-server使用的R版本">更改RStudio-server使用的R版本</h3>
-<p>有时候系统上会装了多个版本的R，当我们想使用某个特定版本的R的时候就可以通过修改配置文件实现，例如</p>
+
+
+
+<h3 id="更改RStudio-server使用的R版本"><a href="#更改RStudio-server使用的R版本" class="headerlink" title="更改RStudio-server使用的R版本"></a>更改RStudio-server使用的R版本</h3><p>有时候系统上会装了多个版本的R，当我们想使用某个特定版本的R的时候就可以通过修改配置文件实现，例如</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsession-which-r=/usr/local/bin/R</span><br></pre></td></tr></table></figure>
-<h3 id="限定使用的用户组">限定使用的用户组</h3>
-<p>通过修改<code>auth-required-user-group</code>可以限制能够使用RStudio-server的用户组，例如</p>
+
+
+
+<h3 id="限定使用的用户组"><a href="#限定使用的用户组" class="headerlink" title="限定使用的用户组"></a>限定使用的用户组</h3><p>通过修改<code>auth-required-user-group</code>可以限制能够使用RStudio-server的用户组，例如</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">auth-required-user-group=rstudio_users</span><br></pre></td></tr></table></figure>
+
 <hr>
 <p>以下内容在<code>/etc/rstudio/rsession.conf</code> 中修改</p>
-<h3 id="超时设定">超时设定</h3>
-<p>默认情况下，如果用户超过2个小时没有发出命令，RStudio会将该用户的R session挂起到磁盘，这样他们就不再消耗服务器资源（下次用户尝试访问服务器时，他们的会话将被还原）。 可以使用<code>session-timeout-minutes</code>设置更改超时（包括通过指定值为0来禁用它）。 例如：</p>
+<h3 id="超时设定"><a href="#超时设定" class="headerlink" title="超时设定"></a>超时设定</h3><p>默认情况下，如果用户超过2个小时没有发出命令，RStudio会将该用户的R session挂起到磁盘，这样他们就不再消耗服务器资源（下次用户尝试访问服务器时，他们的会话将被还原）。 可以使用<code>session-timeout-minutes</code>设置更改超时（包括通过指定值为0来禁用它）。 例如：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">session-timeout-minutes=30</span><br></pre></td></tr></table></figure>
+
 <p>但是当用户在运行代码时是不会因为超时而被挂起的。</p>
-<h3 id="更改R包安装地址">更改R包安装地址</h3>
-<p>通过修改<code>r-libs-user</code>可以更改用户的默认R包安装地址。这样的好处是确保最终用户安装的R包在路径中没有R版本号。 反过来，这使管理员可以在服务器上升级R版本而不用重置用户安装的软件包（如果安装的R包位于R版本派生的目录中，则会发生这种情况）。例如：</p>
+<h3 id="更改R包安装地址"><a href="#更改R包安装地址" class="headerlink" title="更改R包安装地址"></a>更改R包安装地址</h3><p>通过修改<code>r-libs-user</code>可以更改用户的默认R包安装地址。这样的好处是确保最终用户安装的R包在路径中没有R版本号。 反过来，这使管理员可以在服务器上升级R版本而不用重置用户安装的软件包（如果安装的R包位于R版本派生的目录中，则会发生这种情况）。例如：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r-libs-user=~/R/packages</span><br></pre></td></tr></table></figure>
-<h3 id="更改默认镜像">更改默认镜像</h3>
-<p>例如</p>
+
+
+
+<h3 id="更改默认镜像"><a href="#更改默认镜像" class="headerlink" title="更改默认镜像"></a>更改默认镜像</h3><p>例如</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r-cran-repos=https://mirrors.nics.utk.edu/cran/</span><br></pre></td></tr></table></figure>
+
+
+
 <blockquote>
 <p>Ref:</p>
 <ol>
-<li>
-<p><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/200532327-Managing-the-Server">https://support.rstudio.com/hc/en-us/articles/200532327-Managing-the-Server</a></p>
+<li><p><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/200532327-Managing-the-Server">https://support.rstudio.com/hc/en-us/articles/200532327-Managing-the-Server</a></p>
 </li>
-<li>
-<p><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server">https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server</a></p>
+<li><p><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server">https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server</a></p>
 </li>
 </ol>
 </blockquote>
@@ -401,7 +423,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">RStudio-server 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Red-Hat-CentOS-6-7"><span class="nav-number">1.0.1.</span> <span class="nav-text">Red Hat&#x2F;CentOS 6-7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CentOS-8"><span class="nav-number">1.0.2.</span> <span class="nav-text">CentOS 8</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">RStudio-server 常用管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rstudio-server-control"><span class="nav-number">2.1.</span> <span class="nav-text">rstudio-server control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#session-control"><span class="nav-number">2.2.</span> <span class="nav-text">session control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#offline-online"><span class="nav-number">2.3.</span> <span class="nav-text">offline&#x2F;online</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">RStudio-server 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E7%BD%91%E7%BB%9C%E7%AB%AF%E5%8F%A3%E5%92%8C%E5%9C%B0%E5%9D%80"><span class="nav-number">3.0.1.</span> <span class="nav-text">更改网络端口和地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E5%BA%93"><span class="nav-number">3.0.2.</span> <span class="nav-text">外部库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9RStudio-server%E4%BD%BF%E7%94%A8%E7%9A%84R%E7%89%88%E6%9C%AC"><span class="nav-number">3.0.3.</span> <span class="nav-text">更改RStudio-server使用的R版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%AE%9A%E4%BD%BF%E7%94%A8%E7%9A%84%E7%94%A8%E6%88%B7%E7%BB%84"><span class="nav-number">3.0.4.</span> <span class="nav-text">限定使用的用户组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E6%97%B6%E8%AE%BE%E5%AE%9A"><span class="nav-number">3.0.5.</span> <span class="nav-text">超时设定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9R%E5%8C%85%E5%AE%89%E8%A3%85%E5%9C%B0%E5%9D%80"><span class="nav-number">3.0.6.</span> <span class="nav-text">更改R包安装地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E9%BB%98%E8%AE%A4%E9%95%9C%E5%83%8F"><span class="nav-number">3.0.7.</span> <span class="nav-text">更改默认镜像</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RStudio-server-%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">RStudio-server 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Red-Hat-CentOS-6-7"><span class="nav-number">1.0.1.</span> <span class="nav-text">Red Hat&#x2F;CentOS 6-7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CentOS-8"><span class="nav-number">1.0.2.</span> <span class="nav-text">CentOS 8</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RStudio-server-%E5%B8%B8%E7%94%A8%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">RStudio-server 常用管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rstudio-server-control"><span class="nav-number">2.1.</span> <span class="nav-text">rstudio-server control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#session-control"><span class="nav-number">2.2.</span> <span class="nav-text">session control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#offline-online"><span class="nav-number">2.3.</span> <span class="nav-text">offline&#x2F;online</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RStudio-server-%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">RStudio-server 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E7%BD%91%E7%BB%9C%E7%AB%AF%E5%8F%A3%E5%92%8C%E5%9C%B0%E5%9D%80"><span class="nav-number">3.0.1.</span> <span class="nav-text">更改网络端口和地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E5%BA%93"><span class="nav-number">3.0.2.</span> <span class="nav-text">外部库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9RStudio-server%E4%BD%BF%E7%94%A8%E7%9A%84R%E7%89%88%E6%9C%AC"><span class="nav-number">3.0.3.</span> <span class="nav-text">更改RStudio-server使用的R版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%AE%9A%E4%BD%BF%E7%94%A8%E7%9A%84%E7%94%A8%E6%88%B7%E7%BB%84"><span class="nav-number">3.0.4.</span> <span class="nav-text">限定使用的用户组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E6%97%B6%E8%AE%BE%E5%AE%9A"><span class="nav-number">3.0.5.</span> <span class="nav-text">超时设定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9R%E5%8C%85%E5%AE%89%E8%A3%85%E5%9C%B0%E5%9D%80"><span class="nav-number">3.0.6.</span> <span class="nav-text">更改R包安装地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E9%BB%98%E8%AE%A4%E9%95%9C%E5%83%8F"><span class="nav-number">3.0.7.</span> <span class="nav-text">更改默认镜像</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -417,7 +439,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -19,12 +19,12 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="问题描述 有时候我们想知道与某一个GO注释分类相关的基因有哪些，那么我们就需要一种方法将注释到这个GO term所有的基因提取出来">
+  <meta name="description" content="问题描述有时候我们想知道与某一个GO注释分类相关的基因有哪些，那么我们就需要一种方法将注释到这个GO term所有的基因提取出来">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R-提取GO分类下的所有基因">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/24/R-%E6%8F%90%E5%8F%96GO%E5%88%86%E7%B1%BB%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E5%9F%BA%E5%9B%A0/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="问题描述 有时候我们想知道与某一个GO注释分类相关的基因有哪些，那么我们就需要一种方法将注释到这个GO term所有的基因提取出来">
+<meta property="og:description" content="问题描述有时候我们想知道与某一个GO注释分类相关的基因有哪些，那么我们就需要一种方法将注释到这个GO term所有的基因提取出来">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-%E6%8F%90%E5%8F%96GO%E5%88%86%E7%B1%BB%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E5%9F%BA%E5%9B%A0/image-20220124172445616.png">
 <meta property="article:published_time" content="2022-01-24T09:23:57.000Z">
@@ -225,27 +225,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1>问题描述</h1>
-<p>有时候我们想知道与某一个GO注释分类相关的基因有哪些，那么我们就需要一种方法将注释到这个GO term所有的基因提取出来</p>
+        <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>有时候我们想知道与某一个GO注释分类相关的基因有哪些，那么我们就需要一种方法将注释到这个GO term所有的基因提取出来</p>
 <span id="more"></span>
-<h1>解决方案</h1>
-<p>在搜索一轮后，发现可以通过以下代码解决：</p>
+
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>在搜索一轮后，发现可以通过以下代码解决：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">library(tidyverse)</span><br><span class="line">library(org.Hs.eg.db)</span><br><span class="line">GOgeneID &lt;- get(GOID, org.Hs.egGO2ALLEGS) %&gt;% mget(org.Hs.egSYMBOL) %&gt;% unlist() </span><br></pre></td></tr></table></figure>
-<p>下面用DNA 复制（GO:0006260）这一生物学过程为例子，使用人源的GO注释进行展开<br>
-<img src="image-20220124172445616.png" alt=""></p>
+<p>下面用DNA 复制（GO:0006260）这一生物学过程为例子，使用人源的GO注释进行展开<br><img src="/2022/01/24/R-%E6%8F%90%E5%8F%96GO%E5%88%86%E7%B1%BB%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E5%9F%BA%E5%9B%A0/image-20220124172445616.png"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">library(tidyverse)</span><br><span class="line">library(org.Hs.eg.db)</span><br><span class="line"># GO ID --&gt; gene entrez ID</span><br><span class="line">DNA_geneID &lt;- get(&#x27;GO:0006260&#x27;, org.Hs.egGO2ALLEGS) </span><br><span class="line">&gt; head(DNA_geneID)</span><br><span class="line">  TAS   IEA   TAS   IMP   TAS   ISS </span><br><span class="line"> &quot;94&quot; &quot;466&quot; &quot;472&quot; &quot;545&quot; &quot;545&quot; &quot;546&quot; </span><br><span class="line">&gt; length(DNA_geneID)</span><br><span class="line">[1] 421</span><br></pre></td></tr></table></figure>
 <p><code>org.Hs.egGO2ALLEGS</code> 包含GO ID与 Entrez ID之间的对应关系，输出的结果中还标注了该基因的注释证据程度，包括以下分类 ：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">IMP: inferred from mutant phenotype</span><br><span class="line"></span><br><span class="line">IGI: inferred from genetic interaction</span><br><span class="line"></span><br><span class="line">IPI: inferred from physical interaction</span><br><span class="line"></span><br><span class="line">ISS: inferred from sequence similarity</span><br><span class="line"></span><br><span class="line">IDA: inferred from direct assay</span><br><span class="line"></span><br><span class="line">IEP: inferred from expression pattern</span><br><span class="line"></span><br><span class="line">IEA: inferred from electronic annotation</span><br><span class="line"></span><br><span class="line">TAS: traceable author statement</span><br><span class="line"></span><br><span class="line">NAS: non-traceable author statement</span><br><span class="line"></span><br><span class="line">ND: no biological data available</span><br><span class="line"></span><br><span class="line">IC: inferred by curator</span><br></pre></td></tr></table></figure>
-<p>详细分类结果可以到以下网址查询：<br>
-<a target="_blank" rel="noopener" href="http://geneontology.org/docs/guide-go-evidence-codes/">http://geneontology.org/docs/guide-go-evidence-codes/</a></p>
+
+<p>详细分类结果可以到以下网址查询：<br><a target="_blank" rel="noopener" href="http://geneontology.org/docs/guide-go-evidence-codes/">http://geneontology.org/docs/guide-go-evidence-codes/</a></p>
 <p>进一步我们还可以将Entrez ID转换为Symbol</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DNA_geneSYMBOL &lt;- mget(DNA_geneID, org.Hs.egSYMBOL) %&gt;% unlist() </span><br><span class="line">&gt; head(DNA_geneSYMBOL)</span><br><span class="line">      94      466      472      545      545      546 </span><br><span class="line">&quot;ACVRL1&quot;   &quot;ATF1&quot;    &quot;ATM&quot;    &quot;ATR&quot;    &quot;ATR&quot;   &quot;ATRX&quot; </span><br></pre></td></tr></table></figure>
+
 <p>完。</p>
 <blockquote>
-<p>Ref:<br>
-<a target="_blank" rel="noopener" href="https://davetang.org/muse/2011/05/20/extract-gene-names-according-to-go-terms/">https://davetang.org/muse/2011/05/20/extract-gene-names-according-to-go-terms/</a><br>
-<a target="_blank" rel="noopener" href="https://www.ebi.ac.uk/QuickGO/term/GO:0006260">https://www.ebi.ac.uk/QuickGO/term/GO:0006260</a><br>
-<a target="_blank" rel="noopener" href="http://geneontology.org/docs/guide-go-evidence-codes/">http://geneontology.org/docs/guide-go-evidence-codes/</a></p>
+<p>Ref:<br><a target="_blank" rel="noopener" href="https://davetang.org/muse/2011/05/20/extract-gene-names-according-to-go-terms/">https://davetang.org/muse/2011/05/20/extract-gene-names-according-to-go-terms/</a><br><a target="_blank" rel="noopener" href="https://www.ebi.ac.uk/QuickGO/term/GO:0006260">https://www.ebi.ac.uk/QuickGO/term/GO:0006260</a><br><a target="_blank" rel="noopener" href="http://geneontology.org/docs/guide-go-evidence-codes/">http://geneontology.org/docs/guide-go-evidence-codes/</a></p>
 </blockquote>
 
     </div>
@@ -349,7 +345,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -365,7 +361,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

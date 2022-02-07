@@ -19,12 +19,12 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="整理高通量测序数据分析中使用的软件。  samtools view  samtools是常用的对sam&#x2F;bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。">
+  <meta name="description" content="整理高通量测序数据分析中使用的软件。  samtools view samtools是常用的对sam&#x2F;bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="samtools-view-简单介绍">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="整理高通量测序数据分析中使用的软件。  samtools view  samtools是常用的对sam&#x2F;bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。">
+<meta property="og:description" content="整理高通量测序数据分析中使用的软件。  samtools view samtools是常用的对sam&#x2F;bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170551931.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170603333.png">
@@ -228,29 +228,24 @@
         <blockquote>
 <p>整理高通量测序数据分析中使用的软件。</p>
 </blockquote>
-<h1>samtools view</h1>
-<p><img src="image-20220124170551931.png" alt=""></p>
+<h1 id="samtools-view"><a href="#samtools-view" class="headerlink" title="samtools view"></a>samtools view</h1><p><img src="/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170551931.png"></p>
 <p>samtools是常用的对sam/bam文件操作的工具，其中samtools view命令可以实现查看序列、sam-bam文件转换、过滤序列等功能。下面用实际的例子简单介绍个人使用samtools view过程中的一些经验。</p>
 <span id="more"></span>
-<h2 id="查看序列">查看序列</h2>
-<p>如果只是查看sam文件的序列比对结果的前几行，可以用该命令简单的查看.</p>
+
+<h2 id="查看序列"><a href="#查看序列" class="headerlink" title="查看序列"></a>查看序列</h2><p>如果只是查看sam文件的序列比对结果的前几行，可以用该命令简单的查看.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">samtools view test.sam | head -n2</span><br><span class="line">SRR6924174.1    163     chr11   106049782       255     80M     =       106049950       248     GCCAAACACAGAACAAACTTTTTAGAATCTTGGTAATAATGACAACTGACATCAGGGTGGAAGATAAGAATATCTCACTA   @BBBCGGGGGEFGGG;EFGGGGGFGGGCGGCDGG&gt;FFEGGGEGGGGBF&gt;1EFB:@GGGGGGGDEGGG@GGDFGGGF1@FC NH:i:1  HI:i:1  AS:i:157        nM:i:0</span><br><span class="line">SRR6924174.1    83      chr11   106049950       255     80M     =       106049782       -248    TTGTCTACAGATCAAGTTCCAGGACAGCCAGGAACAGAGAAATGCTGTCTTGAAAACTAAAAAAACACCTTTAATCCCAN   GGGGGGGGGGGEGCEGEBFGGBDGFEFGGGGGGGGGEGGGGGFGGGGGGGGGGGEGGFGGGGGGGGFGGGGGGGGBA&lt;&lt;<span class="comment"># NH:i:1  HI:i:1  AS:i:157        nM:i:0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
 <p>默认情况，samtools view输出序列到屏幕，可以重导向到别的文件。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view test.sam &gt; test2.sam</span><br></pre></td></tr></table></figure>
-<h2 id="sam-bam文件格式转换">sam-bam文件格式转换</h2>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 16 -bh test.sam -o test.bam</span><br></pre></td></tr></table></figure>
-<p><code>-b</code>：声明输出为bam格式的文件。<br>
-<code>-h</code>：保留sam文件的header（如果有的话），header信息常包括比对的参考基因组的染色体信息和比对的命令<br>
-<code>-@</code> ：指明使用的线程数</p>
-<h2 id="过滤序列">过滤序列</h2>
-<p>以下简单介绍samtools view 过滤序列的参数</p>
-<h3 id="根据MAPQ过滤">根据MAPQ过滤</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -q 30 test.bam -o test.q30.bam</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="sam-bam文件格式转换"><a href="#sam-bam文件格式转换" class="headerlink" title="sam-bam文件格式转换"></a>sam-bam文件格式转换</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 16 -bh test.sam -o test.bam</span><br></pre></td></tr></table></figure>
+<p><code>-b</code>：声明输出为bam格式的文件。<br><code>-h</code>：保留sam文件的header（如果有的话），header信息常包括比对的参考基因组的染色体信息和比对的命令<br><code>-@</code> ：指明使用的线程数</p>
+<h2 id="过滤序列"><a href="#过滤序列" class="headerlink" title="过滤序列"></a>过滤序列</h2><p>以下简单介绍samtools view 过滤序列的参数</p>
+<h3 id="根据MAPQ过滤"><a href="#根据MAPQ过滤" class="headerlink" title="根据MAPQ过滤"></a>根据MAPQ过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -q 30 test.bam -o test.q30.bam</span><br></pre></td></tr></table></figure>
 <p><code>-q</code>参数只输出MAPQ（比对质量）大于等于该值的序列，上述命令过滤了MAPQ小于30的序列</p>
-<h3 id="根据FLAG过滤">根据FLAG过滤</h3>
-<p>另外，通过<code>-f</code>和<code>-F</code>参数，我们可以根据FLAG的值过滤序列。两者的区别在于：<br>
-<code>-f</code>：保留该flag值的序列（相当于<code>grep </code>）<br>
-<code>-F</code>：保留除了该flag值以外的所有序列（相当于<code>grep -v</code>）</p>
+<h3 id="根据FLAG过滤"><a href="#根据FLAG过滤" class="headerlink" title="根据FLAG过滤"></a>根据FLAG过滤</h3><p>另外，通过<code>-f</code>和<code>-F</code>参数，我们可以根据FLAG的值过滤序列。两者的区别在于：<br><code>-f</code>：保留该flag值的序列（相当于<code>grep </code>）<br><code>-F</code>：保留除了该flag值以外的所有序列（相当于<code>grep -v</code>）</p>
 <p><strong>对于单端测序的比对结果</strong></p>
 <p>因此，假设我们需要取比对上的reads，可以使用<code>-F 4</code></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -F 4 test.bam -o test.mapped.bam</span><br></pre></td></tr></table></figure>
@@ -258,20 +253,13 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -bh -f 4 test.bam -o test.unmapped.bam</span><br></pre></td></tr></table></figure>
 <p><strong>对于双端测序的比对结果</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8  -bh -f 2 test.bam &gt; test.mapped.bam</span><br><span class="line">samtools view -@ 8  -bh -F 2 test.bam &gt; test.unmapped.bam</span><br></pre></td></tr></table></figure>
-<p>这里提供一个小工具可以快速查询flag值所对应的含义 (<a target="_blank" rel="noopener" href="https://broadinstitute.github.io/picard/explain-flags.html">https://broadinstitute.github.io/picard/explain-flags.html</a>)<br>
-<img src="image-20220124170603333.png" alt=""></p>
-<p>在左下侧的框中勾选会给出相应的flag值<br>
-在上方搜索栏中输入数值会在右侧给出flag值对应的含义。</p>
-<h3 id="根据染色体坐标进行过滤">根据染色体坐标进行过滤</h3>
-<p>如果bam文件已经使用<code>samtools index</code>建好index的话，可以输出特定染色体坐标内的reads</p>
+<p>这里提供一个小工具可以快速查询flag值所对应的含义 (<a target="_blank" rel="noopener" href="https://broadinstitute.github.io/picard/explain-flags.html">https://broadinstitute.github.io/picard/explain-flags.html</a>)<br><img src="/2022/01/24/samtools-view-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/image-20220124170603333.png"></p>
+<p>在左下侧的框中勾选会给出相应的flag值<br>在上方搜索栏中输入数值会在右侧给出flag值对应的含义。</p>
+<h3 id="根据染色体坐标进行过滤"><a href="#根据染色体坐标进行过滤" class="headerlink" title="根据染色体坐标进行过滤"></a>根据染色体坐标进行过滤</h3><p>如果bam文件已经使用<code>samtools index</code>建好index的话，可以输出特定染色体坐标内的reads</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools view -@ 8 -b test.bam chr1:10420000-10421000 &gt; subset.bam </span><br></pre></td></tr></table></figure>
 <p>如果想取出多个染色体区域的reads的话，就不再建议使用上述的方法了，可以使用<code>bedtools</code>之类的工具根据bed文件进行提取。对samtools view命令的简单介绍就到此结束，以后使用有心得再作更新。</p>
 <blockquote>
-<p>Ref:<br>
-<strong>samtools view manual</strong>: <a target="_blank" rel="noopener" href="http://www.htslib.org/doc/samtools-view.html">http://www.htslib.org/doc/samtools-view.html</a><br>
-<strong>How To Filter Mapped Reads With Samtools</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/56246/">https://www.biostars.org/p/56246/</a><br>
-<strong>Decoding SAM flags</strong>: <a target="_blank" rel="noopener" href="https://broadinstitute.github.io/picard/explain-flags.html">https://broadinstitute.github.io/picard/explain-flags.html</a><br>
-<strong>Extract Alignment by genomic coordinates</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/45936/">https://www.biostars.org/p/45936/</a></p>
+<p>Ref:<br><strong>samtools view manual</strong>: <a target="_blank" rel="noopener" href="http://www.htslib.org/doc/samtools-view.html">http://www.htslib.org/doc/samtools-view.html</a><br><strong>How To Filter Mapped Reads With Samtools</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/56246/">https://www.biostars.org/p/56246/</a><br><strong>Decoding SAM flags</strong>: <a target="_blank" rel="noopener" href="https://broadinstitute.github.io/picard/explain-flags.html">https://broadinstitute.github.io/picard/explain-flags.html</a><br><strong>Extract Alignment by genomic coordinates</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/45936/">https://www.biostars.org/p/45936/</a></p>
 </blockquote>
 <p>完。</p>
 
@@ -375,7 +363,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">samtools view</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%BA%8F%E5%88%97"><span class="nav-number">1.1.</span> <span class="nav-text">查看序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sam-bam%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.2.</span> <span class="nav-text">sam-bam文件格式转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E5%BA%8F%E5%88%97"><span class="nav-number">1.3.</span> <span class="nav-text">过滤序列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEMAPQ%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.1.</span> <span class="nav-text">根据MAPQ过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEFLAG%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.2.</span> <span class="nav-text">根据FLAG过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E6%9F%93%E8%89%B2%E4%BD%93%E5%9D%90%E6%A0%87%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.3.</span> <span class="nav-text">根据染色体坐标进行过滤</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#samtools-view"><span class="nav-number">1.</span> <span class="nav-text">samtools view</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%BA%8F%E5%88%97"><span class="nav-number">1.1.</span> <span class="nav-text">查看序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sam-bam%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.2.</span> <span class="nav-text">sam-bam文件格式转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E5%BA%8F%E5%88%97"><span class="nav-number">1.3.</span> <span class="nav-text">过滤序列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEMAPQ%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.1.</span> <span class="nav-text">根据MAPQ过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEFLAG%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.2.</span> <span class="nav-text">根据FLAG过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E6%9F%93%E8%89%B2%E4%BD%93%E5%9D%90%E6%A0%87%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-number">1.3.3.</span> <span class="nav-text">根据染色体坐标进行过滤</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -391,7 +379,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

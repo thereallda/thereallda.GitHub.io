@@ -253,6 +253,7 @@
       
         <p>在R语言的可视化工具中，<code>ggplot2</code>无疑是一款简洁、强大、优雅的工具。本文简单介绍<code>ggplot2</code>的用法</p>
 <span id="more"></span>
+
 <blockquote>
 <p>本文中出现的代码引自《R数据科学》一书</p>
 <p><a target="_blank" rel="noopener" href="https://r4ds.had.co.nz/data-visualisation.html">https://r4ds.had.co.nz/data-visualisation.html</a></p>
@@ -262,14 +263,12 @@
 <p>其中，这7个参数分别为数据集（<code>DATA</code>）、几何对象（  <code>GEOM_FUNCTION</code>）、映射集合（<code>MAPPING</code>）、统计变换（<code>STAT</code>）、位置调整（<code>POSITION</code>）、坐标系（<code>COORINATE_FUNCTION</code>）和分面模式（<code>FACET_FUNCTION</code>）。</p>
 <p>这套模板也可以作为我们学习<code>ggplot2</code>的总领，搞清楚每幅图中的这7个参数并能熟练地运用它们，在可视化这个领域就有了“初窥门径”的境界了。</p>
 <p>以下使用<code>ggplot2</code>包内的<code>mpg</code>数据进行演示</p>
-<h1>数据集 | data</h1>
-<p><code>ggplot</code>的接受的数据形式包括数据框类型的<code>data.frame</code> or <code>tibble</code></p>
+<h1 id="数据集-data"><a href="#数据集-data" class="headerlink" title="数据集 | data"></a>数据集 | data</h1><p><code>ggplot</code>的接受的数据形式包括数据框类型的<code>data.frame</code> or <code>tibble</code></p>
 <p>在<code>data</code>参数中指定输入的数据，例如：<code>ggplot(data = mpg)</code></p>
-<h1>映射集合 | aes()</h1>
-<p>在使用<code>aes()</code>函数确定x、y轴的关系以及数据后，就可以作图了。</p>
+<h1 id="映射集合-aes"><a href="#映射集合-aes" class="headerlink" title="映射集合 | aes()"></a>映射集合 | aes()</h1><p>在使用<code>aes()</code>函数确定x、y轴的关系以及数据后，就可以作图了。</p>
 <p>以下用<code>ggplot2</code>包中自带的数据集<code>mpg</code>进行绘图，根据hwy~displ的映射关系作散点图如下：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg) + geom_point(aes(x=displ, y=hwy))</span><br><span class="line"></span><br><span class="line"><span class="comment">#hwy：highway miles per gallon</span></span><br><span class="line"><span class="comment">#displ：engine displacement, in litres</span></span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193156894.png" alt=""></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193156894.png"></p>
 <p>除了x、y两个变量外，我们还可以像图中添加第三个变量——图形属性。图形属性包括图中几何对象的颜色、大小、透明度、形状等。</p>
 <blockquote>
 <p>这里引用一张在网上看到的关于可视化时需要考虑的因素的总结图：</p>
@@ -277,87 +276,89 @@
 </blockquote>
 <p>通过添加图形属性还可以实现对图中数据的简单分组，例如我们使用车的类别（class）对<code>mpg</code>中数据进行分组绘制：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg) + </span><br><span class="line">+   geom_point(aes(x=displ,y=hwy, color=<span class="built_in">class</span>))</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193707212.png" alt="image-20220119193707212"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193707212.png" alt="image-20220119193707212"></p>
 <p>注意到当我们使用在<code>aes()</code>内指定<code>color</code>, <code>fill</code>, <code>shape</code>, <code>alpha</code> 等参数时，函数已经帮我们根据指定的变量进行分组了，这时候不再需要使用<code>group</code>参数特地声明分组变量</p>
 <p>同时，ggplot还会根据图形属性加上图例。</p>
 <p>除了<code>color</code>之外，还有其他几种图形属性，包括：<code>size</code> ，<code>shape</code> ，<code>alpha</code> ，<code>group</code> 等等。有趣的是使用<code>shape</code>这一属性时，我们可以看到以下的结果：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg) + </span><br><span class="line">+   geom_point(aes(x=displ,y=hwy, shape=<span class="built_in">class</span>))</span><br><span class="line"></span><br><span class="line">Warning messages:</span><br><span class="line"><span class="number">1</span>: The shape palette can deal with a maximum of <span class="number">6</span> discrete values because more than</span><br><span class="line"><span class="number">6</span> becomes difficult to discriminate; you have <span class="number">7.</span> Consider specifying shapes</span><br><span class="line">manually <span class="keyword">if</span> you must have them. </span><br><span class="line"><span class="number">2</span>: Removed <span class="number">62</span> rows containing <span class="built_in">missing</span> values (geom_point). </span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193712509.png" alt="image-20220119193712509"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193712509.png" alt="image-20220119193712509"></p>
 <p>由于在默认情况下<code>ggplot</code>一次只能显示6种形状，所以超出范围的变量被无情地丢掉了。</p>
 <p>而想对整个图形的属性进行调整的话，只需要在<code>aes()</code>函数之外调整参数即可，例如将所有点都设置为蓝色：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = mpg) + </span><br><span class="line">  geom_point(aes(x=displ,y=hwy), color = <span class="string">&quot;blue&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193718449.png" alt="image-20220119193718449"></p>
-<h1>分面 | facet_*()</h1>
-<p>在<code>ggplot2</code>中分面函数包括:</p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193718449.png" alt="image-20220119193718449"></p>
+<h1 id="分面-facet"><a href="#分面-facet" class="headerlink" title="分面 | facet_*()"></a>分面 | facet_*()</h1><p>在<code>ggplot2</code>中分面函数包括:</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">facet_grid()</span><br><span class="line">facet_wrap()</span><br></pre></td></tr></table></figure>
+
 <p>除了使用图形属性来对数据进行区分作图外，还可以使用分面的方法，根据变量将数据切分到不同的区域中作图。</p>
 <p>例如，我们使用根据汽车的类型（class）给点添加了不同的颜色，我们也可以根据汽车的类型分面作图：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = mpg) + </span><br><span class="line">  geom_point(mapping = aes(x = displ, y = hwy)) + </span><br><span class="line">  facet_wrap(~ <span class="built_in">class</span>, nrow = <span class="number">2</span>) <span class="comment"># nrow指定分为多少行</span></span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119195104790.png" alt=""></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119195104790.png"></p>
 <p>使用两个变量进行分面时，可以使用<code>facet_grid</code>，例如使用<code>dyr</code>和<code>cyl</code>进行分面：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = mpg) + </span><br><span class="line">  geom_point(mapping = aes(x = displ, y = hwy)) + </span><br><span class="line">  facet_grid(drv ~ cyl)</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119195539374.png" alt=""></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119195539374.png"></p>
 <p>这里使用<code>facet_wrap</code>也可以达到同样的效果，但需要在<code>vars()</code>内输入用于分面的变量，同时注意分面的title是变量的组合</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = mpg) + </span><br><span class="line">  geom_point(mapping = aes(x = displ, y = hwy)) + </span><br><span class="line">  facet_wrap(vars(drv, cyl), labeller=<span class="string">&#x27;label_both&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119200148767.png" alt=""></p>
-<h1>几何对象 | geom_*()</h1>
-<p>这一部分可以说是<code>ggplot2</code>最核心的部分，通过不同几何对象的使用，我们可以利用<code>ggplot2</code>绘制散点图、折线图、直方图、箱线图等等。</p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119200148767.png"></p>
+<h1 id="几何对象-geom"><a href="#几何对象-geom" class="headerlink" title="几何对象 | geom_*()"></a>几何对象 | geom_*()</h1><p>这一部分可以说是<code>ggplot2</code>最核心的部分，通过不同几何对象的使用，我们可以利用<code>ggplot2</code>绘制散点图、折线图、直方图、箱线图等等。</p>
 <blockquote>
 <p>顾名思义，几何对象就是用来表现数据的局和图形对象。例如，折线图使用了直线几何对象，箱线图使用矩形和直线几何对象等等。</p>
 </blockquote>
 <p>同样地，还是刚才的例子，但我们这次绘制一个曲线图：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg) + geom_smooth(aes(x=displ, y=hwy))</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193807566.png" alt="image-20220119193807566"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193807566.png" alt="image-20220119193807566"></p>
 <p>看到这里我们应该可以发现<code> &lt;GEOM_FUNCTION&gt;</code>仅是规定了数据绘制的几何对象，那么假如将映射关系也移至<code>ggplot()</code>函数中又会如何呢？我们不妨直接动手操作一下：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg,aes(x=displ, y=hwy))</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193812640.png" alt="image-20220119193812640"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193812640.png" alt="image-20220119193812640"></p>
 <p>由于我们没有指明几何对象，所以<code>ggplot()</code>函数直接生成了hwy~displ 的一个空白图层。接下来只要指定几何对象，就可以生成刚刚的曲线图了。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg,aes(x=displ, y=hwy)) + geom_smooth()</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193825900.png" alt="image-20220119193825900"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193825900.png" alt="image-20220119193825900"></p>
 <p><code>ggplot</code>实际是通过图层叠加的方式来进行绘图的。那么有没有可能在同一张图上，以不同的几何对象绘制同一组数据呢？</p>
 <p>还是那句话，实践出真知：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; ggplot(data = mpg,aes(x=displ, y=hwy)) + </span><br><span class="line">  geom_smooth() + </span><br><span class="line">  geom_point()</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119193856348.png" alt="image-20220119193856348"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119193856348.png" alt="image-20220119193856348"></p>
 <p>通过图层叠加的办法，我们成功地绘制了同时用散点和曲线表示该组数据的图。</p>
-<p><strong>注意：<strong>最重要的一点是要注意<code>ggplot()</code>中的参数是对图形进行</strong>全局调整</strong>，即每一图层都会受其影响。而在<code> geom_*()</code>中的参数仅是针对当前图层的<strong>局部调整</strong>。灵活地利用<code>ggplot()</code>的全局和局部映射特性就可以做出较为复杂的图。</p>
-<h1>统计 | stat</h1>
-<p>这里使用<code>diamonds</code>数据集进行展示</p>
-<h2 id="stat-‘count’-‘identity’">stat = ‘count’ | ‘identity’</h2>
-<p>假设我们需要利用柱状图可视化不同<code>cut</code>级别的钻石数目时，我们可以直接使用<code>geom_bar(stat='count')</code>的统计图层</p>
+<p><strong>注意：</strong>最重要的一点是要注意<code>ggplot()</code>中的参数是对图形进行<strong>全局调整</strong>，即每一图层都会受其影响。而在<code> geom_*()</code>中的参数仅是针对当前图层的<strong>局部调整</strong>。灵活地利用<code>ggplot()</code>的全局和局部映射特性就可以做出较为复杂的图。</p>
+<h1 id="统计-stat"><a href="#统计-stat" class="headerlink" title="统计 | stat"></a>统计 | stat</h1><p>这里使用<code>diamonds</code>数据集进行展示</p>
+<h2 id="stat-‘count’-‘identity’"><a href="#stat-‘count’-‘identity’" class="headerlink" title="stat = ‘count’ | ‘identity’"></a>stat = ‘count’ | ‘identity’</h2><p>假设我们需要利用柱状图可视化不同<code>cut</code>级别的钻石数目时，我们可以直接使用<code>geom_bar(stat=&#39;count&#39;)</code>的统计图层</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(mapping = aes(x = cut), stat=<span class="string">&#x27;count&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p>在这里，<code>geom_bar(stat='count')</code>其实干了两件事：</p>
+
+<p>在这里，<code>geom_bar(stat=&#39;count&#39;)</code>其实干了两件事：</p>
 <ol>
 <li>根据<code>cut</code>分组统计每个类别有多少钻石</li>
 <li>可视化统计结果为bar-chart</li>
 </ol>
-<p><img src="image-20220119200712808.png" alt="image-20220119200712808"></p>
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119200712808.png" alt="image-20220119200712808"></p>
 <p><em>From: R for Data Science</em></p>
 <p>我们也可以先计算每个分组的数目，再使用<code>geom_bar</code>可视化：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">diamonds %&gt;% </span><br><span class="line">   count(cut)</span><br><span class="line"><span class="comment"># A tibble: 5 x 2</span></span><br><span class="line">  cut           n</span><br><span class="line">  &lt;ord&gt;     &lt;int&gt;</span><br><span class="line"><span class="number">1</span> Fair       <span class="number">1610</span></span><br><span class="line"><span class="number">2</span> Good       <span class="number">4906</span></span><br><span class="line"><span class="number">3</span> Very Good <span class="number">12082</span></span><br><span class="line"><span class="number">4</span> Premium   <span class="number">13791</span></span><br><span class="line"><span class="number">5</span> Ideal     <span class="number">21551</span></span><br><span class="line"><span class="comment"># Vis</span></span><br><span class="line">diamonds %&gt;% </span><br><span class="line">  count(cut) %&gt;% </span><br><span class="line">  ggplot(aes(x=cut, y=n)) +</span><br><span class="line">  geom_bar(stat=<span class="string">&#x27;identity&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119201110515.png" alt="image-20220119201110515"></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119201110515.png" alt="image-20220119201110515"></p>
 <p>注意这里使用了<code>stat=identity</code>来指定x和y轴的变量分别是什么</p>
-<h2 id="stat-prop-…prop…">stat(prop) | …prop…</h2>
-<p>我们还可以直接利用统计图层计算每个类别所占的比例：</p>
+<h2 id="stat-prop-prop"><a href="#stat-prop-prop" class="headerlink" title="stat(prop) | ..prop.."></a>stat(prop) | ..prop..</h2><p>我们还可以直接利用统计图层计算每个类别所占的比例：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(mapping = aes(x = cut, y = stat(prop), group = <span class="number">1</span>))</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119201334932.png" alt="image-20220119201334932"></p>
-<h2 id="stat-summary">stat_summary</h2>
-<p>如果想进行更多的统计描述，可以使用<code>stat_summary()</code>图层</p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119201334932.png" alt="image-20220119201334932"></p>
+<h2 id="stat-summary"><a href="#stat-summary" class="headerlink" title="stat_summary"></a>stat_summary</h2><p>如果想进行更多的统计描述，可以使用<code>stat_summary()</code>图层</p>
 <p>例如，我们想统计不同<code>cut</code>的克拉<code>carat</code>的最小、大值和中位值</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = diamonds) + </span><br><span class="line">  stat_summary(</span><br><span class="line">    mapping = aes(x = cut, y = carat),</span><br><span class="line">    fun.min = <span class="built_in">min</span>,</span><br><span class="line">    fun.max = <span class="built_in">max</span>,</span><br><span class="line">    fun = median</span><br><span class="line">  )</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119201831980.png" alt="image-20220119201831980"></p>
-<h1>位置调整 | position</h1>
-<p>对于柱状图而言，常用的位置调整包括<code>stack</code> (default), <code>fill</code>, <code>dodge</code>, <code>identity</code></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119201831980.png" alt="image-20220119201831980"></p>
+<h1 id="位置调整-position"><a href="#位置调整-position" class="headerlink" title="位置调整 | position"></a>位置调整 | position</h1><p>对于柱状图而言，常用的位置调整包括<code>stack</code> (default), <code>fill</code>, <code>dodge</code>, <code>identity</code></p>
 <p>假如我们根据钻石的<code>cut</code>绘制bar chart，在此基础上使用<code>clarity</code>进行填色，并使用不同的position参数：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">library(patchwork)</span><br><span class="line">p1 &lt;- ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(mapping = aes(x = cut, fill = clarity), position = <span class="string">&#x27;stack&#x27;</span>) +</span><br><span class="line">  ggtitle(label = <span class="string">&quot;position = &#x27;stack&#x27;&quot;</span>)</span><br><span class="line"></span><br><span class="line">p2 &lt;- ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(mapping = aes(x = cut, fill = clarity), position = <span class="string">&#x27;fill&#x27;</span>) +</span><br><span class="line">  ggtitle(label = <span class="string">&quot;position = &#x27;fill&#x27;&quot;</span>)</span><br><span class="line"></span><br><span class="line">p3 &lt;- ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(mapping = aes(x = cut, fill = clarity), position = <span class="string">&#x27;identity&#x27;</span>) +</span><br><span class="line">  ggtitle(label = <span class="string">&quot;position = &#x27;identity&#x27;&quot;</span>)</span><br><span class="line"></span><br><span class="line">p4 &lt;- ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(mapping = aes(x = cut, fill = clarity), position = <span class="string">&#x27;dodge&#x27;</span>) +</span><br><span class="line">  ggtitle(label = <span class="string">&quot;position = &#x27;dodge&#x27;&quot;</span>)</span><br><span class="line"></span><br><span class="line">p1 + p2 + p3 + p4 + plot_layout(guides=<span class="string">&#x27;collect&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119202618477.png" alt="image-20220119202618477"></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119202618477.png" alt="image-20220119202618477"></p>
 <blockquote>
 <p>这里使用<code>patchwork</code>包进行拼图</p>
 </blockquote>
 <p>对于散点图，常用的position参数为<code>jitter</code>，可以对点的值添加一个非常小的偏移值，以将重叠的点错开</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">p1 &lt;- ggplot(mpg, aes(x = displ, y = hwy)) +</span><br><span class="line">  geom_point() +</span><br><span class="line">  ggtitle(label = <span class="string">&#x27;default&#x27;</span>)</span><br><span class="line">p2 &lt;- ggplot(mpg, aes(x = displ, y = hwy)) +</span><br><span class="line">  geom_point(position = <span class="string">&#x27;jitter&#x27;</span>) +</span><br><span class="line">  ggtitle(label = <span class="string">&quot;position = &#x27;jitter&#x27;&quot;</span>)</span><br><span class="line">p1 + p2</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119203119452.png" alt="image-20220119203119452"></p>
-<h1>坐标系 | coord_*()</h1>
-<p><code>ggplot2</code>默认的坐标系统为笛卡尔坐标系统，提供以下函数对其进行调整：</p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119203119452.png" alt="image-20220119203119452"></p>
+<h1 id="坐标系-coord"><a href="#坐标系-coord" class="headerlink" title="坐标系 | coord_*()"></a>坐标系 | coord_*()</h1><p><code>ggplot2</code>默认的坐标系统为笛卡尔坐标系统，提供以下函数对其进行调整：</p>
 <ul>
 <li><code>coord_flip()</code>：翻转x, y轴</li>
 <li><code>coord_polar()</code>：转换为极坐标系</li>
@@ -365,10 +366,12 @@
 </ul>
 <p><code>coord_flip()</code>的一个例子</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">p1 &lt;- ggplot(data = mpg, mapping = aes(x = <span class="built_in">class</span>, y = hwy)) + </span><br><span class="line">  geom_boxplot()</span><br><span class="line">p2 &lt;- ggplot(data = mpg, mapping = aes(x = <span class="built_in">class</span>, y = hwy)) + </span><br><span class="line">  geom_boxplot() +</span><br><span class="line">  coord_flip()</span><br><span class="line">p1 + p2</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119203551075.png" alt=""></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119203551075.png"></p>
 <p><code>coord_polar()</code>的一个例子 – 可以用于绘制饼图和风玫瑰图</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">bar &lt;- ggplot(data = diamonds) + </span><br><span class="line">  geom_bar(</span><br><span class="line">    mapping = aes(x = cut, fill = cut), </span><br><span class="line">    show.legend = <span class="literal">FALSE</span>,</span><br><span class="line">    width = <span class="number">1</span></span><br><span class="line">  ) + </span><br><span class="line">  theme(aspect.ratio = <span class="number">1</span>) +</span><br><span class="line">  labs(x = <span class="literal">NULL</span>, y = <span class="literal">NULL</span>)</span><br><span class="line"></span><br><span class="line">p1 &lt;- bar + coord_flip()</span><br><span class="line">p2 &lt;- bar + coord_polar()</span><br><span class="line">p1 + p2</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220119203634633.png" alt=""></p>
+
+<p><img src="/2022/01/19/R-ggplot2%E7%AE%80%E4%BB%8B/image-20220119203634633.png"></p>
 <p>综上所述，我们就简单介绍<code>ggplot</code>中的绘图体系，以后有更多使用心得再做分享</p>
 <p>完。</p>
 
@@ -474,7 +477,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">数据集 | data</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">映射集合 | aes()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">分面 | facet_*()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">几何对象 | geom_*()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">统计 | stat</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#stat-%E2%80%98count%E2%80%99-%E2%80%98identity%E2%80%99"><span class="nav-number">5.1.</span> <span class="nav-text">stat &#x3D; ‘count’ | ‘identity’</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stat-prop-%E2%80%A6prop%E2%80%A6"><span class="nav-number">5.2.</span> <span class="nav-text">stat(prop) | …prop…</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stat-summary"><span class="nav-number">5.3.</span> <span class="nav-text">stat_summary</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">位置调整 | position</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">坐标系 | coord_*()</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86-data"><span class="nav-number">1.</span> <span class="nav-text">数据集 | data</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%98%A0%E5%B0%84%E9%9B%86%E5%90%88-aes"><span class="nav-number">2.</span> <span class="nav-text">映射集合 | aes()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E9%9D%A2-facet"><span class="nav-number">3.</span> <span class="nav-text">分面 | facet_*()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%A0%E4%BD%95%E5%AF%B9%E8%B1%A1-geom"><span class="nav-number">4.</span> <span class="nav-text">几何对象 | geom_*()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%9F%E8%AE%A1-stat"><span class="nav-number">5.</span> <span class="nav-text">统计 | stat</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#stat-%E2%80%98count%E2%80%99-%E2%80%98identity%E2%80%99"><span class="nav-number">5.1.</span> <span class="nav-text">stat &#x3D; ‘count’ | ‘identity’</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stat-prop-prop"><span class="nav-number">5.2.</span> <span class="nav-text">stat(prop) | ..prop..</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stat-summary"><span class="nav-number">5.3.</span> <span class="nav-text">stat_summary</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%8D%E7%BD%AE%E8%B0%83%E6%95%B4-position"><span class="nav-number">6.</span> <span class="nav-text">位置调整 | position</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9D%90%E6%A0%87%E7%B3%BB-coord"><span class="nav-number">7.</span> <span class="nav-text">坐标系 | coord_*()</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -490,7 +493,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -19,25 +19,24 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Smart-seq是由路德维格癌症研究所的 Rickard Sandberg实验室所开发的一套在全转录组范围进行单细胞RNA测序 (scRNA-seq) 的方法。Smart-seq因为以全长mRNA建库，所以对转录本的测序覆盖度也有所上升。Smart-seq2是由Picelli等人从Smart-seq中改良而来(Picelli et al., 2013) (Picelli et al., 2014">
+  <meta name="description" content="通常，在计算TPM或RPKM&#x2F;FPKM等基因表达量时，除了基因的counts信息外，我们还需要知道基因的长度。这里所用到的基因长度并不是某个基因在基因组上的完整长度。在基因表达分析中，“基因长度”通常指的是成熟转录本的长度，也就是无内含子的碱基序列。因此，单纯地使用基因的染色体起始和结束坐标相减并不能返回转录本的长度信息。目前，对于基因长度有多种定义，包括： 1. 基因最长转录本； 2. 多个转录">
 <meta property="og:type" content="article">
-<meta property="og:title" content="笔记-单细胞转录组测序 Smart-seq2">
-<meta property="og:url" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/index.html">
+<meta property="og:title" content="R-获取基因长度">
+<meta property="og:url" content="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="Smart-seq是由路德维格癌症研究所的 Rickard Sandberg实验室所开发的一套在全转录组范围进行单细胞RNA测序 (scRNA-seq) 的方法。Smart-seq因为以全长mRNA建库，所以对转录本的测序覆盖度也有所上升。Smart-seq2是由Picelli等人从Smart-seq中改良而来(Picelli et al., 2013) (Picelli et al., 2014">
+<meta property="og:description" content="通常，在计算TPM或RPKM&#x2F;FPKM等基因表达量时，除了基因的counts信息外，我们还需要知道基因的长度。这里所用到的基因长度并不是某个基因在基因组上的完整长度。在基因表达分析中，“基因长度”通常指的是成熟转录本的长度，也就是无内含子的碱基序列。因此，单纯地使用基因的染色体起始和结束坐标相减并不能返回转录本的长度信息。目前，对于基因长度有多种定义，包括： 1. 基因最长转录本； 2. 多个转录">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124123768.png">
-<meta property="og:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124240678.png">
-<meta property="article:published_time" content="2022-01-24T04:38:20.000Z">
-<meta property="article:modified_time" content="2022-01-24T05:25:22.514Z">
+<meta property="og:image" content="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/paste-CBFC7C07.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/paste-2878321A.png">
+<meta property="article:published_time" content="2022-02-07T08:12:25.000Z">
+<meta property="article:modified_time" content="2022-02-07T08:14:31.923Z">
 <meta property="article:author" content="Dean Li">
-<meta property="article:tag" content="scRNA-seq">
-<meta property="article:tag" content="note">
-<meta property="article:tag" content="tech">
+<meta property="article:tag" content="Data_analysis">
+<meta property="article:tag" content="R">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124123768.png">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/paste-CBFC7C07.png">
 
-<link rel="canonical" href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/">
+<link rel="canonical" href="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/">
 
 
 <script id="page-configurations">
@@ -50,7 +49,7 @@
   };
 </script>
 
-  <title>笔记-单细胞转录组测序 Smart-seq2 | Dean's blog</title>
+  <title>R-获取基因长度 | Dean's blog</title>
   
 
 
@@ -166,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
@@ -179,7 +178,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          笔记-单细胞转录组测序 Smart-seq2
+          R-获取基因长度
         </h1>
 
         <div class="post-meta">
@@ -192,7 +191,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-01-24 12:38:20 / Modified: 13:25:22" itemprop="dateCreated datePublished" datetime="2022-01-24T12:38:20+08:00">2022-01-24</time>
+              <time title="Created: 2022-02-07 16:12:25 / Modified: 16:14:31" itemprop="dateCreated datePublished" datetime="2022-02-07T16:12:25+08:00">2022-02-07</time>
             </span>
 
           
@@ -208,14 +207,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.5k</span>
+              <span>2.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
 
         </div>
@@ -227,57 +226,42 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Smart-seq是由路德维格癌症研究所的 <a target="_blank" rel="noopener" href="http://sandberg.cmb.ki.se/">Rickard Sandberg实验室</a>所开发的一套在全转录组范围进行<strong>单细胞RNA测序 (scRNA-seq)</strong> 的方法。Smart-seq因为以全长mRNA建库，所以对转录本的测序覆盖度也有所上升。Smart-seq2是由Picelli等人从Smart-seq中改良而来<a target="_blank" rel="noopener" href="http://www.ncbi.nlm.nih.gov/pubmed/24056875">(Picelli et al., 2013)</a> <a target="_blank" rel="noopener" href="http://www.ncbi.nlm.nih.gov/pubmed/24385147">(Picelli et al., 2014)</a>。本文将从Smart-seq2的原理、优点和缺点来为大家介绍这项scRNA-seq技术。</p>
+        <p>通常，在计算TPM或RPKM/FPKM等基因表达量时，除了基因的counts信息外，我们还需要知道基因的长度。这里所用到的基因长度并不是某个基因在基因组上的完整长度。在基因表达分析中，“基因长度”通常指的是成熟转录本的长度，也就是无内含子的碱基序列。因此，单纯地使用基因的染色体起始和结束坐标相减并不能返回转录本的长度信息。目前，对于基因长度有多种定义，包括：</p>
+<p>1. 基因最长转录本；</p>
+<p>2. 多个转录本长度的平均值；</p>
+<p>3. 非重叠外显子长度之和</p>
+<p>本文介绍使用<code>gtf</code>文件在R中获取基因长度（<strong>非重叠外显子长度之和</strong>）的方法</p>
 <span id="more"></span>
 
-<h2 id="Smart-seq2建库原理"><a href="#Smart-seq2建库原理" class="headerlink" title="Smart-seq2建库原理"></a>Smart-seq2建库原理</h2><p>Smart-seq2的建库原理如下：</p>
-<ol>
-<li><strong>单细胞分选</strong>：Smart-seq使用流式细胞仪进行细胞分选，一次最大分选细胞通量为96个。<br><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124123768.png" alt="Cell sorting"></li>
+<h1 id="基因长度的定义"><a href="#基因长度的定义" class="headerlink" title="基因长度的定义"></a>基因长度的定义</h1><p><img src="/2022/02/07/R-Retrieve-Gene-Length/paste-CBFC7C07.png"></p>
+<p><em>Figure Source</em>: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Gene_structure">Gene structure</a></p>
+<p>在真核生物，一个基因的DNA序列主要可以分为调控元件和编码序列，而编码序列又可以进一步分为外显子（Exon）和内含子（Intron）序列。经过剪接后，成熟的mRNA一般不包含内含子序列。所以，在统计基因长度时，也只考虑外显子的长度。由于可变剪接的存在，一个基因可能会有多个转录本，在进行基因水平的表达分析时，我们并不会区分各个转录本剪接变体的表达量，而是以基因为单位进行统计。因此，通过合并重叠外显子的区域来获得每个基因的非重叠外显子长度是一种基因长度估算的方法。</p>
+<p><img src="/2022/02/07/R-Retrieve-Gene-Length/paste-2878321A.png"><br><em>Figure Source</em>: <a target="_blank" rel="noopener" href="https://davetang.org/muse/2013/01/18/defining-genomic-regions/">Schematic of non-overlapping exons</a></p>
+<h1 id="R实现-–-从GTF文件中获取基因长度"><a href="#R实现-–-从GTF文件中获取基因长度" class="headerlink" title="R实现 – 从GTF文件中获取基因长度"></a>R实现 – 从GTF文件中获取基因长度</h1><ol>
+<li> 首先，读取计算基因counts时用的GTF文件，并将其转换为<code>TxDb</code>对象；</li>
+<li> 然后，提取每个基因的外显子注释信息；</li>
+<li> 最后，合并重叠的外显子，计算非重叠外显子的长度作为基因长度（bp）</li>
 </ol>
-<ol start="2">
-<li><p><strong>细胞裂解</strong>：在细胞裂解液中进行细胞裂解。</p>
-</li>
-<li><p><strong>反转录（ 一链合成 ）</strong>：使用<strong>Oligo(dT) primer</strong> 对带有polyA尾的RNA( <em>主要是mRNA</em> )进行反转录。由于使用了鼠源的反转录酶( <em>Moloney Murine Leukemia Virus</em> )进行反转录，所以会在cDNA链3’端加上三个C</p>
-</li>
-<li><p><strong>模板置换（ 二链合成 ）</strong>：该步使用<strong>TSO ( template-switching oligo )引物</strong>合成了cDNA的二链，从而置换了与一链cDNA互补的RNA。要注意的是TSO 3’端有三个G能与一链3’端的三个C互补，而最末端的+G是一个修饰过的G，能<strong>增加</strong>TSO的<strong>热稳定性</strong>，以及其与一链cDNA游离的3’端的<strong>互补的能力</strong>。TSO 还带有PCR所需的引物（图中绿色的部分）。</p>
-</li>
-<li><p><strong>PCR扩增</strong>：该步进行轻度的cDNA富集，将cDNA扩增至ng级即可。</p>
-</li>
-<li><p><strong>标记</strong>：利用改造后的高活性Tn5转座酶对DNA进行<strong>打断</strong>的同时将<strong>接头添加</strong>到cDNA的两端。标记完成后的DNA片段通常在<strong>200-600bp</strong></p>
-</li>
-<li><p><strong>PCR富集&amp;上级测序</strong>：在进行最后一次PCR扩增后，即可上机测序。</p>
-</li>
-</ol>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Non-Overlapping Exon Length ----</span></span><br><span class="line"><span class="comment"># https://www.biostars.org/p/83901/</span></span><br><span class="line"><span class="comment"># First, import the GTF-file that you have also used as input for counting program</span></span><br><span class="line">library(GenomicFeatures)</span><br><span class="line">txdb &lt;- makeTxDbFromGFF(<span class="string">&#x27;gencode.vM23.annotation.gtf&#x27;</span>, format=<span class="string">&#x27;gtf&#x27;</span>)</span><br><span class="line"><span class="comment"># then collect the exons per gene id</span></span><br><span class="line">exons.list.per.gene &lt;- exonsBy(txdb, by=<span class="string">&quot;gene&quot;</span>)</span><br><span class="line"><span class="comment"># then for each gene, reduce all the exons to a set of non overlapping exons, </span></span><br><span class="line"><span class="comment"># calculate their lengths (widths) and sum then</span></span><br><span class="line">exonic.gene.sizes &lt;- <span class="built_in">sum</span>(width(reduce(exons.list.per.gene)))</span><br><span class="line">head(exonic.gene.sizes)</span><br><span class="line"></span><br><span class="line"><span class="comment">##  ENSMUSG00000000001.4 ENSMUSG00000000003.15 ENSMUSG00000000028.15 </span></span><br><span class="line"><span class="comment">##                  3262                   902                  3506 </span></span><br><span class="line"><span class="comment">## ENSMUSG00000000031.16 ENSMUSG00000000037.17 ENSMUSG00000000049.11 </span></span><br><span class="line"><span class="comment">##                  2460                  6397                  1594</span></span><br></pre></td></tr></table></figure>
+
+<p>在使用<code>featureCounts</code>统计基因counts时，其输出的counts.txt文件中通常会包含一列长度信息<code>Length</code></p>
+<p>我们可以比较一下使用相同注释文件时，两个程序计算的基因长度是否一致。</p>
+<p>查看基因<code>ENSMUSG00000000001.4</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ awk <span class="string">&#x27;NR==2 || /ENSMUSG00000000001.4/&#x27;</span> counts.txt</span><br><span class="line"></span><br><span class="line">Geneid  Chr     Start   End     Strand  Length  a.bam</span><br><span class="line">ENSMUSG00000000001.4    chr3;chr3;chr3;chr3;chr3;chr3;chr3;chr3;chr3    108107280;108109403;108111935;108112473;108115763;108118301;108123542;108123795;108145888    108109316;108109612;108112088;108112602;108115891;108118458;108123683;108123837;108146146    -;-;-;-;-;-;-;-;-       3262    1112</span><br></pre></td></tr></table></figure>
+
+<p>可以发现<code>featureCoutns</code>输出的基因长度与我们计算的一致，这是由于<code>featureCounts</code>也是采用非重叠外显子作为基因长度。</p>
 <blockquote>
-<p>Smart-seq2使用的测序仪为一般的Illumina 测序仪，因其文库最后都与一般的bulk RNA-seq相差无几。</p>
+<p><code>featureCounts</code> Documentation:</p>
+<p>“For each meta-feature, the Length column gives the total length of<br>genomic regions covered by features included in that meta-feature.<br>Note that this length will be less than the sum of lengths of features<br>included in the meta-feature when there are features overlapping with<br>each other.”</p>
 </blockquote>
-<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124240678.png" alt="Schematic workflow of Smart-seq2"></p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p><strong>优点：</strong></p>
-<ul>
-<li>以全长mRNA建库，对转录本覆盖度很高，能够知道每个外显子的表达量，甚至可以获取转录本剪接的信息</li>
-<li>（号称）50pg RNA起始建库</li>
-<li>提高了可mapping reads的比例，因为较少存在Drop-seq那种空beads的无用reads的情况</li>
-<li>mRNA sequence does not have to be known(?我觉得没有几种大规模测序需要提前知道序列吧)</li>
-</ul>
-<p><strong>缺点：</strong></p>
-<ul>
-<li>非链特异。无法区分正反链reads</li>
-<li>No early multiplexing（我的理解是建库前期没有加入UMI所以对单个细胞的分辨能力很低）</li>
-<li>转录本长度偏好，对于大于4kb的转录本建库效率较低</li>
-<li>对于高丰度转录本的PCR偏好。在PCR过程中必然有丰度偏好性，这也是现在许多使用了PCR进行文库扩增的高通量测序protocol无法避免的”硬伤“。</li>
-<li>潜在的链侵入偏好。Tn5转座酶可能会偏好对某种特征的链进行更高效的链侵入。</li>
-<li>使用流式细胞仪进行细胞分选，效率较低，一次测序细胞通量不高。</li>
-</ul>
+<p>以上就是在R中获取基因长度的方法。</p>
+<blockquote>
+<p>Ref:</p>
+<p><strong>Tutorial:Extract Total Non-Overlapping Exon Length Per Gene With Bioconductor</strong><br><a target="_blank" rel="noopener" href="https://www.biostars.org/p/83901/">https://www.biostars.org/p/83901/</a></p>
+<p><strong>How featureCounts define the gene length</strong>:<br><a target="_blank" rel="noopener" href="https://support.bioconductor.org/p/88133/">https://support.bioconductor.org/p/88133/</a></p>
+<p><strong>基因长度之多少</strong>:<br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/yL6C66C-cMhu_RKiAobCXg">https://mp.weixin.qq.com/s/yL6C66C-cMhu_RKiAobCXg</a></p>
+</blockquote>
 <p>完。</p>
-<blockquote>
-<p>Ref：</p>
-<ol>
-<li><a target="_blank" rel="noopener" href="https://www.illumina.com/science/sequencing-method-explorer/kits-and-arrays/smart-seq2.html">https://www.illumina.com/science/sequencing-method-explorer/kits-and-arrays/smart-seq2.html</a></li>
-<li>Full-length RNA-seq from single cells using Smart-seq2</li>
-<li>Comparative Analysis of Single-Cell RNA Sequencing Methods</li>
-<li><a target="_blank" rel="noopener" href="http://cn.fluidigm.com/applications/single-cell-analysis">http://cn.fluidigm.com/applications/single-cell-analysis</a></li>
-</ol>
-</blockquote>
 
     </div>
 
@@ -293,7 +277,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>Post link: </strong>
-    <a href="https://thereallda.github.io/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/" title="笔记-单细胞转录组测序 Smart-seq2">https://thereallda.github.io/2022/01/24/笔记-单细胞转录组测序-Smart-seq2/</a>
+    <a href="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/" title="R-获取基因长度">https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -304,9 +288,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/scRNA-seq/" rel="tag"># scRNA-seq</a>
-              <a href="/tags/note/" rel="tag"># note</a>
-              <a href="/tags/tech/" rel="tag"># tech</a>
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
+              <a href="/tags/R/" rel="tag"># R</a>
           </div>
 
         
@@ -315,13 +298,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/01/24/%E7%90%86%E8%AE%BA-Neighbor-Joining%E5%BB%BA%E6%A0%91%E6%B5%85%E6%9E%90/" rel="prev" title="理论-Neighbor Joining建树浅析">
-      <i class="fa fa-chevron-left"></i> 理论-Neighbor Joining建树浅析
+    <a href="/2022/01/24/%E5%8D%95%E7%BB%86%E8%83%9E%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2-Converting-from-loom-or-h5ad-to-Seurat/" rel="prev" title="单细胞数据格式转换:Converting from loom or h5ad to Seurat">
+      <i class="fa fa-chevron-left"></i> 单细胞数据格式转换:Converting from loom or h5ad to Seurat
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/" rel="next" title="笔记-单细胞转录组测序 Microwell-seq">
-      笔记-单细胞转录组测序 Microwell-seq <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -381,7 +361,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Smart-seq2%E5%BB%BA%E5%BA%93%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Smart-seq2建库原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E5%9B%A0%E9%95%BF%E5%BA%A6%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">基因长度的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R%E5%AE%9E%E7%8E%B0-%E2%80%93-%E4%BB%8EGTF%E6%96%87%E4%BB%B6%E4%B8%AD%E8%8E%B7%E5%8F%96%E5%9F%BA%E5%9B%A0%E9%95%BF%E5%BA%A6"><span class="nav-number">2.</span> <span class="nav-text">R实现 – 从GTF文件中获取基因长度</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -555,7 +535,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'thereallda.GitHub.io',
       owner       : 'thereallda',
       admin       : ['thereallda'],
-      id          : '8d227e3ad1a27f81125c92fd5d09ca5c',
+      id          : '46d3c31ce13be24bf7e7f8f8a63e5914',
         language: '',
       distractionFreeMode: true
     });

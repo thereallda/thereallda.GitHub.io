@@ -229,77 +229,54 @@
         <blockquote>
 <p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
 </blockquote>
-<p><img src="image-20220124160935067.png" alt=""></p>
-<p>Bowtie 2是常用的基因组比对软件。其原理在此展开，有兴趣的同学可以参阅其<a target="_blank" rel="noopener" href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#how-is-bowtie-2-different-from-bowtie-1">官方文档</a>以及其发表的文章(<a target="_blank" rel="noopener" href="https://doi.org/10.1038/nmeth.1923">https://doi.org/10.1038/nmeth.1923</a>)。下面简单介绍Bowtie 2 Index和比对的命令及个人常用参数。</p>
+<p><img src="/2022/01/24/BOWTIE2-%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%AF%94%E5%AF%B9/image-20220124160935067.png"></p>
+<p>Bowtie 2是常用的基因组比对软件。其原理在此展开，有兴趣的同学可以参阅其<a target="_blank" rel="noopener" href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#how-is-bowtie-2-different-from-bowtie-1">官方文档</a>以及其发表的文章(<a target="_blank" rel="noopener" href="https://doi.org/10.1038/nmeth.1923)%E3%80%82%E4%B8%8B%E9%9D%A2%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8DBowtie">https://doi.org/10.1038/nmeth.1923)。下面简单介绍Bowtie</a> 2 Index和比对的命令及个人常用参数。</p>
 <span id="more"></span>
-<h1>用法</h1>
-<h2 id="Index">Index</h2>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2-build [options]* &lt;reference_in&gt; &lt;bt2_base&gt;</span><br></pre></td></tr></table></figure>
-<p>&lt;reference_in&gt;：如果此处使用<code>-f</code> 参数，则指明index的参考fasta 文件；如果使用<code>-c</code>参数，则指明index的参考序列，例如，<code>GGTCATCCT</code>,<code>ACGGGTCGT</code>,<code>CCGTTCTATGCGGCTTA</code>.<br>
-&lt;bt2_base&gt;：指的是生成的index文件的前缀，默认情况，<code>bowtie2-build</code>产生NAME.1.bt2, NAME.2.bt2, NAME.3.bt2, NAME.4.bt2, NAME.rev.1.bt2, and NAME.rev.2.bt2, where NAME is &lt;bt2_base&gt;.<br>
-<code>--threads</code> 使用的线程数</p>
-<h3 id="Index例子">Index例子</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2-build -f /public/Reference/GRCh38.primary_assembly.genome.fa --threads 24 GRCh38</span><br></pre></td></tr></table></figure>
-<p>上述命令使用该fasta文件<code>/public/Reference/GRCh38.primary_assembly.genome.fa </code> ，在当前位置产生前缀为<code>GRCh38</code>的index文件。<br>
-<img src="image-20220124183540041.png" alt=""></p>
-<h2 id="Alignment">Alignment</h2>
-<h3 id="单端测序比对">单端测序比对</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2 [options]* -x &lt;bt2-idx&gt; -U &lt;fq&gt; -S &lt;sam_output&gt; -p &lt;threads&gt; 2&gt;Align.summary</span><br></pre></td></tr></table></figure>
-<p><code>-x</code>：参考基因组index文件的前缀（包括路径）<br>
-<code>-U</code>：单端测序的fastq文件<br>
-<code>-S</code>：输出的SAM文件，包含比对结果<br>
-<code>-p</code>：使用的线程数<br>
-<code>2&gt;Align.summary</code>：将输出到屏幕的标准误(standard error)重导向到&quot;Align.summary&quot;文件，其格式通常如下</p>
+
+<h1 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h1><h2 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2-build [options]* &lt;reference_in&gt; &lt;bt2_base&gt;</span><br></pre></td></tr></table></figure>
+<p><reference_in>：如果此处使用<code>-f</code> 参数，则指明index的参考fasta 文件；如果使用<code>-c</code>参数，则指明index的参考序列，例如，<code>GGTCATCCT</code>,<code>ACGGGTCGT</code>,<code>CCGTTCTATGCGGCTTA</code>.<br><bt2_base>：指的是生成的index文件的前缀，默认情况，<code>bowtie2-build</code>产生NAME.1.bt2, NAME.2.bt2, NAME.3.bt2, NAME.4.bt2, NAME.rev.1.bt2, and NAME.rev.2.bt2, where NAME is <bt2_base>.<br><code>--threads</code> 使用的线程数</p>
+<h3 id="Index例子"><a href="#Index例子" class="headerlink" title="Index例子"></a>Index例子</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2-build -f /public/Reference/GRCh38.primary_assembly.genome.fa --threads 24 GRCh38</span><br></pre></td></tr></table></figure>
+<p>上述命令使用该fasta文件<code>/public/Reference/GRCh38.primary_assembly.genome.fa </code> ，在当前位置产生前缀为<code>GRCh38</code>的index文件。<br><img src="/2022/01/24/BOWTIE2-%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%AF%94%E5%AF%B9/image-20220124183540041.png"></p>
+<h2 id="Alignment"><a href="#Alignment" class="headerlink" title="Alignment"></a>Alignment</h2><h3 id="单端测序比对"><a href="#单端测序比对" class="headerlink" title="单端测序比对"></a>单端测序比对</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2 [options]* -x &lt;bt2-idx&gt; -U &lt;fq&gt; -S &lt;sam_output&gt; -p &lt;threads&gt; 2&gt;Align.summary</span><br></pre></td></tr></table></figure>
+
+<p><code>-x</code>：参考基因组index文件的前缀（包括路径）<br><code>-U</code>：单端测序的fastq文件<br><code>-S</code>：输出的SAM文件，包含比对结果<br><code>-p</code>：使用的线程数<br><code>2&gt;Align.summary</code>：将输出到屏幕的标准误(standard error)重导向到”Align.summary”文件，其格式通常如下</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">## Single-end</span><br><span class="line">20000 reads; of these:</span><br><span class="line">  20000 (100.00%) were unpaired; of these:</span><br><span class="line">    1247 (6.24%) aligned 0 times</span><br><span class="line">    18739 (93.69%) aligned exactly 1 time</span><br><span class="line">    14 (0.07%) aligned &gt;1 times</span><br><span class="line">93.77% overall alignment rate</span><br><span class="line"></span><br><span class="line">## Paired-end</span><br><span class="line">10000 reads; of these:</span><br><span class="line">  10000 (100.00%) were paired; of these:</span><br><span class="line">    650 (6.50%) aligned concordantly 0 times</span><br><span class="line">    8823 (88.23%) aligned concordantly exactly 1 time</span><br><span class="line">    527 (5.27%) aligned concordantly &gt;1 times</span><br><span class="line">    ----</span><br><span class="line">    650 pairs aligned concordantly 0 times; of these:</span><br><span class="line">      34 (5.23%) aligned discordantly 1 time</span><br><span class="line">    ----</span><br><span class="line">    616 pairs aligned 0 times concordantly or discordantly; of these:</span><br><span class="line">      1232 mates make up the pairs; of these:</span><br><span class="line">        660 (53.57%) aligned 0 times</span><br><span class="line">        571 (46.35%) aligned exactly 1 time</span><br><span class="line">        1 (0.08%) aligned &gt;1 times</span><br><span class="line">96.70% overall alignment rate</span><br><span class="line">The indentation indicates how subtotals relate to t</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="双端测序比对">双端测序比对</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2 [options]* -x &lt;bt2-idx&gt; -1 &lt;fq1&gt; -2 &lt;fq2&gt; -S &lt;sam_output&gt; -p &lt;threads&gt; 2&gt;Align.summary</span><br></pre></td></tr></table></figure>
-<p>双端比对模式基本与单端一致，只需替换fastq文件传入的参数即可<br>
-<code>-1</code>：一链fastq文件<br>
-<code>-2</code>：二链fastq文件</p>
+<h3 id="双端测序比对"><a href="#双端测序比对" class="headerlink" title="双端测序比对"></a>双端测序比对</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bowtie2 [options]* -x &lt;bt2-idx&gt; -1 &lt;fq1&gt; -2 &lt;fq2&gt; -S &lt;sam_output&gt; -p &lt;threads&gt; 2&gt;Align.summary</span><br></pre></td></tr></table></figure>
+<p>双端比对模式基本与单端一致，只需替换fastq文件传入的参数即可<br><code>-1</code>：一链fastq文件<br><code>-2</code>：二链fastq文件</p>
 <p>Bowtie2 还有更多详细的比对参数可以调整，这里就不一一介绍了。下面再介绍其输出的SAM文件中各列的含义。</p>
-<h2 id="Alignment-OUTPUT">Alignment OUTPUT</h2>
-<p>比对结果以SAM文件保存。SAM文件的每一行代表一个reads的比对情况，至少包含了12列（tab分割），从左往右，每一列的含义依次为：</p>
+<h2 id="Alignment-OUTPUT"><a href="#Alignment-OUTPUT" class="headerlink" title="Alignment OUTPUT"></a>Alignment OUTPUT</h2><p>比对结果以SAM文件保存。SAM文件的每一行代表一个reads的比对情况，至少包含了12列（tab分割），从左往右，每一列的含义依次为：</p>
 <ol>
-<li>Read的名字</li>
-<li>flags之和</li>
-</ol>
+<li><p>Read的名字</p>
+</li>
+<li><p>flags之和</p>
 <blockquote>
-<p>在bowtie2中，flags的含义为<br>
-1<br>
-The read is one of a pair<br>
-2<br>
-The alignment is one end of a proper paired-end alignment<br>
-4<br>
-The read has no reported alignments<br>
-8<br>
-The read is one of a pair and has no reported alignments<br>
-16<br>
-The alignment is to the reverse reference strand<br>
-32<br>
-The other mate in the paired-end alignment is aligned to the reverse reference strand<br>
-64<br>
-The read is mate 1 in a pair<br>
-128<br>
-The read is mate 2 in a pair<br>
-注意每个比对软件flags的含义有所区别</p>
+<p>在bowtie2中，flags的含义为<br>1<br>The read is one of a pair<br>2<br>The alignment is one end of a proper paired-end alignment<br>4<br>The read has no reported alignments<br>8<br>The read is one of a pair and has no reported alignments<br>16<br>The alignment is to the reverse reference strand<br>32<br>The other mate in the paired-end alignment is aligned to the reverse reference strand<br>64<br>The read is mate 1 in a pair<br>128<br>The read is mate 2 in a pair<br>注意每个比对软件flags的含义有所区别</p>
 </blockquote>
-<ol start="3">
-<li>比对到的参考基因组染色体名称</li>
-<li>read 5’端比对到的参考基因组正链染色体坐标（1-based）</li>
-<li>比对质量</li>
-<li>CIGAR字符串，用以表征比对的结果</li>
-<li>双端测序中，二链所比对上的染色体名称，如果与一链相同则为<code>=</code>，如果没有二链则为<code>*</code></li>
-<li>双端测序中，二链read 5’端比对到的参考基因组正链染色体坐标（1-based），如果没有二链则为<code>0</code></li>
-<li>推测的一链与二链之间的片段长度。该值为负表明，二链比对到一链的上游；该值为0表明二链没有比对上；该值为non-0表明二链与一链比对到不同的染色体上（non-0如何理解？）</li>
-<li>Read的序列</li>
-<li>ASCII 编码的read碱基质量</li>
-<li>可选的列，包括以下这些</li>
+</li>
+<li><p>比对到的参考基因组染色体名称</p>
+</li>
+<li><p>read 5’端比对到的参考基因组正链染色体坐标（1-based）</p>
+</li>
+<li><p>比对质量</p>
+</li>
+<li><p>CIGAR字符串，用以表征比对的结果</p>
+</li>
+<li><p>双端测序中，二链所比对上的染色体名称，如果与一链相同则为<code>=</code>，如果没有二链则为<code>*</code></p>
+</li>
+<li><p>双端测序中，二链read 5’端比对到的参考基因组正链染色体坐标（1-based），如果没有二链则为<code>0</code></p>
+</li>
+<li><p>推测的一链与二链之间的片段长度。该值为负表明，二链比对到一链的上游；该值为0表明二链没有比对上；该值为non-0表明二链与一链比对到不同的染色体上（non-0如何理解？）</p>
+</li>
+<li><p>Read的序列</p>
+</li>
+<li><p>ASCII 编码的read碱基质量</p>
+</li>
+<li><p>可选的列，包括以下这些</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">AS:i:&lt;N&gt; Alignment score. Can be negative. Can be greater than 0 in --local mode (but not in --end-to-end mode). Only present if SAM record is for an aligned read. </span><br><span class="line">XS:i:&lt;N&gt; Alignment score for the best-scoring alignment found other than the alignment reported. Can be negative. Can be greater than 0 in --local mode (but not in --end-to-end mode). Only present if the SAM record is for an aligned read and more than one alignment was found for the read. Note that, when the read is part of a concordantly-aligned pair, this score could be greater than AS:i. </span><br><span class="line">YS:i:&lt;N&gt; Alignment score for opposite mate in the paired-end alignment. Only present if the SAM record is for a read that aligned as part of a paired-end alignment. </span><br><span class="line">XN:i:&lt;N&gt; The number of ambiguous bases in the reference covering this alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">XM:i:&lt;N&gt; The number of mismatches in the alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">XO:i:&lt;N&gt; The number of gap opens, for both read and reference gaps, in the alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">XG:i:&lt;N&gt; The number of gap extensions, for both read and reference gaps, in the alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">NM:i:&lt;N&gt; The edit distance; that is, the minimal number of one-nucleotide edits (substitutions, insertions and deletions) needed to transform the read string into the reference string. Only present if SAM record is for an aligned read. </span><br><span class="line">YF:Z:&lt;S&gt; String indicating reason why the read was filtered out. See also: Filtering. Only appears for reads that were filtered out. </span><br><span class="line">YT:Z:&lt;S&gt; Value of UU indicates the read was not part of a pair. Value of CP indicates the read was part of a pair and the pair aligned concordantly. Value of DP indicates the read was part of a pair and the pair aligned discordantly. Value of UP indicates the read was part of a pair but the pair failed to aligned either concordantly or discordantly. </span><br><span class="line">MD:Z:&lt;S&gt; A string representation of the mismatched reference bases in the alignm</span><br></pre></td></tr></table></figure></li>
 </ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">AS:i:&lt;N&gt; Alignment score. Can be negative. Can be greater than 0 in --local mode (but not in --end-to-end mode). Only present if SAM record is for an aligned read. </span><br><span class="line">XS:i:&lt;N&gt; Alignment score for the best-scoring alignment found other than the alignment reported. Can be negative. Can be greater than 0 in --local mode (but not in --end-to-end mode). Only present if the SAM record is for an aligned read and more than one alignment was found for the read. Note that, when the read is part of a concordantly-aligned pair, this score could be greater than AS:i. </span><br><span class="line">YS:i:&lt;N&gt; Alignment score for opposite mate in the paired-end alignment. Only present if the SAM record is for a read that aligned as part of a paired-end alignment. </span><br><span class="line">XN:i:&lt;N&gt; The number of ambiguous bases in the reference covering this alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">XM:i:&lt;N&gt; The number of mismatches in the alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">XO:i:&lt;N&gt; The number of gap opens, for both read and reference gaps, in the alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">XG:i:&lt;N&gt; The number of gap extensions, for both read and reference gaps, in the alignment. Only present if SAM record is for an aligned read. </span><br><span class="line">NM:i:&lt;N&gt; The edit distance; that is, the minimal number of one-nucleotide edits (substitutions, insertions and deletions) needed to transform the read string into the reference string. Only present if SAM record is for an aligned read. </span><br><span class="line">YF:Z:&lt;S&gt; String indicating reason why the read was filtered out. See also: Filtering. Only appears for reads that were filtered out. </span><br><span class="line">YT:Z:&lt;S&gt; Value of UU indicates the read was not part of a pair. Value of CP indicates the read was part of a pair and the pair aligned concordantly. Value of DP indicates the read was part of a pair and the pair aligned discordantly. Value of UP indicates the read was part of a pair but the pair failed to aligned either concordantly or discordantly. </span><br><span class="line">MD:Z:&lt;S&gt; A string representation of the mismatched reference bases in the alignm</span><br></pre></td></tr></table></figure>
 <p>以上就是对Bowtie 2进行基因组比对的一些总结，以后有新的心得再做补充。</p>
 <blockquote>
-<p>Ref:<br>
-<a target="_blank" rel="noopener" href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#how-is-bowtie-2-different-from-bowtie-1">http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#how-is-bowtie-2-different-from-bowtie-1</a></p>
+<p>Ref:<br><a target="_blank" rel="noopener" href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#how-is-bowtie-2-different-from-bowtie-1">http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#how-is-bowtie-2-different-from-bowtie-1</a></p>
 </blockquote>
 <p>完。</p>
 
@@ -404,7 +381,7 @@ The read is mate 2 in a pair<br>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Index"><span class="nav-number">1.1.</span> <span class="nav-text">Index</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Index%E4%BE%8B%E5%AD%90"><span class="nav-number">1.1.1.</span> <span class="nav-text">Index例子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alignment"><span class="nav-number">1.2.</span> <span class="nav-text">Alignment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E7%AB%AF%E6%B5%8B%E5%BA%8F%E6%AF%94%E5%AF%B9"><span class="nav-number">1.2.1.</span> <span class="nav-text">单端测序比对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E7%AB%AF%E6%B5%8B%E5%BA%8F%E6%AF%94%E5%AF%B9"><span class="nav-number">1.2.2.</span> <span class="nav-text">双端测序比对</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alignment-OUTPUT"><span class="nav-number">1.3.</span> <span class="nav-text">Alignment OUTPUT</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Index"><span class="nav-number">1.1.</span> <span class="nav-text">Index</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Index%E4%BE%8B%E5%AD%90"><span class="nav-number">1.1.1.</span> <span class="nav-text">Index例子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alignment"><span class="nav-number">1.2.</span> <span class="nav-text">Alignment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E7%AB%AF%E6%B5%8B%E5%BA%8F%E6%AF%94%E5%AF%B9"><span class="nav-number">1.2.1.</span> <span class="nav-text">单端测序比对</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E7%AB%AF%E6%B5%8B%E5%BA%8F%E6%AF%94%E5%AF%B9"><span class="nav-number">1.2.2.</span> <span class="nav-text">双端测序比对</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alignment-OUTPUT"><span class="nav-number">1.3.</span> <span class="nav-text">Alignment OUTPUT</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -420,7 +397,7 @@ The read is mate 2 in a pair<br>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

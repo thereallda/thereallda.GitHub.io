@@ -232,56 +232,50 @@
       
         <p>最近在看<em>Construction of a human cell landscape at single-cell level</em> 这篇文章。其中，作者构建出了多组织的人类单细胞图谱。注意到作者使用了<strong>Microwell-seq</strong>这一种scRNA-seq，因此特意了解该技术，来跟大家分享一下我对这项技术的理解。</p>
 <span id="more"></span>
-<h1>Microwell是什么?</h1>
-<p>Microwell-seq 是<a target="_blank" rel="noopener" href="https://doi.org/10.1016/j.cell.2018.02.001">浙江大学郭国冀等人</a>在2018 Cell中提出的一种scRNA-seq方法。</p>
+
+<h1 id="Microwell是什么"><a href="#Microwell是什么" class="headerlink" title="Microwell是什么?"></a>Microwell是什么?</h1><p>Microwell-seq 是<a target="_blank" rel="noopener" href="https://doi.org/10.1016/j.cell.2018.02.001">浙江大学郭国冀等人</a>在2018 Cell中提出的一种scRNA-seq方法。</p>
 <p>Microwell-seq的特点是使用一种特殊的琼脂糖微孔板，即Microwell作为单细胞捕获的平台。</p>
-<p><img src="image-20220124130748258.png" alt="Microwell"></p>
+<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/image-20220124130748258.png" alt="Microwell"></p>
 <p>Microwell的制备如上图所示，其本质是由刻有约10万个小孔的硅片作为载体，再在其上包裹上PDMS和Agarose而成。从图中可以看到，单细胞加样到Microwell后会落入芯片的小孔中，一个小孔只能容纳单个细胞与一个磁珠（其protocol指出一般只有10%的小孔既有细胞又有beads）。图中有黑点的孔就是有细胞loading上的，每一个小孔相当于一个独立的反应腔，之后的细胞裂解，磁珠吸附操作都会在此完成。如此就保证了一个磁珠上的RNA只来源于一个细胞。</p>
-<h1>建库步骤</h1>
-<p><img src="image-20220124130758756.png" alt="Schematic workflow of Microwell-seq"></p>
+<h1 id="建库步骤"><a href="#建库步骤" class="headerlink" title="建库步骤"></a>建库步骤</h1><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/image-20220124130758756.png" alt="Schematic workflow of Microwell-seq"></p>
 <p>Microwell-seq 建库流程如上图所示，基本包括：</p>
 <ol>
-<li>分离单细胞悬液，并加上Microwell，进行单细胞捕获。通过显微镜检查细胞落入小孔的比例</li>
-<li>洗脱未加进小孔的细胞，或者一个孔中有两个细胞的doublet</li>
+<li> 分离单细胞悬液，并加上Microwell，进行单细胞捕获。通过显微镜检查细胞落入小孔的比例</li>
+<li> 洗脱未加进小孔的细胞，或者一个孔中有两个细胞的doublet</li>
 <li>加入磁珠</li>
 <li>洗掉悬浮的磁珠</li>
 <li>镜检后，加入裂解液进行细胞裂解。细胞裂解后，RNA会吸附到磁珠的primer上。</li>
 <li>将磁珠转移到EP管中进行reverse transcription合成cDNA，并使用EXON I 切割。</li>
 <li>随后利用PCR扩增，构建文库。文库构建完成后便可上机测序（可使用Illumina测序仪）</li>
 </ol>
-<h2 id="Cell-barcoding">Cell barcoding</h2>
-<p><img src="image-20220124130847017.png" alt=""></p>
+<h2 id="Cell-barcoding"><a href="#Cell-barcoding" class="headerlink" title="Cell barcoding"></a>Cell barcoding</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/image-20220124130847017.png"></p>
 <p>Microwell-seq的barcode也是利用一种<strong>UMI</strong>的方法区分不同细胞来源的mRNA。对mRNA的富集是通过oligo(dT)实现的，所以会有3’ bias</p>
-<h1>优缺点</h1>
-<p><img src="image-20220124130856084.png" alt=""></p>
+<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/image-20220124130856084.png"></p>
 <ul>
-<li>
-<p>优点</p>
+<li><p>优点</p>
 <ol>
-<li>捕获单细胞的硅片可以反复利用，以此节约设备的成本。</li>
+<li>捕获单细胞的硅片可以反复利用，以此节约设备的成本。 </li>
 <li>细胞通量在5k以上，比FACS方法的细胞通量高。</li>
 <li>单个文库构建成本较低，</li>
 <li>在细胞分选的过程中加入镜检质控，提高单细胞分选质量，</li>
 </ol>
 </li>
-<li>
-<p>缺点</p>
+<li><p>缺点</p>
 <ol>
 <li>利用oligo(dT)捕获mRNA，存在3’ bias</li>
 <li>细胞分离过程使用镜检，虽然提高了单细胞分选质量，但也增加了操作过程。</li>
 </ol>
 </li>
 </ul>
-<h1>一点看法</h1>
-<p>Microwell-seq 是由华人科学家独立开发的一种单细胞测序技术，有高通量、低成本和测序质量高的特点。Microwell给我的感觉与Iontorrent的sequencing chips很相像。Iontorrent的chips是通过将beads加到一个个小孔中测序，以此辨别每个beads上的测序信号。而Microwell则是将单细胞和beads加入小孔中进行反应，本质上小孔都是提供一种独立反应腔的功能，保证各个小孔的信号不会互相干扰。这也是单细胞分离的要点，即准确地标记出RNA的细胞来源。</p>
-<p><img src="image-20220124130906273.png" alt=""></p>
+<h1 id="一点看法"><a href="#一点看法" class="headerlink" title="一点看法"></a>一点看法</h1><p>Microwell-seq 是由华人科学家独立开发的一种单细胞测序技术，有高通量、低成本和测序质量高的特点。Microwell给我的感觉与Iontorrent的sequencing chips很相像。Iontorrent的chips是通过将beads加到一个个小孔中测序，以此辨别每个beads上的测序信号。而Microwell则是将单细胞和beads加入小孔中进行反应，本质上小孔都是提供一种独立反应腔的功能，保证各个小孔的信号不会互相干扰。这也是单细胞分离的要点，即准确地标记出RNA的细胞来源。</p>
+<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Microwell-seq/image-20220124130906273.png"></p>
 <p>以上就是我对Microwell-seq一点粗略的见解。</p>
 <p>完。</p>
 <blockquote>
-<p>Reference:</p>
+<p>Reference: </p>
 <ol>
 <li><a target="_blank" rel="noopener" href="https://doi.org/10.1016/j.cell.2018.02.001">https://doi.org/10.1016/j.cell.2018.02.001</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/43482789">https://zhuanlan.zhihu.com/p/43482789</a></li>
+<li> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/43482789">https://zhuanlan.zhihu.com/p/43482789</a></li>
 </ol>
 </blockquote>
 
@@ -387,7 +381,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Microwell是什么?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">建库步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cell-barcoding"><span class="nav-number">2.1.</span> <span class="nav-text">Cell barcoding</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">一点看法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Microwell%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">Microwell是什么?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BB%BA%E5%BA%93%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">建库步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cell-barcoding"><span class="nav-number">2.1.</span> <span class="nav-text">Cell barcoding</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E7%82%B9%E7%9C%8B%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">一点看法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -403,7 +397,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">48</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
