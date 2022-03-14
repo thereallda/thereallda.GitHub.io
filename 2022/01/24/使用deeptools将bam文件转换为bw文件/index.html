@@ -229,29 +229,39 @@
         <blockquote>
 <p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
 </blockquote>
-<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E5%B0%86bam%E6%96%87%E4%BB%B6%E8%BD%AC%E6%8D%A2%E4%B8%BAbw%E6%96%87%E4%BB%B6/image-20220124155836912.png"></p>
+<p><img src="image-20220124155836912.png" alt=""></p>
 <p>deeptools 提供两个bam转换为bw的命令，分别是<code>bamCoverage</code>和<code>bamCompare</code>。两者的区别在于<code>bamCoverage</code>是对单个bam文件进行转换，而<code>bamCompare</code>接受两个bam文件，生成两者信号比值的bw文件。</p>
 <span id="more"></span>
-
-<h1 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h1><h2 id="bamCoverage"><a href="#bamCoverage" class="headerlink" title="bamCoverage"></a>bamCoverage</h2><p>以下是ChIP-seq 数据转换的一个示例用法</p>
+<h1>用法</h1>
+<h2 id="bamCoverage">bamCoverage</h2>
+<p>以下是ChIP-seq 数据转换的一个示例用法</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bamCoverage --bam a.bam -o a.SeqDepthNorm.bw \</span><br><span class="line">    --binSize 10</span><br><span class="line">    --normalizeUsing RPGC</span><br><span class="line">    --effectiveGenomeSize 2150570000</span><br></pre></td></tr></table></figure>
-
-<p><code>-b, --bam</code>： 输入的bam文件<br><code>-o</code>：输出的bw文件<br><code>-bs, --binSize</code>：分割的bin size<br><code>--normalizeUsing</code>：每个bins中read counts的校正单位，可以从<code>RPKM</code>, <code>CPM</code> ,<code>BPM</code>, <code>RPM</code>, <code>RPGC</code>中选择</p>
+<p><code>-b, --bam</code>： 输入的bam文件<br>
+<code>-o</code>：输出的bw文件<br>
+<code>-bs, --binSize</code>：分割的bin size<br>
+<code>--normalizeUsing</code>：每个bins中read counts的校正单位，可以从<code>RPKM</code>, <code>CPM</code> ,<code>BPM</code>, <code>RPM</code>, <code>RPGC</code>中选择</p>
 <blockquote>
 <ul>
-<li><strong>RPKM</strong> = Reads Per Kilobase per Million mapped reads; </li>
-<li><strong>CPM</strong>= Counts Per Million mapped reads, same as CPM in RNA-seq; </li>
-<li><strong>BPM</strong> = Bins Per Million mapped reads, same as TPM in RNA-seq; </li>
-<li><strong>RPGC</strong> = reads per genomic content (1x normalization); Mapped reads are considered after blacklist filtering (if applied).<br>需要注意的是选择了<code>RPGC</code>后，需要提供<code>--effectiveGenomeSize</code></li>
+<li><strong>RPKM</strong> = Reads Per Kilobase per Million mapped reads;</li>
+<li><strong>CPM</strong>= Counts Per Million mapped reads, same as CPM in RNA-seq;</li>
+<li><strong>BPM</strong> = Bins Per Million mapped reads, same as TPM in RNA-seq;</li>
+<li><strong>RPGC</strong> = reads per genomic content (1x normalization); Mapped reads are considered after blacklist filtering (if applied).<br>
+需要注意的是选择了<code>RPGC</code>后，需要提供<code>--effectiveGenomeSize</code></li>
 </ul>
 </blockquote>
 <p><code>--effectiveGenomeSize</code>：可比对基因组区域的大小（bp），可以从这里查<a target="_blank" rel="noopener" href="http://deeptools.readthedocs.io/en/latest/content/feature/effectiveGenomeSize.html">http://deeptools.readthedocs.io/en/latest/content/feature/effectiveGenomeSize.html</a></p>
-<p><code>--scaleFactor</code>：数值，可以是由spike-in推算的校正因子<br><code>--numberOfProcessors, -p</code> ：使用的线程数</p>
-<h2 id="bamCompare"><a href="#bamCompare" class="headerlink" title="bamCompare"></a>bamCompare</h2><p><code>bamCompare</code>的基本用法如下</p>
+<p><code>--scaleFactor</code>：数值，可以是由spike-in推算的校正因子<br>
+<code>--numberOfProcessors, -p</code> ：使用的线程数</p>
+<h2 id="bamCompare">bamCompare</h2>
+<p><code>bamCompare</code>的基本用法如下</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bamCompare -b1 treatment.bam -b2 control.bam -o log2ratio.bw \</span><br><span class="line">    --scaleFactorsMethod readCount \</span><br><span class="line">    --binSize 10 \</span><br><span class="line">    --operation log2 \</span><br><span class="line">    --pseudocount 1 </span><br></pre></td></tr></table></figure>
-<p>其中，<br><code>-b1</code>：处理组的bam文件<br><code>-b2</code>：控制组的bam文件<br><code>-o</code>：输出的bw文件<br><code>--scaleFactorsMethod</code>： Possible choices: readCount, SES, None。用于校正样本间文库测序深度的方法，也可以将该参数设置为 None ，然后使用<code>--normalizeUsing</code>进行校正。</p>
+<p>其中，<br>
+<code>-b1</code>：处理组的bam文件<br>
+<code>-b2</code>：控制组的bam文件<br>
+<code>-o</code>：输出的bw文件<br>
+<code>--scaleFactorsMethod</code>： Possible choices: readCount, SES, None。用于校正样本间文库测序深度的方法，也可以将该参数设置为 None ，然后使用<code>--normalizeUsing</code>进行校正。</p>
 <blockquote>
-<p><strong>SES method reference</strong>: <em>“Normalization, bias correction, and peak calling for ChIP-seq”. Statistical Applications in Genetics and Molecular Biology, 11(3).</em></p>
+<p><strong>SES method reference</strong>: <em>&quot;Normalization, bias correction, and peak calling for ChIP-seq”. Statistical Applications in Genetics and Molecular Biology, 11(3).</em></p>
 </blockquote>
 <p><code>--operation</code>：Possible choices: log2, ratio, subtract, add, mean, reciprocal_ratio, first, second.</p>
 <blockquote>
@@ -261,7 +271,9 @@
 <p>另外，<code>bamCoverage</code>中使用的多数参数在<code>bamCompare</code>中都能使用。</p>
 <p>本文只是简单总结了<code>bamCoverge</code>, <code>bamCompare</code>两个命令中的部分参数，关于其详细的参数列表可以到其官方文档，或者在linux下加上<code>--help</code> 参数查看。</p>
 <blockquote>
-<p>ref<br><a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html?highlight=bamCoverage">https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html?highlight=bamCoverage</a><br><a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html?highlight=bamcompare">https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html?highlight=bamcompare</a></p>
+<p>ref<br>
+<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html?highlight=bamCoverage">https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html?highlight=bamCoverage</a><br>
+<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html?highlight=bamcompare">https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html?highlight=bamcompare</a></p>
 </blockquote>
 <p>完。</p>
 
@@ -367,7 +379,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#bamCoverage"><span class="nav-number">1.1.</span> <span class="nav-text">bamCoverage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bamCompare"><span class="nav-number">1.2.</span> <span class="nav-text">bamCompare</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#bamCoverage"><span class="nav-number">1.1.</span> <span class="nav-text">bamCoverage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bamCompare"><span class="nav-number">1.2.</span> <span class="nav-text">bamCompare</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

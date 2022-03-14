@@ -34,12 +34,12 @@
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142549307-16430055529341.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142557873.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124144429183.png">
-<meta property="og:image" content="https://thereallda.github.io/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135345855.png">
-<meta property="og:image" content="https://thereallda.github.io/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135415006.png">
-<meta property="og:image" content="https://thereallda.github.io/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135555547.png">
-<meta property="og:image" content="https://thereallda.github.io/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135938412.png">
-<meta property="og:image" content="https://thereallda.github.io/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124140411870.png">
-<meta property="og:image" content="https://thereallda.github.io/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124141513955.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135345855.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135415006.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135555547.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135938412.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124140411870.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124141513955.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124144609170.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124144958279.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124145020564.png">
@@ -248,87 +248,91 @@
 </blockquote>
 <p>我使用后的感觉也是如此， <code>patchwork</code>可读性高、操作简单、可操作性也高，真的太强了。下面简单介绍一下这个包吧！</p>
 <span id="more"></span>
-
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p><del>由于这个包还没发布到<code>CRAN</code>上，所以直接用<code>install.packages()</code>是安装不了的，要使用以下方法安装</del><br><del><code>devtools::install_github(&quot;thomasp85/patchwork&quot;)</code></del></p>
+<h1>安装</h1>
+<p><s>由于这个包还没发布到<code>CRAN</code>上，所以直接用<code>install.packages()</code>是安装不了的，要使用以下方法安装</s><br>
+<s><code>devtools::install_github(&quot;thomasp85/patchwork&quot;)</code></s></p>
 <blockquote>
-<p>更新于 2020-12-29<br><code>patchwork</code> 已经发布了有一段时间了，可以直接通过以下命令安装</p>
+<p>更新于 2020-12-29<br>
+<code>patchwork</code> 已经发布了有一段时间了，可以直接通过以下命令安装</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages(<span class="string">&#x27;patchwork&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p>当然也可以继续用<code>devtools::install_github(&quot;thomasp85/patchwork&quot;)</code>的方法安装开发版本</p>
 </blockquote>
-<h1 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h1><p><code>patchwork</code>使用的语法十分简单，就是用<code>+</code>就可以按行将图拼起来，而<code>/</code>是按列拼图，使用<code>|</code>分隔后可以同时使用两种方法拼图。</p>
+<h1>语法</h1>
+<p><code>patchwork</code>使用的语法十分简单，就是用<code>+</code>就可以按行将图拼起来，而<code>/</code>是按列拼图，使用<code>|</code>分隔后可以同时使用两种方法拼图。</p>
 <p>下面我们画几张图试试</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">p1 &lt;- ggplot(mtcars) + </span><br><span class="line">  geom_point(aes(mpg, disp, colour = mpg, size = wt)) +</span><br><span class="line">  ggtitle(<span class="string">&#x27;p1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p2 &lt;- ggplot(mtcars) + </span><br><span class="line">  geom_boxplot(aes(gear, disp, group = gear)) +</span><br><span class="line">  ggtitle(<span class="string">&#x27;p2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p3 &lt;- ggplot(mtcars) + </span><br><span class="line">  geom_point(aes(hp, wt, colour = mpg, size = wt)) + </span><br><span class="line">  scale_colour_viridis_c() +</span><br><span class="line">  ggtitle(<span class="string">&#x27;p3&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p4 &lt;- ggplot(mtcars) + </span><br><span class="line">  geom_smooth(aes(disp, qsec)) +</span><br><span class="line">  ggtitle(<span class="string">&#x27;p4&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p5 &lt;- ggplot(mtcars) + </span><br><span class="line">  geom_bar(aes(carb)) +</span><br><span class="line">  ggtitle(<span class="string">&#x27;p5&#x27;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="横拼"><a href="#横拼" class="headerlink" title="横拼"></a>横拼</h2><p>可以通过<code>+</code>或<code>|</code>实现，两者都是按row合并的</p>
+<h2 id="横拼">横拼</h2>
+<p>可以通过<code>+</code>或<code>|</code>实现，两者都是按row合并的</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1 + p2</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142518247.png"></p>
+<p><img src="image-20220124142518247.png" alt=""></p>
 <p>还可以通过<code>plot_spacer()</code>在图与图之间插入空白，实现<code>ggplot</code>的九宫格！</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p1 + plot_spacer() + p2 +</span><br><span class="line">  plot_spacer() + p3 + plot_spacer() +</span><br><span class="line">  p4 + plot_spacer() + p5</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142525393.png"></p>
-<h2 id="竖拼"><a href="#竖拼" class="headerlink" title="竖拼"></a>竖拼</h2><p>竖着拼也很简单，就是一个<code>/</code>就完事了，有点分式的意思</p>
+<p><img src="image-20220124142525393.png" alt=""></p>
+<h2 id="竖拼">竖拼</h2>
+<p>竖着拼也很简单，就是一个<code>/</code>就完事了，有点分式的意思</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p2/p4</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142531059.png"></p>
-<h2 id="多种拼图的结合"><a href="#多种拼图的结合" class="headerlink" title="多种拼图的结合"></a>多种拼图的结合</h2><p>如果想同时实现两种拼图的语法，用<code>|</code>即可完成了</p>
+<p><img src="image-20220124142531059.png" alt=""></p>
+<h2 id="多种拼图的结合">多种拼图的结合</h2>
+<p>如果想同时实现两种拼图的语法，用<code>|</code>即可完成了</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(p2/p4)|p3</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142537664.png"></p>
-<h1 id="方便的注释"><a href="#方便的注释" class="headerlink" title="方便的注释"></a>方便的注释</h1><p><code>patchwork</code>还提供了一个<code>plot_annotation</code>的功能，可以允许我们在给拼起来的图加title的前提下，还能为每一个subplot加上一个tag，效果如下：</p>
+<p><img src="image-20220124142537664.png" alt=""></p>
+<h1>方便的注释</h1>
+<p><code>patchwork</code>还提供了一个<code>plot_annotation</code>的功能，可以允许我们在给拼起来的图加title的前提下，还能为每一个subplot加上一个tag，效果如下：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1 + p2 + plot_annotation(title = <span class="string">&quot;combine&quot;</span>, tag_levels = <span class="string">&quot;A&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142543481.png"></p>
+<p><img src="image-20220124142543481.png" alt=""></p>
 <p>这个功能在生成文章的figure的时候就很有用了</p>
-<h1 id="复杂的拼图"><a href="#复杂的拼图" class="headerlink" title="复杂的拼图"></a>复杂的拼图</h1><p>以上我们所做的都是在网格上一个个格子地拼图的，当然，<code>patchwork</code>也可以通过设定<code>layout</code>实现指定每个图所占的格子来拼，容许了更高的操作自由度</p>
+<h1>复杂的拼图</h1>
+<p>以上我们所做的都是在网格上一个个格子地拼图的，当然，<code>patchwork</code>也可以通过设定<code>layout</code>实现指定每个图所占的格子来拼，容许了更高的操作自由度</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">layout &lt;- <span class="string">&quot;</span></span><br><span class="line"><span class="string">BBBB</span></span><br><span class="line"><span class="string">AACC</span></span><br><span class="line"><span class="string">##CC</span></span><br><span class="line"><span class="string">&quot;</span></span><br><span class="line">p4 + p2 + p3 +</span><br><span class="line">  plot_layout(design = layout)</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142549307-16430055529341.png"></p>
+<p><img src="image-20220124142549307-16430055529341.png" alt=""></p>
 <p>以上的<code>#</code>是空白，ABC就代表了输入中相应的图</p>
-<h1 id="控制legend"><a href="#控制legend" class="headerlink" title="控制legend"></a>控制legend</h1><p><code>patchwork</code>可以通过指定<code>plot_layout(guide = &#39;collect&#39;)</code>将legend都放到图的一侧</p>
+<h1>控制legend</h1>
+<p><code>patchwork</code>可以通过指定<code>plot_layout(guide = 'collect')</code>将legend都放到图的一侧</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(p2 | (p1/p3)) + plot_layout(guides = <span class="string">&#x27;collect&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124142557873.png"></p>
-<p>有趣的是，尽管我们的<code>mpg</code>legend都是对<code>mpg</code>上色，但仅因为颜色映射的方法不一样，就分别列了出来。所以，这个<code>guides = &#39;collect&#39;</code>不仅仅只是收集legend，它是在进行了legend的比较之后，才放出来的。</p>
-<h1 id="对拼图进行批量ggplot语法操作"><a href="#对拼图进行批量ggplot语法操作" class="headerlink" title="对拼图进行批量ggplot语法操作"></a>对拼图进行批量ggplot语法操作</h1><p><code>patchwork</code>还提供了<code>&amp;</code>操作符，以让我们对拼接后的图的整体进行操作。 </p>
+<p><img src="image-20220124142557873.png" alt=""></p>
+<p>有趣的是，尽管我们的<code>mpg</code>legend都是对<code>mpg</code>上色，但仅因为颜色映射的方法不一样，就分别列了出来。所以，这个<code>guides = 'collect'</code>不仅仅只是收集legend，它是在进行了legend的比较之后，才放出来的。</p>
+<h1>对拼图进行批量ggplot语法操作</h1>
+<p><code>patchwork</code>还提供了<code>&amp;</code>操作符，以让我们对拼接后的图的整体进行操作。</p>
 <p>操作符<code>+</code>只对其接着的一个图进行修改，而<code>&amp;</code>可以对所有图进行修改。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">patchwork &lt;- (p1 + p2 + theme_minimal())/(p1 + p2 &amp; theme_minimal())</span><br><span class="line">patchwork + </span><br><span class="line">  plot_annotation(tag_levels = <span class="built_in">list</span>(<span class="built_in">c</span>(<span class="string">&#x27;+&#x27;</span>,<span class="string">&#x27;&#x27;</span>,<span class="string">&#x27;&amp;&#x27;</span>,<span class="string">&#x27;&#x27;</span>)))</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124144429183.png"></p>
-<h1 id="与非ggplot对象拼接"><a href="#与非ggplot对象拼接" class="headerlink" title="与非ggplot对象拼接"></a>与非ggplot对象拼接</h1><p>目前，<code>patchwork</code>支持将<code>ggplot</code>与<code>non-ggplot</code>对象进行拼接。</p>
-<h2 id="ggplot-grobs"><a href="#ggplot-grobs" class="headerlink" title="ggplot + grobs"></a>ggplot + grobs</h2><p>我们可以将<code>grobs</code>对象与<code>ggplot</code>对象进行拼接</p>
+<p><img src="image-20220124144429183.png" alt=""></p>
+<h1>与非ggplot对象拼接</h1>
+<p>目前，<code>patchwork</code>支持将<code>ggplot</code>与<code>non-ggplot</code>对象进行拼接。</p>
+<h2 id="ggplot-grobs">ggplot + grobs</h2>
+<p>我们可以将<code>grobs</code>对象与<code>ggplot</code>对象进行拼接</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># adding non-ggplot object</span></span><br><span class="line">p1 &lt;- ggplot(mtcars) + </span><br><span class="line">  geom_point(aes(mpg, disp)) +</span><br><span class="line">  ggtitle(<span class="string">&#x27;p1&#x27;</span>)</span><br><span class="line">p1 + grid::textGrob(<span class="string">&#x27;Some really important text&#x27;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135345855.png"></p>
+<p><img src="R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135345855.png" alt=""></p>
 <p>或者表格</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p1 + gridExtra::tableGrob(mtcars[<span class="number">1</span>:<span class="number">10</span>, <span class="built_in">c</span>(<span class="string">&#x27;mpg&#x27;</span>, <span class="string">&#x27;disp&#x27;</span>)])</span><br></pre></td></tr></table></figure>
-
-<p><img src="/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135415006.png" alt="image-20220124135415006"></p>
-<h2 id="ggplot-base-graphics"><a href="#ggplot-base-graphics" class="headerlink" title="ggplot + base graphics"></a>ggplot + base graphics</h2><p>另外，我们也可以将<code>ggplot</code>与R的基础绘图对象进行拼接</p>
+<p><img src="R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135415006.png" alt="image-20220124135415006"></p>
+<h2 id="ggplot-base-graphics">ggplot + base graphics</h2>
+<p>另外，我们也可以将<code>ggplot</code>与R的基础绘图对象进行拼接</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># base graphics</span></span><br><span class="line">p1 + ~plot(mtcars$mpg, mtcars$disp, main = <span class="string">&#x27;Plot 2&#x27;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135555547.png" alt="image-20220124135555547"></p>
+<p><img src="R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135555547.png" alt="image-20220124135555547"></p>
 <p>但我们可以注意到<code>ggplot</code>与base graphics没办法很好的对齐。这时候我们需要手动调整base graphics的图形大小，使之对齐。</p>
 <p>这里提一下<code>patchwork</code>对<code>non-ggplot</code>对象的拼接是通过<code>wrap_elements()</code>实现的。我们接下来对base graphics进行<code>wrap_elements()</code>操作后再修改</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># align ggplot with base graphics</span></span><br><span class="line">old_par &lt;- par(mar = <span class="built_in">c</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>), mgp = <span class="built_in">c</span>(<span class="number">1</span>, <span class="number">0.25</span>, <span class="number">0</span>), </span><br><span class="line">               bg = <span class="literal">NA</span>, cex.axis = <span class="number">0.75</span>, las = <span class="number">1</span>, tcl = -<span class="number">0.25</span>)</span><br><span class="line">p1 + </span><br><span class="line">  wrap_elements(panel = ~plot(mtcars$mpg, mtcars$disp), clip = <span class="literal">FALSE</span>) + </span><br><span class="line">  ggtitle(<span class="string">&#x27;Plot 2&#x27;</span>) + </span><br><span class="line">  theme(plot.margin = margin(<span class="number">5.5</span>, <span class="number">5.5</span>, <span class="number">5.5</span>, <span class="number">35</span>))</span><br><span class="line">par(old_par)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135938412.png" alt="image-20220124135938412"></p>
-<h2 id="non-ggplot-ggplot"><a href="#non-ggplot-ggplot" class="headerlink" title="non-ggplot + ggplot"></a>non-ggplot + ggplot</h2><p>我们对<code>non-ggplot</code>的添加都是加在<code>ggplot</code>的右侧，可以把<code>+</code>理解为一个函数而它左侧接受的第一个参数需要是<code>ggplot</code>对象。所以如果我们需要添加<code>non-ggplot</code>对象在左侧时，要先用<code>wrap_elements()</code>将其转换。</p>
+<p><img src="R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124135938412.png" alt="image-20220124135938412"></p>
+<h2 id="non-ggplot-ggplot">non-ggplot + ggplot</h2>
+<p>我们对<code>non-ggplot</code>的添加都是加在<code>ggplot</code>的右侧，可以把<code>+</code>理解为一个函数而它左侧接受的第一个参数需要是<code>ggplot</code>对象。所以如果我们需要添加<code>non-ggplot</code>对象在左侧时，要先用<code>wrap_elements()</code>将其转换。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># first plot non-ggplot</span></span><br><span class="line">wrap_elements(grid::textGrob(<span class="string">&#x27;Text on left side&#x27;</span>)) + p1</span><br></pre></td></tr></table></figure>
-
-<p><img src="/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124140411870.png" alt="image-20220124140411870"></p>
-<h1 id="函数式拼图"><a href="#函数式拼图" class="headerlink" title="函数式拼图"></a>函数式拼图</h1><p>有时候，当我们有一个列表存储多个图时，手动地用<code>+</code>一个个拼接会比较费劲。幸好<code>patchwork</code>提供了<code>wrap_plots()</code>这一函数以自动拼接多个图。</p>
+<p><img src="R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124140411870.png" alt="image-20220124140411870"></p>
+<h1>函数式拼图</h1>
+<p>有时候，当我们有一个列表存储多个图时，手动地用<code>+</code>一个个拼接会比较费劲。幸好<code>patchwork</code>提供了<code>wrap_plots()</code>这一函数以自动拼接多个图。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># functional assembly</span></span><br><span class="line">pls &lt;- lapply(as.list(colnames(mtcars)[-<span class="number">1</span>]), <span class="keyword">function</span>(y) ggplot(mtcars, aes_string(<span class="string">&#x27;mpg&#x27;</span>,y)) + geom_point())</span><br><span class="line">wrap_plots(pls)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124141513955.png" alt="image-20220124141513955"></p>
+<p><img src="R---ggplot2%E6%8B%BC%E5%9B%BE-%E2%80%94%E2%80%94-patchwork/image-20220124141513955.png" alt="image-20220124141513955"></p>
 <p>有了<code>wrap_plots()</code>当我们用函数批量生成图时，也可以一次拼接起所有的图了。</p>
-<h1 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h1><p>接下来，再简单介绍<code>patchwork</code>的注释系统.</p>
+<h1>注释</h1>
+<p>接下来，再简单介绍<code>patchwork</code>的注释系统.</p>
 <p>我们可以通过<code>plot_annotation()</code>对拼接后的图添加注释</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">patchwork &lt;- (p1 + p2) / p3</span><br><span class="line">patchwork + plot_annotation(</span><br><span class="line">  title = <span class="string">&#x27;The surprising truth about mtcars&#x27;</span>,</span><br><span class="line">  subtitle = <span class="string">&#x27;These 3 plots will reveal yet-untold secrets about our beloved data-set&#x27;</span>,</span><br><span class="line">  caption = <span class="string">&#x27;Disclaimer: None of these plots are insightful&#x27;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124144609170.png"></p>
+<p><img src="image-20220124144609170.png" alt=""></p>
 <p>通常在文章的图里，我们会用字母表示不同的panels，使用<code>plot_annotation</code>也可以很方便地实现对拼图的标注</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patchwork + plot_annotation(tag_levels = <span class="string">&#x27;A&#x27;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124144958279.png"></p>
+<p><img src="image-20220124144958279.png" alt=""></p>
 <p>或者更复杂的标注</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">patchwork + </span><br><span class="line">  plot_annotation(tag_levels = <span class="built_in">c</span>(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;1&#x27;</span>), tag_prefix = <span class="string">&#x27;Fig. &#x27;</span>, tag_sep = <span class="string">&#x27;.&#x27;</span>, </span><br><span class="line">                  tag_suffix = <span class="string">&#x27;:&#x27;</span>) &amp; </span><br><span class="line">  theme(plot.tag.position = <span class="built_in">c</span>(<span class="number">0</span>, <span class="number">1</span>),</span><br><span class="line">        plot.tag = element_text(size = <span class="number">8</span>, hjust = <span class="number">0</span>, vjust = <span class="number">0</span>))</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/01/24/R-ggplot2%E6%8B%BC%E5%9B%BE-patchwork/image-20220124145020564.png"></p>
+<p><img src="image-20220124145020564.png" alt=""></p>
 <p>总而言之，<code>patchwork</code>是个十分方便且强大的<code>ggplot</code>拼图工具。本文也只是简单介绍它，还有更多有趣的使用方法等待大家发现！</p>
 <blockquote>
 <p>Ref：</p>
@@ -441,7 +445,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%AA%E6%8B%BC"><span class="nav-number">2.1.</span> <span class="nav-text">横拼</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%96%E6%8B%BC"><span class="nav-number">2.2.</span> <span class="nav-text">竖拼</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%A7%8D%E6%8B%BC%E5%9B%BE%E7%9A%84%E7%BB%93%E5%90%88"><span class="nav-number">2.3.</span> <span class="nav-text">多种拼图的结合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B9%E4%BE%BF%E7%9A%84%E6%B3%A8%E9%87%8A"><span class="nav-number">3.</span> <span class="nav-text">方便的注释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E7%9A%84%E6%8B%BC%E5%9B%BE"><span class="nav-number">4.</span> <span class="nav-text">复杂的拼图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6legend"><span class="nav-number">5.</span> <span class="nav-text">控制legend</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E6%8B%BC%E5%9B%BE%E8%BF%9B%E8%A1%8C%E6%89%B9%E9%87%8Fggplot%E8%AF%AD%E6%B3%95%E6%93%8D%E4%BD%9C"><span class="nav-number">6.</span> <span class="nav-text">对拼图进行批量ggplot语法操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8E%E9%9D%9Eggplot%E5%AF%B9%E8%B1%A1%E6%8B%BC%E6%8E%A5"><span class="nav-number">7.</span> <span class="nav-text">与非ggplot对象拼接</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ggplot-grobs"><span class="nav-number">7.1.</span> <span class="nav-text">ggplot + grobs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ggplot-base-graphics"><span class="nav-number">7.2.</span> <span class="nav-text">ggplot + base graphics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#non-ggplot-ggplot"><span class="nav-number">7.3.</span> <span class="nav-text">non-ggplot + ggplot</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8B%BC%E5%9B%BE"><span class="nav-number">8.</span> <span class="nav-text">函数式拼图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E9%87%8A"><span class="nav-number">9.</span> <span class="nav-text">注释</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%AA%E6%8B%BC"><span class="nav-number">2.1.</span> <span class="nav-text">横拼</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%96%E6%8B%BC"><span class="nav-number">2.2.</span> <span class="nav-text">竖拼</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%A7%8D%E6%8B%BC%E5%9B%BE%E7%9A%84%E7%BB%93%E5%90%88"><span class="nav-number">2.3.</span> <span class="nav-text">多种拼图的结合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">方便的注释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">复杂的拼图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">控制legend</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">对拼图进行批量ggplot语法操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">与非ggplot对象拼接</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ggplot-grobs"><span class="nav-number">7.1.</span> <span class="nav-text">ggplot + grobs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ggplot-base-graphics"><span class="nav-number">7.2.</span> <span class="nav-text">ggplot + base graphics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#non-ggplot-ggplot"><span class="nav-number">7.3.</span> <span class="nav-text">non-ggplot + ggplot</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">8.</span> <span class="nav-text">函数式拼图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">9.</span> <span class="nav-text">注释</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
