@@ -238,47 +238,46 @@
 
       
         <p>Following tutorial from 2019 Nature Protocol (<a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41596-018-0103-9">https://www.nature.com/articles/s41596-018-0103-9</a>)</p>
-<p><img src="image-20211231184636912.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/image-20211231184636912.png"></p>
 <span id="more"></span>
-<h1>Prerequisite</h1>
-<p><strong>Project directory:</strong> <code>Pathway_Enrichment_Turorial/</code></p>
+
+<h1 id="Prerequisite"><a href="#Prerequisite" class="headerlink" title="Prerequisite"></a>Prerequisite</h1><p><strong>Project directory:</strong> <code>Pathway_Enrichment_Turorial/</code></p>
 <p><strong>Data:</strong> <a target="_blank" rel="noopener" href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41596-018-0103-9/MediaObjects/41596_2018_103_MOESM1_ESM.zip">https://static-content.springer.com/esm/art%3A10.1038%2Fs41596-018-0103-9/MediaObjects/41596_2018_103_MOESM1_ESM.zip</a></p>
 <p>下载后解压于<code>Pathway_Enrichment_Tutorial/data/</code>，压缩包内包括以下文件：</p>
 <ul>
-<li>Supplementary_Methods_Supplementary_protocols.pdf</li>
-<li>Supplementary_Table1_Cancer_drivers.txt</li>
-<li>Supplementary_Table2_MesenvsImmuno_RNASeq_ranks.rnk</li>
-<li>Supplementary_Table3_Human_GOBP_AllPathways_no_GO_iea_July_01_2017_symbol.gmt</li>
-<li>Supplementary_Table4_gprofiler_results.txt</li>
-<li>Supplementary_Table5_hsapiens.pathways.NAME.gmt</li>
-<li>Supplementary_Table6_TCGA_OV_RNAseq_expression.txt</li>
-<li>Supplementary_Table7_TCGA_OV_RNAseq_classes.cls</li>
-<li>Supplementary_Table8_gsea_report_for_na_pos.xls</li>
-<li>Supplementary_Table9_gsea_report_for_na_neg.xls</li>
-<li>Supplementary_Table10_TCGA_RNASeq_rawcounts.txt</li>
-<li>Supplementary_Table11_RNASeq_classdefinitions.txt</li>
-<li>Supplementary_Table12_TCGA_Microarray_rmanormalized.txt</li>
-<li>Supplementary_Table13_Microarray_classdefinitions.txt</li>
+<li>  Supplementary_Methods_Supplementary_protocols.pdf</li>
+<li>  Supplementary_Table1_Cancer_drivers.txt</li>
+<li>  Supplementary_Table2_MesenvsImmuno_RNASeq_ranks.rnk</li>
+<li>  Supplementary_Table3_Human_GOBP_AllPathways_no_GO_iea_July_01_2017_symbol.gmt</li>
+<li>  Supplementary_Table4_gprofiler_results.txt</li>
+<li>  Supplementary_Table5_hsapiens.pathways.NAME.gmt</li>
+<li>  Supplementary_Table6_TCGA_OV_RNAseq_expression.txt</li>
+<li>  Supplementary_Table7_TCGA_OV_RNAseq_classes.cls</li>
+<li>  Supplementary_Table8_gsea_report_for_na_pos.xls</li>
+<li>  Supplementary_Table9_gsea_report_for_na_neg.xls</li>
+<li>  Supplementary_Table10_TCGA_RNASeq_rawcounts.txt</li>
+<li>  Supplementary_Table11_RNASeq_classdefinitions.txt</li>
+<li>  Supplementary_Table12_TCGA_Microarray_rmanormalized.txt</li>
+<li>  Supplementary_Table13_Microarray_classdefinitions.txt</li>
 </ul>
 <p><strong>Software:</strong></p>
 <ul>
-<li>g:Profiler (R client)</li>
-<li>Java Standard Edition (<a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a>) is required to run GSEA and Cytoscape.</li>
-<li>GSEA (optional)</li>
-<li>The Cytoscape desktop application (<a target="_blank" rel="noopener" href="http://www.cytoscape.org/download.php">http://www.cytoscape.org/download.php</a>)</li>
-<li>Cytoscape plugins：“EnrichmentMap Pipeline Collection” (<a target="_blank" rel="noopener" href="http://apps.cytoscape.org/apps/enrichmentmappipelinecollection">http://apps.cytoscape.org/apps/enrichmentmappipelinecollection</a> ); 可以在Cytoscape app store中搜到</li>
+<li>  g:Profiler (R client)</li>
+<li>  Java Standard Edition (<a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a>) is required to run GSEA and Cytoscape.</li>
+<li>  GSEA (optional)</li>
+<li>  The Cytoscape desktop application (<a target="_blank" rel="noopener" href="http://www.cytoscape.org/download.php">http://www.cytoscape.org/download.php</a>)</li>
+<li>  Cytoscape plugins：”EnrichmentMap Pipeline Collection” (<a target="_blank" rel="noopener" href="http://apps.cytoscape.org/apps/enrichmentmappipelinecollection">http://apps.cytoscape.org/apps/enrichmentmappipelinecollection</a> ); 可以在Cytoscape app store中搜到</li>
 </ul>
-<h1>R | Pathway enrichment analysis</h1>
-<h2 id="using-g-Profiler">using g:Profiler</h2>
-<blockquote>
+<h1 id="R-Pathway-enrichment-analysis"><a href="#R-Pathway-enrichment-analysis" class="headerlink" title="R | Pathway enrichment analysis"></a>R | Pathway enrichment analysis</h1><h2 id="using-g-Profiler"><a href="#using-g-Profiler" class="headerlink" title="using g:Profiler"></a>using g:Profiler</h2><blockquote>
 <p>这里使用g:Profiler的R包进行富集分析，也可以使用它的网页版（<a target="_blank" rel="noopener" href="https://biit.cs.ut.ee/gprofiler/gost">https://biit.cs.ut.ee/gprofiler/gost</a>进行分析</p>
 </blockquote>
 <ol>
-<li>首先，使用Supplementary_Table1_Cancer_drivers.txt中的基因列表进行常规的通路富集。</li>
+<li> 首先，使用Supplementary_Table1_Cancer_drivers.txt中的基因列表进行常规的通路富集。</li>
 </ol>
 <p>In R</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;gprofiler2&quot;</span>)) install.packages(<span class="string">&quot;gprofiler2&quot;</span>)</span><br><span class="line">library(gprofiler2)</span><br><span class="line"><span class="comment"># read in query gene list</span></span><br><span class="line">queryG &lt;- read.delim(<span class="string">&#x27;data/supplementary_files/Supplementary_Table1_Cancer_drivers.txt&#x27;</span>, header=<span class="built_in">F</span>)</span><br><span class="line"></span><br><span class="line">gores1 &lt;- gost(queryG$V1, </span><br><span class="line">               organism=<span class="string">&#x27;hsapiens&#x27;</span>,</span><br><span class="line">               exclude_iea=<span class="literal">TRUE</span>, </span><br><span class="line">               ordered_query=<span class="literal">TRUE</span>,</span><br><span class="line">               evcodes=<span class="literal">TRUE</span>,</span><br><span class="line">               sources=<span class="built_in">c</span>(<span class="string">&#x27;GO:BP&#x27;</span>, <span class="string">&#x27;REAC&#x27;</span>)) </span><br></pre></td></tr></table></figure>
-<p>这里选择物种为&quot;hsapiens&quot; - Homo sapiens.</p>
+
+<p>这里选择物种为”hsapiens” - Homo sapiens.</p>
 <p><code>exclude_iea</code>: 排除没有经过人工审核的不靠谱GO注释 (less reliable GO annotations, IEAs)</p>
 <p><code>ordered_query</code>: 把输入的基因认为是排序过的基因列表，以一种GSEA的方式进行通路富集</p>
 <p><code>evcodes</code>: 返回输入基因与相应通路产生交集的基因ID</p>
@@ -286,22 +285,24 @@
 <blockquote>
 <p>Available data sources and their abbreviations are:</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="http://geneontology.org/">Gene Ontology</a> (GO or by branch <a href="GO:MF">GO:MF</a>, <a href="GO:BP">GO:BP</a>, <a href="GO:CC">GO:CC</a>)</li>
-<li><a target="_blank" rel="noopener" href="https://www.genome.jp/kegg/">KEGG</a> (KEGG)</li>
-<li><a target="_blank" rel="noopener" href="https://reactome.org/">Reactome</a> (REAC): an open-source, open access, manually curated and peer-reviewed pathway database.</li>
-<li><a target="_blank" rel="noopener" href="https://www.wikipathways.org/index.php/WikiPathways">WikiPathways</a> (WP): an open, collaborative platform dedicated to the curation of biological pathways.</li>
-<li><a target="_blank" rel="noopener" href="https://genexplain.com/transfac/">TRANSFAC</a> (TF): is the database of eukaryotic transcription factors, their genomic binding sites and DNA-binding profiles.</li>
-<li><a target="_blank" rel="noopener" href="https://mirtarbase.cuhk.edu.cn/~miRTarBase/miRTarBase_2019/php/index.php">miRTarBase</a> (MIRNA): <strong>miRTarBase</strong> has accumulated more than three hundred and sixty thousand miRNA-target interactions (MTIs), which are collected by manually surveying pertinent literature after NLP of the text systematically to filter research articles related to functional studies of miRNAs.</li>
-<li><a target="_blank" rel="noopener" href="https://www.proteinatlas.org/">Human Protein Atlas</a> (HPA): including all the human proteins in cells, tissues, and organs using an integration of various omics technologies.</li>
-<li><a target="_blank" rel="noopener" href="https://mips.helmholtz-muenchen.de/corum/">CORUM</a> (CORUM): provides a resource of manually annotated protein complexes from mammalian organisms.</li>
-<li><a target="_blank" rel="noopener" href="http://hpo.jax.org/app/">Human phenotype ontology</a> (HP): provides a standardized vocabulary of phenotypic abnormalities encountered in human disease.</li>
+<li>  <a target="_blank" rel="noopener" href="http://geneontology.org/">Gene Ontology</a> (GO or by branch <a href="GO:MF">GO:MF</a>, <a href="GO:BP">GO:BP</a>, <a href="GO:CC">GO:CC</a>)</li>
+<li>  <a target="_blank" rel="noopener" href="https://www.genome.jp/kegg/">KEGG</a> (KEGG)</li>
+<li>  <a target="_blank" rel="noopener" href="https://reactome.org/">Reactome</a> (REAC): an open-source, open access, manually curated and peer-reviewed pathway database.</li>
+<li>  <a target="_blank" rel="noopener" href="https://www.wikipathways.org/index.php/WikiPathways">WikiPathways</a> (WP): an open, collaborative platform dedicated to the curation of biological pathways.</li>
+<li>  <a target="_blank" rel="noopener" href="https://genexplain.com/transfac/">TRANSFAC</a> (TF): is the database of eukaryotic transcription factors, their genomic binding sites and DNA-binding profiles.</li>
+<li>  <a target="_blank" rel="noopener" href="https://mirtarbase.cuhk.edu.cn/~miRTarBase/miRTarBase_2019/php/index.php">miRTarBase</a> (MIRNA): <strong>miRTarBase</strong> has accumulated more than three hundred and sixty thousand miRNA-target interactions (MTIs), which are collected by manually surveying pertinent literature after NLP of the text systematically to filter research articles related to functional studies of miRNAs.</li>
+<li>  <a target="_blank" rel="noopener" href="https://www.proteinatlas.org/">Human Protein Atlas</a> (HPA): including all the human proteins in cells, tissues, and organs using an integration of various omics technologies.</li>
+<li>  <a target="_blank" rel="noopener" href="https://mips.helmholtz-muenchen.de/corum/">CORUM</a> (CORUM): provides a resource of manually annotated protein complexes from mammalian organisms.</li>
+<li>  <a target="_blank" rel="noopener" href="http://hpo.jax.org/app/">Human phenotype ontology</a> (HP): provides a standardized vocabulary of phenotypic abnormalities encountered in human disease.</li>
 </ul>
 </blockquote>
 <p>同时，我们对富集到的通路进行筛选，排除包含过多基因的通路（大于350个），过少基因的通路（小于5个），以及与输入基因交集过小的通路（小于3个）</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filtered by term_size and intersection_size</span></span><br><span class="line"><span class="comment"># term_size - number of genes that are annotated to the term</span></span><br><span class="line"><span class="comment"># intersection_size - the number of genes in the input query that are annotated to the term</span></span><br><span class="line">gores1_filtered &lt;- <span class="built_in">list</span>(<span class="string">&quot;result&quot;</span> = subset(gores1$result, </span><br><span class="line">                                          term_size &gt; <span class="number">5</span> &amp; </span><br><span class="line">                                            term_size &lt; <span class="number">350</span> &amp; </span><br><span class="line">                                            intersection_size &gt; <span class="number">3</span>),</span><br><span class="line">                        <span class="string">&quot;meta&quot;</span> = gores1$meta)</span><br></pre></td></tr></table></figure>
+
 <p>理论上，我们应当在进行通路富集之前进行排除，这样才可以通过排除这类通路来通过统计检验的效力（power），但是<code>gprofiler2::gost()</code>并没有提供这样的参数以供我们设定相应的cutoff</p>
 <p>富集的结果保存在<code>$table</code>中</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pathway enrichment results table</span></span><br><span class="line">head(gores1_filtered$result, n=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>##       query significant  p_value term_size query_size intersection_size
 ## 95  query_1        TRUE 3.82e-13       142         81                15
 ## 124 query_1        TRUE 6.31e-12       197        120                18
@@ -326,28 +327,28 @@
 <blockquote>
 <p>The result <code>data.frame</code> contains the following columns:</p>
 <ul>
-<li>term_id - unique term identifier (e.g <a href="GO:0005005">GO:0005005</a>)</li>
-<li><strong>p_values</strong> - hypergeometric p-values after correction for multiple testing in the order of input queries</li>
-<li><strong>significant</strong> - indicators in the order of input queries for statistically significant results</li>
-<li>term_size - number of genes that are annotated to the term</li>
-<li><strong>query_sizes</strong> - number of genes that were included in the query in the order of input queries</li>
-<li><strong>intersection_sizes</strong> - the number of genes in the input query that are annotated to the corresponding term in the order of input queries</li>
-<li>source - the abbreviation of the data source for the term (e.g. <a href="GO:BP">GO:BP</a>)</li>
-<li>term_name - the short name of the function</li>
-<li>effective_domain_size - the total number of genes “in the universe” used for the hypergeometric test</li>
-<li>source_order - numeric order for the term within its data source (this is important for drawing the results)</li>
-<li>source_order - numeric order for the term within its data source (this is important for drawing the results)</li>
-<li>parents - list of term IDs that are hierarchically directly above the term. For non-hierarchical data sources this points to an artificial root node.</li>
+<li>  term_id - unique term identifier (e.g <a href="GO:0005005">GO:0005005</a>)</li>
+<li>  <strong>p_values</strong> - hypergeometric p-values after correction for multiple testing in the order of input queries</li>
+<li>  <strong>significant</strong> - indicators in the order of input queries for statistically significant results</li>
+<li>  term_size - number of genes that are annotated to the term</li>
+<li>  <strong>query_sizes</strong> - number of genes that were included in the query in the order of input queries</li>
+<li>  <strong>intersection_sizes</strong> - the number of genes in the input query that are annotated to the corresponding term in the order of input queries</li>
+<li>  source - the abbreviation of the data source for the term (e.g. <a href="GO:BP">GO:BP</a>)</li>
+<li>  term_name - the short name of the function</li>
+<li>  effective_domain_size - the total number of genes “in the universe” used for the hypergeometric test</li>
+<li>  source_order - numeric order for the term within its data source (this is important for drawing the results)</li>
+<li>  source_order - numeric order for the term within its data source (this is important for drawing the results)</li>
+<li>  parents - list of term IDs that are hierarchically directly above the term. For non-hierarchical data sources this points to an artificial root node.</li>
 </ul>
 </blockquote>
 <p><code>gProfiler2</code>提供Manhattan plot进行通路富集结果的可视化</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gostplot(gores1_filtered, capped = <span class="literal">TRUE</span>, <span class="built_in">interactive</span> = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220228165156178.png" alt=""></p>
-<h2 id="Preparing-data-for-EnrichmentMap">Preparing data for EnrichmentMap</h2>
-<h3 id="Creating-a-Generic-Enrichment-Map-GEM-file">Creating a Generic Enrichment Map (GEM) file</h3>
-<p>GEM格式文件是Cytoscape EnrichmentMap app中需要的通路富集结果文件。其需要包括GO ID, Description, p-value, FDR, Phenotype and Genes.</p>
+
+<p><img src="/2022/02/28/PathwayEnrichment/image-20220228165156178.png"></p>
+<h2 id="Preparing-data-for-EnrichmentMap"><a href="#Preparing-data-for-EnrichmentMap" class="headerlink" title="Preparing data for EnrichmentMap"></a>Preparing data for EnrichmentMap</h2><h3 id="Creating-a-Generic-Enrichment-Map-GEM-file"><a href="#Creating-a-Generic-Enrichment-Map-GEM-file" class="headerlink" title="Creating a Generic Enrichment Map (GEM) file"></a>Creating a Generic Enrichment Map (GEM) file</h3><p>GEM格式文件是Cytoscape EnrichmentMap app中需要的通路富集结果文件。其需要包括GO ID, Description, p-value, FDR, Phenotype and Genes.</p>
 <p>由于<code>gost</code>函数输出的p-value已经是多重检验校正后的值，所以这里直接复制两列一样的p-value，其实都是FDR</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gem &lt;- gores1_filtered$result[,<span class="built_in">c</span>(<span class="string">&quot;term_id&quot;</span>, <span class="string">&quot;term_name&quot;</span>, <span class="string">&quot;p_value&quot;</span>, <span class="string">&quot;intersection&quot;</span>)]</span><br><span class="line">colnames(gem) &lt;- <span class="built_in">c</span>(<span class="string">&quot;GO.ID&quot;</span>, <span class="string">&quot;Description&quot;</span>, <span class="string">&quot;p.Val&quot;</span>, <span class="string">&quot;Genes&quot;</span>)</span><br><span class="line">gem$FDR &lt;- gem$p.Val</span><br><span class="line">gem$Phenotype = <span class="string">&quot;+1&quot;</span></span><br><span class="line">gem &lt;- gem[,<span class="built_in">c</span>(<span class="string">&quot;GO.ID&quot;</span>, <span class="string">&quot;Description&quot;</span>, <span class="string">&quot;p.Val&quot;</span>, <span class="string">&quot;FDR&quot;</span>, <span class="string">&quot;Phenotype&quot;</span>, <span class="string">&quot;Genes&quot;</span>)]</span><br><span class="line">head(gem, n=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>##          GO.ID                      Description    p.Val      FDR Phenotype
 ## 95  GO:0048732                gland development 3.82e-13 3.82e-13        +1
 ## 124 GO:0048762 mesenchymal cell differentiation 6.31e-12 6.31e-12        +1
@@ -359,8 +360,8 @@
 </code></pre>
 <p>保存该文件，在Cytoscape中使用</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">write.table(gem, file = <span class="string">&quot;extdata/gProfiler_gem.txt&quot;</span>, sep = <span class="string">&quot;\t&quot;</span>, <span class="built_in">quote</span> = <span class="built_in">F</span>, row.names = <span class="built_in">F</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="the-Gene-Matrix-Transposed-file-format-GMT">the Gene Matrix Transposed file format (GMT)</h3>
-<p>GMT格式文件是一种描述基因集的文件格式；其中每一行代表一个基因集 ，GMT示例如下图：<img src="Gmt_format_snapshot.gif" alt=""></p>
+
+<h3 id="the-Gene-Matrix-Transposed-file-format-GMT"><a href="#the-Gene-Matrix-Transposed-file-format-GMT" class="headerlink" title="the Gene Matrix Transposed file format (GMT)"></a>the Gene Matrix Transposed file format (GMT)</h3><p>GMT格式文件是一种描述基因集的文件格式；其中每一行代表一个基因集 ，GMT示例如下图：<img src="/2022/02/28/PathwayEnrichment/Gmt_format_snapshot.gif"></p>
 <p>其中第一列为基因集的ID，第二列是基因集的描述，后续的列为该基因集中的基因ID</p>
 <p>如果是使用<code>gprofiler</code>进行分析，可以在其网站上下载对应输入基因ID的GMT文件（<a target="_blank" rel="noopener" href="https://biit.cs.ut.ee/gprofiler/gost">https://biit.cs.ut.ee/gprofiler/gost</a>）</p>
 <p>首先，在Organism的下拉菜单中选择相应物种，我们这里选择Homo sapiens</p>
@@ -368,57 +369,55 @@
 <p>然后，打开[Data sources]菜单，下载相应基因ID的GMT</p>
 <p>![](g_Profiler_a_web_server_for_functional_enrichment_analysis_and_conversions_of_gene_lists_Google_Chrome_2022_1_4 14_25_27.png)</p>
 <p>我们这里使用symbol作为基因ID，下载<code>name.gmt.zip</code>这个文件</p>
-<p><img src="tmp1.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/tmp1.png"></p>
 <p>我们这里只使用<code>GO:BP</code>和<code>REAC</code>的注释，故合并这两个文件为<code>hsapiens.GOBP_REAC.name.gmt</code>作为后续分析使用的文件 ，文件的前几行如下所示：</p>
-<p><img src="tmp2.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/tmp2.png"></p>
 <p><strong>P.S.</strong> <code>combined.name.gmt.zip</code>提供的是各个数据库合并后的GMT</p>
 <p>另外，gprofiler提供的gmt不包含KEGG和TRANSFAC的数据</p>
 <blockquote>
 <p>“Note that this file does not include annotations from KEGG and Transfac as we are restricted by data source licenses that do not allow us to share these two data sources with our users.”</p>
 </blockquote>
-<h1>Cytoscape | Visualization of enrichment results with EnrichmentMap</h1>
-<p>接下来的操作需要在Cytoscape中进行，确保你的电脑安装了Cytoscape，以及其中的EnrichmentMap app</p>
+<h1 id="Cytoscape-Visualization-of-enrichment-results-with-EnrichmentMap"><a href="#Cytoscape-Visualization-of-enrichment-results-with-EnrichmentMap" class="headerlink" title="Cytoscape | Visualization of enrichment results with EnrichmentMap"></a>Cytoscape | Visualization of enrichment results with EnrichmentMap</h1><p>接下来的操作需要在Cytoscape中进行，确保你的电脑安装了Cytoscape，以及其中的EnrichmentMap app</p>
 <ol>
-<li>打开Cytoscape后，点击上方的[Apps]选项卡</li>
-<li>打开[EnrichmentMap]</li>
+<li> 打开Cytoscape后，点击上方的[Apps]选项卡</li>
+<li> 打开[EnrichmentMap]</li>
 </ol>
-<p><img src="image-20220228183738875.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/image-20220228183738875.png"></p>
 <p>在弹出的Enrichment Map窗口中，</p>
-<p><img src="New_enrichmentmap.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/New_enrichmentmap.png"></p>
 <ol>
-<li>点击&quot;+&quot;新建分析</li>
-<li>修改分析的名字</li>
-<li>选择富集分析的类型，这里我们选择&quot;Generic/gProfiler/Enrichr&quot;</li>
-<li>输入GEM格式的富集分析结果，这里输入我们前面保存的<code>extdata/gProfiler_gem.txt</code></li>
-<li>输入GMT格式的基因集注释文件，这里输入合并的<code>hsapiens.GOBP_REAC.name.gmt</code></li>
-<li>(可选)输入基因表达的排序文件，这里我们用文献提供的<code>Supplementary_Table2_MesenvsImmuno_RNASeq_ranks.rnk</code></li>
-<li>(可选)输入基因表达矩阵文件，这里我们用文献提供的<code>Supplementary_Table6_TCGA_OV_RNAseq_expression.txt</code></li>
-<li>(可选)根据表达文件进行基因筛选，勾选该选项会对GMT文件的基因进行筛选，排除不在表达文件中的基因。</li>
-<li>(可选)设置每个富集条目的FDR cutoff，高于该cutoff的富集项将会被排除，默认是0.05，这里设置为0.01</li>
+<li> 点击”+”新建分析</li>
+<li> 修改分析的名字</li>
+<li> 选择富集分析的类型，这里我们选择”Generic/gProfiler/Enrichr”</li>
+<li> 输入GEM格式的富集分析结果，这里输入我们前面保存的<code>extdata/gProfiler_gem.txt</code></li>
+<li> 输入GMT格式的基因集注释文件，这里输入合并的<code>hsapiens.GOBP_REAC.name.gmt</code></li>
+<li> (可选)输入基因表达的排序文件，这里我们用文献提供的<code>Supplementary_Table2_MesenvsImmuno_RNASeq_ranks.rnk</code></li>
+<li> (可选)输入基因表达矩阵文件，这里我们用文献提供的<code>Supplementary_Table6_TCGA_OV_RNAseq_expression.txt</code></li>
+<li> (可选)根据表达文件进行基因筛选，勾选该选项会对GMT文件的基因进行筛选，排除不在表达文件中的基因。</li>
+<li> (可选)设置每个富集条目的FDR cutoff，高于该cutoff的富集项将会被排除，默认是0.05，这里设置为0.01</li>
 <li>(可选)对网络连接度进行调整。越往左生成的网络越稀疏，越往右生成的网络越密集。本质上是对富集项之间的相关性阈值进行调整，从而减少/增加显示的边。点击[Show advanced options]会显示更多关于网络的调整项目</li>
 </ol>
 <p>最后，点击 <strong>[Build]</strong> 生成网络</p>
-<p><img src="image-20220228183857392.png" alt=""></p>
-<p>在[Layout]菜单中，可以尝试更换为不同的网络布局，看哪一种布局展示的网络效果最佳，默认为&quot;the unweighted Prefuse Force Directed layout&quot;.</p>
-<h1>Cytoscape | Auto annotate clustered enriched terms</h1>
-<blockquote>
+<p><img src="/2022/02/28/PathwayEnrichment/image-20220228183857392.png"></p>
+<p>在[Layout]菜单中，可以尝试更换为不同的网络布局，看哪一种布局展示的网络效果最佳，默认为”the unweighted Prefuse Force Directed layout”.</p>
+<h1 id="Cytoscape-Auto-annotate-clustered-enriched-terms"><a href="#Cytoscape-Auto-annotate-clustered-enriched-terms" class="headerlink" title="Cytoscape | Auto annotate clustered enriched terms"></a>Cytoscape | Auto annotate clustered enriched terms</h1><blockquote>
 <p>Enrichment maps typically include clusters of similar pathways representing major biological themes.</p>
 </blockquote>
 <p>富集谱图(Enrichment Map)常常包括了代表主要的生物学主题的</p>
-<p>这一节，我们将使用Cytoscape中的&quot;AutoAnnotate&quot; app进行通路clusters的自动注释。</p>
+<p>这一节，我们将使用Cytoscape中的”AutoAnnotate” app进行通路clusters的自动注释。</p>
 <p>在进行AutoAnnotate前，要确认网络的layout是较优的方案。这是由于它会根据当前的layout进行label。</p>
 <ol>
-<li>点击[Apps] --&gt; [AutoAnnotate] --&gt; [New Annotation Set…]</li>
+<li> 点击[Apps] –&gt; [AutoAnnotate] –&gt; [New Annotation Set…]</li>
 </ol>
-<p><img src="image-20220228185906129.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/image-20220228185906129.png"></p>
 <ol start="2">
-<li>在&quot;Quick Start&quot;页面中，点击[Create Annotations]</li>
+<li> 在”Quick Start”页面中，点击[Create Annotations]</li>
 </ol>
-<p><img src="img_20220104195150.png" alt=""></p>
-<p>运行后，网络上功能相近的通路节点会被圈为一个cluster，并标注上相应的biological themes。标注的字体越大说明该cluster包含的节点越多。另外，在Control panel中会多了&quot;AutoAnnotations&quot;这一个页面。</p>
-<p><img src="autoannotate.png" alt=""></p>
-<p>这样生成的注释结果一般是没法看的，我们需要将重叠的圈和标注错开，将&quot;无关的&quot;cluster注释去除，最终达到发表级别的样子</p>
-<p><img src="nice_formated_network.png" alt=""></p>
+<p><img src="/2022/02/28/PathwayEnrichment/img_20220104195150.png"></p>
+<p>运行后，网络上功能相近的通路节点会被圈为一个cluster，并标注上相应的biological themes。标注的字体越大说明该cluster包含的节点越多。另外，在Control panel中会多了”AutoAnnotations”这一个页面。</p>
+<p><img src="/2022/02/28/PathwayEnrichment/autoannotate.png"></p>
+<p>这样生成的注释结果一般是没法看的，我们需要将重叠的圈和标注错开，将”无关的”cluster注释去除，最终达到发表级别的样子</p>
+<p><img src="/2022/02/28/PathwayEnrichment/nice_formated_network.png"></p>
 <p>最后，我们可以将运行的cytoscape session保存为<code>.cys</code>文件，方便之后再分析。</p>
 <hr>
 <p><strong>在生成富集谱图(Enrichment Map)后更为关键的是对网络的解读！</strong></p>
@@ -532,7 +531,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Prerequisite</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">R | Pathway enrichment analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#using-g-Profiler"><span class="nav-number">2.1.</span> <span class="nav-text">using g:Profiler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Preparing-data-for-EnrichmentMap"><span class="nav-number">2.2.</span> <span class="nav-text">Preparing data for EnrichmentMap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Creating-a-Generic-Enrichment-Map-GEM-file"><span class="nav-number">2.2.1.</span> <span class="nav-text">Creating a Generic Enrichment Map (GEM) file</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#the-Gene-Matrix-Transposed-file-format-GMT"><span class="nav-number">2.2.2.</span> <span class="nav-text">the Gene Matrix Transposed file format (GMT)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">Cytoscape | Visualization of enrichment results with EnrichmentMap</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">Cytoscape | Auto annotate clustered enriched terms</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Prerequisite"><span class="nav-number">1.</span> <span class="nav-text">Prerequisite</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R-Pathway-enrichment-analysis"><span class="nav-number">2.</span> <span class="nav-text">R | Pathway enrichment analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#using-g-Profiler"><span class="nav-number">2.1.</span> <span class="nav-text">using g:Profiler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Preparing-data-for-EnrichmentMap"><span class="nav-number">2.2.</span> <span class="nav-text">Preparing data for EnrichmentMap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Creating-a-Generic-Enrichment-Map-GEM-file"><span class="nav-number">2.2.1.</span> <span class="nav-text">Creating a Generic Enrichment Map (GEM) file</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#the-Gene-Matrix-Transposed-file-format-GMT"><span class="nav-number">2.2.2.</span> <span class="nav-text">the Gene Matrix Transposed file format (GMT)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cytoscape-Visualization-of-enrichment-results-with-EnrichmentMap"><span class="nav-number">3.</span> <span class="nav-text">Cytoscape | Visualization of enrichment results with EnrichmentMap</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cytoscape-Auto-annotate-clustered-enriched-terms"><span class="nav-number">4.</span> <span class="nav-text">Cytoscape | Auto annotate clustered enriched terms</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

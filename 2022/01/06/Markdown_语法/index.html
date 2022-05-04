@@ -209,7 +209,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>758</span>
+              <span>720</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -230,12 +230,11 @@
       
         <p>记录Markdown常用语法</p>
 <span id="more"></span> 
-<h2 id="1-标题">1. 标题</h2>
-<p>“# ”是设置标题的方法。</p>
+
+<h2 id="1-标题"><a href="#1-标题" class="headerlink" title="1. 标题"></a>1. 标题</h2><p>“# ”是设置标题的方法。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 一级标题</span><br><span class="line">## 二级标题</span><br></pre></td></tr></table></figure>
 <p>以此类推。</p>
-<h2 id="2-列表">2. 列表</h2>
-<p>列表有两种，一种是无序的</p>
+<h2 id="2-列表"><a href="#2-列表" class="headerlink" title="2. 列表"></a>2. 列表</h2><p>列表有两种，一种是无序的</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- a</span><br><span class="line">- b</span><br><span class="line">- c</span><br></pre></td></tr></table></figure>
 <p>就会显示为：</p>
 <blockquote>
@@ -250,42 +249,32 @@
 <blockquote>
 <ol>
 <li>a</li>
-<li>b</li>
+<li>b </li>
 <li>c</li>
 </ol>
 </blockquote>
 <p>有序列表不知是否可以实现自动添加，否则一个个排号，也没有很方便。</p>
-<h2 id="3-插入图片或链接">3. 插入图片或链接</h2>
-<p>使用markdown插入图片和链接都是较为方便的，可以通过三种方法插入。一种是直接复制粘。第二种是通过文本编写时左上角插入的“插入图片”插入。第三种是：</p>
+<h2 id="3-插入图片或链接"><a href="#3-插入图片或链接" class="headerlink" title="3. 插入图片或链接"></a>3. 插入图片或链接</h2><p>使用markdown插入图片和链接都是较为方便的，可以通过三种方法插入。一种是直接复制粘。第二种是通过文本编写时左上角插入的“插入图片”插入。第三种是：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[标题](链接地址)  #链接插入方法</span><br><span class="line"></span><br><span class="line">![图片描述](图片链接地址) #图片插入方法</span><br></pre></td></tr></table></figure>
 <p>其实无论用何种方式插入，在编辑器中都以上述形式显示。</p>
-<h2 id="4-引用">4. 引用</h2>
-<p>就是插入灰底的框，以区别于本文的内容。</p>
+<h2 id="4-引用"><a href="#4-引用" class="headerlink" title="4. 引用"></a>4. 引用</h2><p>就是插入灰底的框，以区别于本文的内容。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 文字</span><br></pre></td></tr></table></figure>
 <p>则为引用该段文字，要注意引用后要空一行，以免后面的内容被包括到引用框内。</p>
-<h2 id="5-代码">5. 代码</h2>
-<p>代码的插入主要是以反引号 (`)实现的。</p>
+<h2 id="5-代码"><a href="#5-代码" class="headerlink" title="5. 代码"></a>5. 代码</h2><p>代码的插入主要是以反引号 (`)实现的。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`你好` #用反引号括起的部分为被识别为代码</span><br></pre></td></tr></table></figure>
+
 <p>插入代码框，通过两行(```)，将代码包围起来</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">第一段代码</span><br><span class="line">第二段代码</span><br><span class="line">第三段代码</span><br></pre></td></tr></table></figure>
-<h2 id="6-粗体和斜体">6. 粗体和斜体</h2>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*斜体*</span><br><span class="line">**粗体**</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-粗体和斜体"><a href="#6-粗体和斜体" class="headerlink" title="6. 粗体和斜体"></a>6. 粗体和斜体</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*斜体*</span><br><span class="line">**粗体**</span><br></pre></td></tr></table></figure>
+
 <blockquote>
-<p><em>斜体</em><br>
-<strong>粗体</strong></p>
+<p><em>斜体</em><br> <strong>粗体</strong></p>
 </blockquote>
-<h2 id="7-数学公式">7. 数学公式</h2>
-<p>行内公式：<code>$y=x^2$</code>, <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">y=x^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8141079999999999em;"></span><span class="strut bottom" style="height:1.008548em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mrel">=</span><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><br>
-单独一行的公式：<code>$$y=x^2$$</code>, $$y=x^2$$</p>
-<h3 id="常用公式">常用公式</h3>
-<p>上标符号：<code>^</code>，如：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>x</mi><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">x^3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8141079999999999em;"></span><span class="strut bottom" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathrm">3</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><br>
-下标符号：<code>_</code>，如：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>x</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">x_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.43056em;"></span><span class="strut bottom" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><br>
-组合符号：<code>&#123;&#125;</code>，如：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>X</mi><mrow><mn>2</mn><mo>+</mo><mn>3</mn></mrow><mrow><mn>2</mn></mrow></msubsup></mrow><annotation encoding="application/x-tex">X^{2}_{2+3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8141079999999998em;"></span><span class="strut bottom" style="height:1.1205469999999997em;vertical-align:-0.30643899999999996em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">X</span><span class="vlist"><span style="top:0.24810799999999997em;margin-left:-0.07847em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathrm">2</span><span class="mbin">+</span><span class="mord mathrm">3</span></span></span></span><span style="top:-0.36299999999999993em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord mathrm">2</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><br>
-分式：<code>$\frac&#123;&#125;&#123;&#125;$</code>，如：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mfrac><mrow><mn>3</mn></mrow><mrow><mn>5</mn></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{3}{5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.845108em;"></span><span class="strut bottom" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="base textstyle uncramped"><span class="mord reset-textstyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.345em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathrm">5</span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.394em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord mathrm">3</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span></span></span></span></p>
+<h2 id="7-数学公式"><a href="#7-数学公式" class="headerlink" title="7. 数学公式"></a>7. 数学公式</h2><p>行内公式：<code>$y=x^2$</code>, $y=x^2$<br>单独一行的公式：<code>$$y=x^2$$</code>, $$y=x^2$$</p>
+<h3 id="常用公式"><a href="#常用公式" class="headerlink" title="常用公式"></a>常用公式</h3><p>上标符号：<code>^</code>，如：$x^3$<br>下标符号：<code>_</code>，如：$x_2$<br>组合符号：<code>&#123;&#125;</code>，如：$X^{2}_{2+3}$<br>分式：<code>$\frac&#123;&#125;&#123;&#125;$</code>，如：$\frac{3}{5}$</p>
 <blockquote>
-<p>Ref<br>
-<a target="_blank" rel="noopener" href="https://markdown.com.cn/basic-syntax/code.html">https://markdown.com.cn/basic-syntax/code.html</a><br>
-<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e74eb43960a1">https://www.jianshu.com/p/e74eb43960a1</a></p>
+<p>Ref<br><a target="_blank" rel="noopener" href="https://markdown.com.cn/basic-syntax/code.html">https://markdown.com.cn/basic-syntax/code.html</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e74eb43960a1">https://www.jianshu.com/p/e74eb43960a1</a></p>
 </blockquote>
 
     </div>

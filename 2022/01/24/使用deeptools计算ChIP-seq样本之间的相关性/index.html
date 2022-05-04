@@ -232,36 +232,30 @@
 </blockquote>
 <p>当我们需要评估ChIP-seq类测序数据的相关性时，<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/">deeptools</a> 是一个可行且方便的工具。它提供了一系列方便的命令对高通量测序数据进行分析。本文先集中介绍deeptools中计算ChIP-seq<strong>样本间相关性</strong>所用到的命令，其余的命令有机会再一一介绍。</p>
 <span id="more"></span>
-<h2 id="multiBamSummary-multiBigwigSummary">multiBamSummary/multiBigwigSummary</h2>
-<p><code>multiBamSummary</code> / <code>multiBigwigSummary</code> 两个命令可以分别计算 bam/bw 文件在基因组或特定区域测序覆盖度。</p>
+
+<h2 id="multiBamSummary-multiBigwigSummary"><a href="#multiBamSummary-multiBigwigSummary" class="headerlink" title="multiBamSummary/multiBigwigSummary"></a>multiBamSummary/multiBigwigSummary</h2><p><code>multiBamSummary</code> / <code>multiBigwigSummary</code> 两个命令可以分别计算 bam/bw 文件在基因组或特定区域测序覆盖度。</p>
 <p>下面的命令将基因组以bin size (eg: 500bp) 为单位分割，计算bam文件在基因组每个bins上的read counts，并以<code>.npz</code>的格式输出，供后面作图使用。另外，使用参数<code>--outRawCounts</code>将read counts保存到文件<code>readCounts.tab</code>中</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">multiBamSummary bins --bamfiles file1.bam file2.bam -o results.npz -bs &lt;bin size&gt; --outRawCounts readCounts.tab</span><br></pre></td></tr></table></figure>
-<h3 id="Example">Example</h3>
-<p>使用ENCODE ChIP-Seq 数据作为示例</p>
+
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><p>使用ENCODE ChIP-Seq 数据作为示例</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ deepTools2.0/bin/multiBigwigSummary bins \</span><br><span class="line"> -b testFiles/H3K4Me1.bigWig testFiles/H3K4Me3.bigWig testFiles/H3K27Me3.bigWig testFiles/Input.bigWig \</span><br><span class="line"> --labels H3K4me1 H3K4me3 H3K27me3 input \</span><br><span class="line"> -out scores_per_bin.npz --outRawCounts scores_per_bin.tab</span><br><span class="line"></span><br><span class="line">$ head scores_per_bin.tab</span><br><span class="line">    <span class="comment">#&#x27;chr&#x27;  &#x27;start&#x27; &#x27;end&#x27;   &#x27;H3K4me1&#x27;       &#x27;H3K4me3&#x27;       &#x27;H3K27me3&#x27;      &#x27;input&#x27;</span></span><br><span class="line">    19      0       10000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      10000   20000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      20000   30000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      30000   40000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      40000   50000   0.0     0.0     0.0     0.0</span><br><span class="line">    19      50000   60000   0.0221538461538 0.0     0.00482142857143        0.0522717391304</span><br><span class="line">    19      60000   70000   4.27391282051   1.625   0.634116071429  1.29124347826</span><br><span class="line">    19      70000   80000   13.0891675214   24.65   1.8180625       2.80073695652</span><br><span class="line">    19      80000   90000   1.74591965812   0.29    4.35576785714   0.92987826087</span><br></pre></td></tr></table></figure>
+
+
 <p>或者对bw 文件进行计算</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">multiBigwigSummary bins -b file1.bw file2.bw -o results.npz</span><br></pre></td></tr></table></figure>
-<h2 id="plotCorrelation">plotCorrelation</h2>
-<p><code>plotCorrelation</code> 命令根据<code>multiBamSummary</code> / <code>multiBigwigSummary</code>输出的<code>.npz</code>文件计算样本之间的<code>Pearson</code> or <code>Spearman</code> 相关系数，并进行热图或散点图的绘制。</p>
+
+<h2 id="plotCorrelation"><a href="#plotCorrelation" class="headerlink" title="plotCorrelation"></a>plotCorrelation</h2><p><code>plotCorrelation</code> 命令根据<code>multiBamSummary</code> / <code>multiBigwigSummary</code>输出的<code>.npz</code>文件计算样本之间的<code>Pearson</code> or <code>Spearman</code> 相关系数，并进行热图或散点图的绘制。</p>
 <p>还是以上面ENCODE data为例</p>
 <p>使用热图展示样本间相关性</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ deepTools2.0/bin/plotCorrelation \</span><br><span class="line">    -<span class="keyword">in</span> readCounts.npz \</span><br><span class="line">    --corMethod spearman --skipZeros \</span><br><span class="line">    --plotTitle <span class="string">&quot;Spearman Correlation of Read Counts&quot;</span> \</span><br><span class="line">    --whatToPlot heatmap --colorMap RdYlBu --plotNumbers \</span><br><span class="line">    -o heatmap_SpearmanCorr_readCounts.png   \</span><br><span class="line">    --outFileCorMatrix SpearmanCorr_readCounts.tab</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220124155058380.png" alt=""></p>
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/image-20220124155058380.png"></p>
 <p>使用散点图展示样本间相关性，图内每个点代表一个bin，横纵坐标表示相应样本的bins内的counts数目</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ deepTools2.0/bin/plotCorrelation \</span><br><span class="line">-<span class="keyword">in</span> scores_per_transcript.npz \</span><br><span class="line">--corMethod pearson --skipZeros \</span><br><span class="line">--plotTitle <span class="string">&quot;Pearson Correlation of Average Scores Per Transcript&quot;</span> \</span><br><span class="line">--whatToPlot scatterplot \</span><br><span class="line">-o scatterplot_PearsonCorr_bigwigScores.png   \</span><br><span class="line">--outFileCorMatrix PearsonCorr_bigwigScores.tab</span><br></pre></td></tr></table></figure>
-<p><img src="image-20220124155104933.png" alt=""></p>
-<p><code>-in</code> ：指定输入的<code>.npz</code>文件 （由<code>multiBamSummary</code> / <code>multiBigwigSummary</code>输出）<br>
-<code>--corMethod</code>：指定相关系数，<code>Pearson</code> or <code>Spearman</code><br>
-<code>--skipZeros</code>：跳过数据中含0的行计算相关系数<br>
-<code>--whatToPlot</code>：绘制的图的种类，<code>heatmap</code> or <code>scatterplot</code><br>
-<code>-o</code>：图片输出的名称<br>
-<code>--outFileCorMatrix</code>：输出相关系数矩阵</p>
+<p><img src="/2022/01/24/%E4%BD%BF%E7%94%A8deeptools%E8%AE%A1%E7%AE%97ChIP-seq%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E7%9B%B8%E5%85%B3%E6%80%A7/image-20220124155104933.png"></p>
+<p><code>-in</code> ：指定输入的<code>.npz</code>文件 （由<code>multiBamSummary</code> / <code>multiBigwigSummary</code>输出）<br><code>--corMethod</code>：指定相关系数，<code>Pearson</code> or <code>Spearman</code><br><code>--skipZeros</code>：跳过数据中含0的行计算相关系数<br><code>--whatToPlot</code>：绘制的图的种类，<code>heatmap</code> or <code>scatterplot</code><br><code>-o</code>：图片输出的名称<br><code>--outFileCorMatrix</code>：输出相关系数矩阵</p>
 <p>以上就是使用deeptools进行ChIP-seq样本间相关性计算的简单整理，关于计算相关系数之间的normalization和相关系数的选择在此不作展开，以后有机会再写一篇来谈吧。</p>
 <blockquote>
-<p>Ref:<br>
-<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/multiBamSummary.html">https://deeptools.readthedocs.io/en/develop/content/tools/multiBamSummary.html</a><br>
-<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/multiBigwigSummary.html">https://deeptools.readthedocs.io/en/develop/content/tools/multiBigwigSummary.html</a><br>
-<a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html">https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html</a></p>
+<p>Ref:<br><a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/multiBamSummary.html">https://deeptools.readthedocs.io/en/develop/content/tools/multiBamSummary.html</a><br><a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/multiBigwigSummary.html">https://deeptools.readthedocs.io/en/develop/content/tools/multiBigwigSummary.html</a><br><a target="_blank" rel="noopener" href="https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html">https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html</a></p>
 </blockquote>
 <p>完。</p>
 
