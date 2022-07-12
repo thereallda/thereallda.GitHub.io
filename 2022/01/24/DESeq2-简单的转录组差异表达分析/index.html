@@ -27,15 +27,16 @@
 <meta property="og:description" content="经典的转录组差异分析通常会使用到三个工具limma&#x2F;voom, edgeR和DESeq2。今天我们就通过一个小规模的转录组测序数据来演示DESeq2的简单流程。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100835156.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100841935.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100901306.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100909011.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100936724.png">
 <meta property="article:published_time" content="2022-01-24T02:07:46.000Z">
 <meta property="article:modified_time" content="2022-01-24T02:09:48.684Z">
 <meta property="article:author" content="Dean Li">
-<meta property="article:tag" content="Data_analysis">
 <meta property="article:tag" content="R">
 <meta property="article:tag" content="RNA-seq">
+<meta property="article:tag" content="Data_analysis">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100835156.png">
 
@@ -210,14 +211,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>7.2k</span>
+              <span>7.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>7 mins.</span>
+              <span>6 mins.</span>
             </span>
 
         </div>
@@ -229,33 +230,32 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>经典的转录组差异分析通常会使用到三个工具<code>limma/voom</code>, <code>edgeR</code>和<code>DESeq2</code>。今天我们就通过一个小规模的转录组测序数据来演示<code>DESeq2</code>的简单流程。<br><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100835156.png"></p>
+        <p>经典的转录组差异分析通常会使用到三个工具<code>limma/voom</code>, <code>edgeR</code>和<code>DESeq2</code>。今天我们就通过一个小规模的转录组测序数据来演示<code>DESeq2</code>的简单流程。<br>
+<img src="image-20220124100835156.png" alt=""></p>
 <span id="more"></span>
-
 <blockquote>
-<pre><code>    文中使用的数据来自Standford 大学的一个拟南芥的small RNA-seq数据（https://bios221.stanford.edu/data/mobData.RData）
-![](image-20220124100841935.png)
-该数据包含6个样本：**SL236，SL260，SL237，SL238，SL239，SL240**， 并分成了三组，分别是：
-
-    MM=&quot;triple mutatnt shoot grafted onto triple mutant root&quot;
-    
-    WM=&quot;wild-type shoot grafted onto triple mutant root&quot;
-    
-    WW=&quot;wild-type shoot grafted onto wild-type root&quot; 
-
-简而言之，`WW`组可以认为是实验的对照组，而`MM`和`WM`则是两个处理组。
+<pre><code>  文中使用的数据来自Standford 大学的一个拟南芥的small RNA-seq数据（https://bios221.stanford.edu/data/mobData.RData）
 </code></pre>
+<p><img src="image-20220124100841935.png" alt=""><br>
+该数据包含6个样本：<strong>SL236，SL260，SL237，SL238，SL239，SL240</strong>， 并分成了三组，分别是：</p>
+<pre><code>  MM=&quot;triple mutatnt shoot grafted onto triple mutant root&quot;
+  
+  WM=&quot;wild-type shoot grafted onto triple mutant root&quot;
+  
+  WW=&quot;wild-type shoot grafted onto wild-type root&quot; 
+</code></pre>
+<p>简而言之，<code>WW</code>组可以认为是实验的对照组，而<code>MM</code>和<code>WM</code>则是两个处理组。</p>
 </blockquote>
-<p>  对于<code>DESeq2</code>的分析流程而言，我们需要输入的数据包括：</p>
+<p>对于<code>DESeq2</code>的分析流程而言，我们需要输入的数据包括：</p>
 <ol>
-<li>  表达矩阵（<code>countData</code>）</li>
-<li>  分组信息（<code>colData</code>）</li>
-<li>  拟合信息（<code>design</code>）：指明如何根据样本的分组进行建模</li>
+<li>表达矩阵（<code>countData</code>）</li>
+<li>分组信息（<code>colData</code>）</li>
+<li>拟合信息（<code>design</code>）：指明如何根据样本的分组进行建模</li>
 </ol>
 <p>下面就以<code>mobData</code> 中的数据为例简单介绍<code>DESeq2</code> 的分析流程</p>
-<h2 id="载入数据及生成DESeqDataSet"><a href="#载入数据及生成DESeqDataSet" class="headerlink" title="载入数据及生成DESeqDataSet"></a>载入数据及生成DESeqDataSet</h2><p>由于<code>mobData</code> 中的行名没有提供基因的ID，我们也不是为了探究生物学问题，就以<code>mobData</code> 的行数作为其ID</p>
+<h2 id="载入数据及生成DESeqDataSet">载入数据及生成DESeqDataSet</h2>
+<p>由于<code>mobData</code> 中的行名没有提供基因的ID，我们也不是为了探究生物学问题，就以<code>mobData</code> 的行数作为其ID</p>
 <figure class="highlight plaintext"><figcaption><span>cars&#125;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">library(DESeq2)</span><br><span class="line">library(dplyr)</span><br><span class="line">load(&quot;data/mobData.RData&quot;)</span><br><span class="line">head(mobData)</span><br><span class="line">##      SL236 SL260 SL237 SL238 SL239 SL240</span><br><span class="line">## [1,]    21    52     4     4    86    68</span><br><span class="line">## [2,]    18    21     1     5     1     1</span><br><span class="line">## [3,]     1     2     2     3     0     0</span><br><span class="line">## [4,]    68    87   270   184   396   368</span><br><span class="line">## [5,]    68    87   270   183   396   368</span><br><span class="line">## [6,]     1     0     6    10     6    12</span><br><span class="line">dim(mobData)</span><br><span class="line">## 3000    6</span><br><span class="line"></span><br><span class="line">row.names(mobData) &lt;- as.character(c(1:dim(mobData)[1]))</span><br><span class="line">mobGroups &lt;- c(&quot;MM&quot;, &quot;MM&quot;, &quot;WM&quot;, &quot;WM&quot;, &quot;WW&quot;, &quot;WW&quot;)</span><br><span class="line">colData &lt;- data.frame(row.names=colnames(mobData),</span><br><span class="line">                      group_list=mobGroups)</span><br><span class="line">dds &lt;- DESeqDataSetFromMatrix(countData = mobData,</span><br><span class="line">                              colData = colData,</span><br><span class="line">                              design = ~group_list,</span><br><span class="line">                              tidy = F)</span><br><span class="line">dds</span><br><span class="line">## class: DESeqDataSet </span><br><span class="line">## dim: 3000 6 </span><br><span class="line">## metadata(1): version</span><br><span class="line">## assays(1): counts</span><br><span class="line">## rownames(3000): 1 2 ... 2999 3000</span><br><span class="line">## rowData names(0):</span><br><span class="line">## colnames(6): SL236 SL260 ... SL239 SL240</span><br><span class="line">## colData names(1): group_list</span><br></pre></td></tr></table></figure>
-
 <p><code>DESeqDataSet</code> 是<code>DESeq2</code>流程中储存read counts和中间统计分析数据的对象，之后的分析都建立在该对象之上进行。</p>
 <blockquote>
 <p><code>DESeqDataSet</code> 可以通过以下四种方法产生：</p>
@@ -266,43 +266,40 @@
 <li>From a <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#se">SummarizedExperiment</a> object —— <code>DESeqDataSet</code></li>
 </ol>
 </blockquote>
-<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><p>在进行差异分析之前，需要对样本数据的表达矩阵进行预处理，包括：</p>
+<h2 id="预处理">预处理</h2>
+<p>在进行差异分析之前，需要对样本数据的表达矩阵进行预处理，包括：</p>
 <ol>
 <li>去除低表达量基因</li>
 <li>探索样本分组信息 – 有助于挖掘潜在的差异样本</li>
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">table(rowSums(counts(dds)==0))</span><br><span class="line">## </span><br><span class="line">##    0    1    2    3    4    5    6 </span><br><span class="line">## 1833  442  324  170   92   84   55</span><br><span class="line">keep &lt;- rowSums(counts(dds)==0) &lt; 6</span><br><span class="line">dds.keep &lt;- dds[keep, ]</span><br><span class="line">dim(dds.keep)</span><br><span class="line">## [1] 2945    6</span><br><span class="line"></span><br><span class="line">library(factoextra)</span><br><span class="line">library(FactoMineR)</span><br><span class="line">count.pca &lt;- counts(dds.keep) %&gt;% as.matrix %&gt;% t %&gt;% PCA(.,graph = F)</span><br><span class="line">fviz_pca_ind(count.pca,</span><br><span class="line">             col.ind = mobGroups, </span><br><span class="line">             addEllipses = F, </span><br><span class="line">             mean.point = F,</span><br><span class="line">             legend.title = &quot;Groups&quot;)</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100901306.png" alt="PCA"></p>
+<p><img src="image-20220124100901306.png" alt="PCA"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">colnames(dds.keep) &lt;- c(paste(colnames(dds.keep),mobGroups, sep =&quot;.&quot;)) </span><br><span class="line">counts(dds.keep) %&gt;% as.matrix %&gt;% t %&gt;% dist %&gt;% hclust %&gt;% plot</span><br><span class="line">colnames(dds.keep) &lt;- colnames(dds)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100909011.png" alt="Hierarchical clustering"></p>
+<p><img src="image-20220124100909011.png" alt="Hierarchical clustering"></p>
 <p>通过PCA结果来看各组样本分组情况还是不错的，但hclust的聚类结果反映的分组就略微有点混杂了，可能要聚类计算的距离函数选用不当有关。</p>
-<h2 id="差异分析"><a href="#差异分析" class="headerlink" title="差异分析"></a>差异分析</h2><p>使用<code>DESeq()</code>函数进行差异分析时，该函数干了以下三件事：</p>
+<h2 id="差异分析">差异分析</h2>
+<p>使用<code>DESeq()</code>函数进行差异分析时，该函数干了以下三件事：</p>
 <ol>
 <li>计算文库大小，预测用于标准化的size factor</li>
 <li>预测离散度（dispersions）</li>
 <li>使用负二项分布的广义线性回归模型（GLM）进行拟合，以及进行Wald test</li>
 </ol>
 <blockquote>
-<p>The <strong>Wald test</strong> (also called the Wald Chi-Squared Test) is a way to find out if <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/explanatory-variable/">explanatory variables</a> in a model are <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/what-is-statistical-significance/">significant</a>. </p>
+<p>The <strong>Wald test</strong> (also called the Wald Chi-Squared Test) is a way to find out if <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/explanatory-variable/">explanatory variables</a> in a model are <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/what-is-statistical-significance/">significant</a>.</p>
 <p>ref : <a target="_blank" rel="noopener" href="https://www.statisticshowto.com/wald-test/">https://www.statisticshowto.com/wald-test/</a></p>
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">degobj &lt;- DESeq(dds.keep);degobj</span><br><span class="line">## class: DESeqDataSet </span><br><span class="line">## dim: 2945 6 </span><br><span class="line">## metadata(1): version</span><br><span class="line">## assays(4): counts mu H cooks</span><br><span class="line">## rownames(2945): 1 2 ... 2999 3000</span><br><span class="line">## rowData names(26): baseMean baseVar ... deviance maxCooks</span><br><span class="line">## colnames(6): SL236 SL260 ... SL239 SL240</span><br><span class="line">## colData names(2): group_list sizeFactor</span><br><span class="line">countdds &lt;- counts(degobj, normalized = T)</span><br><span class="line">deg.res1 &lt;- results(degobj, contrast=c(&quot;group_list&quot;,&quot;MM&quot;,&quot;WW&quot;), pAdjustMethod = &#x27;fdr&#x27;)</span><br></pre></td></tr></table></figure>
-
 <p><code>counts()</code> 可以提取<code>DESeq object</code>中的表达矩阵，而<code>results()</code> 可以提取差异分析的结果，其中包括了：</p>
 <p><strong>baseMean (样本间的normalized counts均值), log2 fold changes (lfc), lfc standard errors, test statistics, p-values and adjusted p-values.</strong></p>
 <p>使用<code>results()</code>函数时需要指明进行比较的样本，这里用 <code>contrast=c(&quot;group_list&quot;,&quot;MM&quot;,&quot;WW&quot;)</code> 提取<code>MM</code>组和<code>WW</code>组进行差异分析的结果。如果想要比较<code>WM</code>组和<code>WW</code>组，只要改变<code>contrast=c(&quot;group_list&quot;,&quot;WM&quot;,&quot;WW&quot;)</code> 即可。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># result default</span><br><span class="line">results(object, contrast, name, lfcThreshold = 0,</span><br><span class="line">	altHypothesis = c(&quot;greaterAbs&quot;, &quot;lessAbs&quot;, &quot;greater&quot;, &quot;less&quot;),</span><br><span class="line">	listValues = c(1, -1), cooksCutoff, independentFiltering = TRUE,</span><br><span class="line">	alpha = 0.1, filter, theta, pAdjustMethod = &quot;BH&quot;, filterFun,</span><br><span class="line">	format = c(&quot;DataFrame&quot;, &quot;GRanges&quot;, &quot;GRangesList&quot;), test,</span><br><span class="line">	addMLE = FALSE, tidy = FALSE, parallel = FALSE,</span><br><span class="line">	BPPARAM = bpparam(), minmu = 0.5)</span><br></pre></td></tr></table></figure>
-
 <p>检查结果中是否包含<code>NA</code>值</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dim(deg.res1)</span><br><span class="line">## [1] 2945    6</span><br><span class="line">apply(deg.res1,2, function(x) sum(is.na(x)))</span><br><span class="line">##       baseMean log2FoldChange          lfcSE           stat         pvalue </span><br><span class="line">##              0              0              0              0              0 </span><br><span class="line">##           padj </span><br><span class="line">##           1142</span><br></pre></td></tr></table></figure>
-
 <p>这里<code>padj</code>中有1142个<code>NA</code>值是因为使用<code>results()</code>提取差异分析结果时，大于<code>alpha</code>值（这里是0.1）的矫正后p-value都会被当做是<code>NA</code>。因此，我们将这些<code>padj</code>值都设为<code>1</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">deg.res1$padj[is.na(deg.res1$padj)] &lt;- 1</span><br><span class="line">table(is.na(deg.res1$padj))</span><br><span class="line">## </span><br><span class="line">## FALSE </span><br><span class="line">##  2945</span><br><span class="line">summary(deg.res1)</span><br><span class="line">## </span><br><span class="line">## out of 2945 with nonzero total read count</span><br><span class="line">## adjusted p-value &lt; 0.1</span><br><span class="line">## LFC &gt; 0 (up)       : 102, 3.5%</span><br><span class="line">## LFC &lt; 0 (down)     : 215, 7.3%</span><br><span class="line">## outliers [1]       : 0, 0%</span><br><span class="line">## low counts [2]     : 0, 0%</span><br><span class="line">## (mean count &lt; 4)</span><br><span class="line">## [1] see &#x27;cooksCutoff&#x27; argument of ?results</span><br><span class="line">## [2] see &#x27;independentFiltering&#x27; argument of ?results</span><br><span class="line">plotMA(deg.res1)</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/DESeq2-%E7%AE%80%E5%8D%95%E7%9A%84%E8%BD%AC%E5%BD%95%E7%BB%84%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90/image-20220124100936724.png" alt="MA-plot"></p>
+<p><img src="image-20220124100936724.png" alt="MA-plot"></p>
 <p>排序后以<code>log2FoldChange</code>绝对值大于1， <code>padj</code>小于0.05为条件筛选显著的差异表达基因</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">deg.ord1 &lt;- deg.res1[order(deg.res1$padj, decreasing = F),]</span><br><span class="line">deg.sig1 &lt;- subset(deg.ord1,abs(deg.ord1$log2FoldChange)&gt;1 &amp; deg.ord1$padj&lt;0.05)</span><br><span class="line">deg.sig1</span><br><span class="line">## log2 fold change (MLE): group_list MM vs WW </span><br><span class="line">## Wald test p-value: group_list MM vs WW </span><br><span class="line">## DataFrame with 217 rows and 6 columns</span><br><span class="line">##              baseMean    log2FoldChange             lfcSE              stat</span><br><span class="line">##             &lt;numeric&gt;         &lt;numeric&gt;         &lt;numeric&gt;         &lt;numeric&gt;</span><br><span class="line">## 2500 159.774533763595 -4.11069945121082 0.432943287486228 -9.49477580557611</span><br><span class="line">## 1212 112.711030407211  3.96456274705605 0.449008108800994  8.82960166942819</span><br><span class="line">## 1917  303.58162963147  3.45479344900962 0.406885893259752  8.49081648255649</span><br><span class="line">## 490   71.687159921068 -6.18926587678444 0.753506435554632 -8.21395224345857</span><br><span class="line">## 1317 222.718984861955 -3.03292643435534  0.37190983516799 -8.15500464779421</span><br><span class="line">## ...               ...               ...               ...               ...</span><br><span class="line">## 1792 5.98829479907705 -4.93244157414254  1.77616534224116 -2.77701712607386</span><br><span class="line">## 98   6699.69196582045  1.19245883058489 0.429894831042278   2.7738384936934</span><br><span class="line">## 295  6699.58197403621  1.19259109051591 0.429948214187822  2.77380170718637</span><br><span class="line">## 662  5.15806783175131 -5.09298667756621  1.83903942690847 -2.76937329512713</span><br><span class="line">## 899  18.1185589826749 -3.43948745771197  1.24400277511213 -2.76485513257955</span><br><span class="line">##                    pvalue                 padj</span><br><span class="line">##                 &lt;numeric&gt;            &lt;numeric&gt;</span><br><span class="line">## 2500 2.20685744092375e-21 3.97896396598552e-18</span><br><span class="line">## 1212 1.05049159823894e-18 9.47018175812401e-16</span><br><span class="line">## 1917 2.05190369014182e-17 1.23319411777524e-14</span><br><span class="line">## 490  2.14024730609951e-16 9.64716473224354e-14</span><br><span class="line">## 1317  3.4916644951535e-16 1.25909421695235e-13</span><br><span class="line">## ...                   ...                  ...</span><br><span class="line">## 1792  0.00548602882496584    0.046221074632773</span><br><span class="line">## 98    0.00553991737467495   0.0462481504691228</span><br><span class="line">## 295    0.0055405438166004   0.0462481504691228</span><br><span class="line">## 662   0.00561642447454876   0.0466654992055826</span><br><span class="line">## 899   0.00569480805304419   0.0468846526010898</span><br></pre></td></tr></table></figure>
-
 <pre><code>至此，便筛选出了**217个**在`MM`组和`WW`组之间的显著差异表达基因。至于后续的可视化分析则是因课题而异了，等以后有空了再补坑吧！
 有同学可能注意到，虽然我们的样本有多个组，但在差异分析时进行的还是pairwise的分析，为什么我们不可以三个组一起分析呢？学过ANOVA的同学应该都知道，ANOVA就是可以应对这种多组差异分析的情况。但要注意的是，ANOVA只可以告诉我们对于某个基因在这三组中是否存在差异，想要找出是哪一组有其他组别有差异还是需要进行pairwise t-test之类的分析。所以，在这里我们两组两组地进行分析正是出于这个考虑，并且有更方便我们解释差异分析的结果，说明在A组基因的表达量相对于B组的是上调还是下调。另外，本文的差异分析还是处于单因子水平（只有一个变量），至于多因子的差异分析以后研究透了再和大家进行分享。
 </code></pre>
@@ -344,9 +341,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
               <a href="/tags/R/" rel="tag"># R</a>
               <a href="/tags/RNA-seq/" rel="tag"># RNA-seq</a>
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
           </div>
 
         
@@ -437,7 +434,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

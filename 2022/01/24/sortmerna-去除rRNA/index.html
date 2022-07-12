@@ -206,7 +206,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.4k</span>
+              <span>4.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -227,44 +227,58 @@
       
         <p><code>sortmerna</code>是一款检测文库中rRNA含量，并去除rRNA reads的软件。当怀疑文库中包含的rRNA比例较高时，这款软件可以派上用场。以下简单介绍它的安装与基本使用方法。</p>
 <span id="more"></span>
-
-<h1 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h1><p>使用conda安装<code>sortmerna</code></p>
+<h1>Installation</h1>
+<p>使用conda安装<code>sortmerna</code></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install sortmerna</span><br></pre></td></tr></table></figure>
 <p>需要吐槽的是可以查到的官方manual还是2.1版的，作者的github也停更了…而用conda安装的<code>sortmerna</code>都已经是4.3.2了，其中有许多更改的地方</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sortmerna --version</span><br><span class="line">SortMeRNA version 4.3.2</span><br><span class="line">Build Date: Apr  2 2021</span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/sortmerna-%E5%8E%BB%E9%99%A4rRNA/image-20220124164118931.png"></p>
+<p><img src="image-20220124164118931.png" alt=""></p>
 <p>在官方的流程中，使用了silva 的rRNA databases作为rRNA的参考序列。silva的rRNA databases包括了古生菌、原核生物和真核生物rRNA的保守序列。你可以在以下链接下载rRNA database的压缩包，包括以下文件</p>
 <p>rRNA database:</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/biocore/sortmerna/blob/master/data/rRNA_databases/silva_ids_acc_tax.tar.gz" title="silva_ids_acc_tax.tar.gz">silva_ids_acc_tax.tar.gz</a><br><img src="/2022/01/24/sortmerna-%E5%8E%BB%E9%99%A4rRNA/image-20220124164128969.png"><br>euk：Eukarya 真核生物<br>bac：Bacteria 原核生物<br>arc：Archaea 古生菌</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/biocore/sortmerna/blob/master/data/rRNA_databases/silva_ids_acc_tax.tar.gz" title="silva_ids_acc_tax.tar.gz">silva_ids_acc_tax.tar.gz</a><br>
+<img src="image-20220124164128969.png" alt=""><br>
+euk：Eukarya 真核生物<br>
+bac：Bacteria 原核生物<br>
+arc：Archaea 古生菌</li>
 </ul>
-<h1 id="Index-rRNA-database"><a href="#Index-rRNA-database" class="headerlink" title="Index rRNA database"></a>Index rRNA database</h1><p>为了避免程序运行时每次都index，我们可以先对参考的rRNA databases进行index。<strong>Index完成后，以后运行程序前将<code>idx/</code>目录复制到指定的<code>workdir/</code>目录下即可</strong></p>
+<h1>Index rRNA database</h1>
+<p>为了避免程序运行时每次都index，我们可以先对参考的rRNA databases进行index。<strong>Index完成后，以后运行程序前将<code>idx/</code>目录复制到指定的<code>workdir/</code>目录下即可</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sortmerna --index 1 --threads 32 \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-bac-16s-id90.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-bac-23s-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-arc-16s-id95.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-arc-23s-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-euk-18s-id95.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-euk-28s-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/rfam-5s-database-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/rfam-5.8s-database-id98.fasta \</span><br><span class="line">--workdir ./</span><br></pre></td></tr></table></figure>
 <p>要注意的是<code>sortmerna</code>的运行需要指定工作目录，默认是当前目录。在工作目录下，软件会生成以下目录</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Default structure: WORKDIR/</span><br><span class="line">                              idx/   <span class="comment"># 参考序列的index</span></span><br><span class="line">                              kvdb/  <span class="comment"># 以key-value形式存储的比对结果</span></span><br><span class="line">                              out/   <span class="comment"># 输出目录</span></span><br><span class="line">                              readb/ <span class="comment"># 预处理的reads/index</span></span><br></pre></td></tr></table></figure>
 <p><strong>注意：在每次运行前要保证<code>kvdb/</code>下是空的，否则程序会报错</strong></p>
-<p>参数解释：<br><code>--ref</code>: 参考序列fasta文件，有一个参考fasta使用一次这个参数。<br><code>--index</code>: 程序运行的index操作，不使用这个参数的话，程序会检测<code>workdir/idx/</code>下是否存在已经建好的index，没有的话就根据<code>--ref</code>提供的fasta文件index。</p>
+<p>参数解释：<br>
+<code>--ref</code>: 参考序列fasta文件，有一个参考fasta使用一次这个参数。<br>
+<code>--index</code>: 程序运行的index操作，不使用这个参数的话，程序会检测<code>workdir/idx/</code>下是否存在已经建好的index，没有的话就根据<code>--ref</code>提供的fasta文件index。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">`--index 0` <span class="comment"># 则跳过index，但若在`workdir/idx/`下没检测到index则会终止程序，并提醒没有index</span></span><br><span class="line">`--index 1` <span class="comment"># 则只进行index</span></span><br><span class="line">`--index 2` <span class="comment"># 和默认不使用该参数一样</span></span><br></pre></td></tr></table></figure>
-
-
-<h1 id="去除-rRNA"><a href="#去除-rRNA" class="headerlink" title="去除 rRNA"></a>去除 rRNA</h1><p>以下命令对双端测序文件进行rRNA去除，并保留双端测序中成对的序列到两个文件中。<code>sortmerna</code>会自动检测输入的文件类型，并保持输出的文件类型与输入一致，例如以下输入<code>.fq.gz</code>，输出也是<code>.fq.gz</code>。</p>
+<h1>去除 rRNA</h1>
+<p>以下命令对双端测序文件进行rRNA去除，并保留双端测序中成对的序列到两个文件中。<code>sortmerna</code>会自动检测输入的文件类型，并保持输出的文件类型与输入一致，例如以下输入<code>.fq.gz</code>，输出也是<code>.fq.gz</code>。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sortmerna --index 0 --threads 48 \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-bac-16s-id90.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-bac-23s-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-arc-16s-id95.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-arc-23s-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-euk-18s-id95.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/silva-euk-28s-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/rfam-5s-database-id98.fasta \</span><br><span class="line">--ref ~/sortmerna4.3/rRNA_databases/rfam-5.8s-database-id98.fasta \</span><br><span class="line">--workdir ./ \</span><br><span class="line">--reads NR1.fq.gz \</span><br><span class="line">--reads NR2.fq.gz \</span><br><span class="line">--aligned <span class="string">&quot;NR/N_rRNA&quot;</span> --other <span class="string">&quot;NR/N_clean&quot;</span> --paired_in --fastx --out2</span><br></pre></td></tr></table></figure>
-
-<p>参数解释：<br><code>--reads</code>: 输入的序列文件(FASTA/FASTQ/FASTA.GZ/FASTQ.GZ)，如果是双端测序就用两次这个参数<br><code>--aligned</code>: 比对上参考数据库的序列，以rRNA数据库为参考文件的话，输出的是rRNA。这里可以包含输出的目录和前缀，以下是一些可行的例子</p>
+<p>参数解释：<br>
+<code>--reads</code>: 输入的序列文件(FASTA/FASTQ/FASTA.GZ/FASTQ.GZ)，如果是双端测序就用两次这个参数<br>
+<code>--aligned</code>: 比对上参考数据库的序列，以rRNA数据库为参考文件的话，输出的是rRNA。这里可以包含输出的目录和前缀，以下是一些可行的例子</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;--aligned $MYDIR/dir_1/dir_2/1&#x27;</span> -&gt; <span class="variable">$MYDIR</span>/dir_1/dir_2/1.fasta</span><br><span class="line"><span class="string">&#x27;--aligned dir_1/apfx&#x27;</span>           -&gt; <span class="variable">$PWD</span>/dir_1/apfx.fasta</span><br><span class="line"><span class="string">&#x27;--aligned dir_1/&#x27;</span>               -&gt; <span class="variable">$PWD</span>/aligned.fasta</span><br><span class="line"><span class="string">&#x27;--aligned apfx&#x27;</span>                 -&gt; <span class="variable">$PWD</span>/apfx.fasta</span><br><span class="line"><span class="string">&#x27;--aligned  (no argument)&#x27;</span>       -&gt; WORKDIR/out/aligned.fasta</span><br></pre></td></tr></table></figure>
-<p><code>--other</code>: 与参考文件比对不上的序列，在这里就是rRNA-free的序列。用法与<code>--aligned</code>一样<br><code>--paired_in</code>: flag，表明输入的文件是双端测序文件，一端比对上就算成对的reads都比对上了。要与<code>--fastx</code>一起用，与<code>--paired_out</code>相互排斥。<br><code>--fastx</code>: 输出比对结果为fasta/fastq格式。<br><code>--out2</code>: 将双端文件单独输出。<br><code>--paired_out</code>: flag，表明输入的文件是双端测序文件，一端比对不上的话，把成对的reads都输出到non-aligned的文件中。要与<code>--fastx</code>一起用，与<code>--paired_in</code>相互排斥。</p>
+<p><code>--other</code>: 与参考文件比对不上的序列，在这里就是rRNA-free的序列。用法与<code>--aligned</code>一样<br>
+<code>--paired_in</code>: flag，表明输入的文件是双端测序文件，一端比对上就算成对的reads都比对上了。要与<code>--fastx</code>一起用，与<code>--paired_out</code>相互排斥。<br>
+<code>--fastx</code>: 输出比对结果为fasta/fastq格式。<br>
+<code>--out2</code>: 将双端文件单独输出。<br>
+<code>--paired_out</code>: flag，表明输入的文件是双端测序文件，一端比对不上的话，把成对的reads都输出到non-aligned的文件中。要与<code>--fastx</code>一起用，与<code>--paired_in</code>相互排斥。</p>
 <p>上面的命令输出的结果为：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ls</span> NR/</span><br><span class="line">N_clean_fwd.fq.gz  N_clean_rev.fq.gz  N_rRNA_fwd.fq.gz  N_rRNA.log  N_rRNA_rev.fq.gz</span><br></pre></td></tr></table></figure>
 <p>对于输出的<code>*rRNA.log</code>我们可以关注其统计的比对结果</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$cat</span> NR/N_rRNA.log </span><br><span class="line">...</span><br><span class="line">Results:</span><br><span class="line">    Total reads passing E-value threshold = 181078446 (96.01) <span class="comment"># 文库中rRNA 含量</span></span><br><span class="line">    Total reads failing E-value threshold = 7531112 (3.99) <span class="comment"># 文库中非rRNA 含量</span></span><br><span class="line">    Minimum <span class="built_in">read</span> length = 150</span><br><span class="line">    Maximum <span class="built_in">read</span> length = 20</span><br><span class="line">    Mean <span class="built_in">read</span> length    = 9</span><br><span class="line"></span><br><span class="line"> Coverage by database:</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/silva-bac-16s-id90.fasta            0.07</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/silva-bac-23s-id98.fasta            8.82</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/silva-arc-16s-id95.fasta            0.32</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/silva-arc-23s-id98.fasta            4.92</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/silva-euk-18s-id95.fasta            11.53</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/silva-euk-28s-id98.fasta            70.22</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/rfam-5s-database-id98.fasta         0.00</span><br><span class="line">    ~/sortmerna4.3/rRNA_databases/rfam-5.8s-database-id98.fasta               0.00</span><br></pre></td></tr></table></figure>
-<p>其中 “Total reads passing E-value threshold = 181078446 (96.01)” 指的是输入文件中的rRNA含量（参考序列是rRNA时），”Total reads failing E-value threshold = 7531112 (3.99)”则是非rRNA的含量。</p>
+<p>其中 “Total reads passing E-value threshold = 181078446 (96.01)” 指的是输入文件中的rRNA含量（参考序列是rRNA时），&quot;Total reads failing E-value threshold = 7531112 (3.99)&quot;则是非rRNA的含量。</p>
 <p>实测如果有多个这样的log文件也可以用<code>multiqc</code>生成报告。</p>
 <p>对<code>sortmerna</code>软件的简介到此结束，使用最大的感受是这个软件非常的费时。如果只是想大概检测文库中rRNA含量，可以下载相应的rRNA fasta文件，并使用现在流行的比对软件（如STAR、Bowtie2等）进行Indexing和比对即可。这样会快很多。以后有新的使用心得再做更新。</p>
 <hr>
-<p>补充于：2021-12-02 </p>
+<p>补充于：2021-12-02</p>
 <p>实际上，更加方便的rRNA remove手段应该是将测序reads使用STAR、Bowtie2等方法比对到rRNA参考序列，保留unmapped reads即可。</p>
 <blockquote>
-<p>Ref:<br><strong>Filtering rRNA from RNAseq data</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/321714/">https://www.biostars.org/p/321714/</a><br><strong>SILVA rRNA database</strong>: <a target="_blank" rel="noopener" href="https://www.arb-silva.de/">https://www.arb-silva.de/</a><br><a target="_blank" rel="noopener" href="https://github.com/biocore/sortmerna/">https://github.com/biocore/sortmerna/</a></p>
+<p>Ref:<br>
+<strong>Filtering rRNA from RNAseq data</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/321714/">https://www.biostars.org/p/321714/</a><br>
+<strong>SILVA rRNA database</strong>: <a target="_blank" rel="noopener" href="https://www.arb-silva.de/">https://www.arb-silva.de/</a><br>
+<a target="_blank" rel="noopener" href="https://github.com/biocore/sortmerna/">https://github.com/biocore/sortmerna/</a></p>
 </blockquote>
 <p>完。</p>
 
@@ -368,7 +382,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Installation"><span class="nav-number">1.</span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Index-rRNA-database"><span class="nav-number">2.</span> <span class="nav-text">Index rRNA database</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%BB%E9%99%A4-rRNA"><span class="nav-number">3.</span> <span class="nav-text">去除 rRNA</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">Index rRNA database</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">去除 rRNA</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -384,7 +398,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

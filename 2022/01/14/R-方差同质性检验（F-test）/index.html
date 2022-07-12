@@ -204,7 +204,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.8k</span>
+              <span>1.9k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -226,17 +226,17 @@
         <p>方差同质性检验 : 检验两个正态随机变量的总体方差是否相等的一种假设检验方法。</p>
 <p>本文介绍的是使用<em>F</em>-test进行方差同质性检验的方法。要注意，任何<em>F</em>-test都是对两个方差进行比较，但是方差同质性检验特指通过对两个<strong>样本</strong>方差的比较来判断两个正态分布的<strong>总体</strong>方差是否相等、</p>
 <span id="more"></span>
-
-
-
 <p>方差是表示数据变异度的一个重要指标，事实上，我们对样本的平均数、频数进行假设检验时，都是以各个总体的方差的同质性为前提的。因此，在进行平均数的假设检验（e.g. t-test）之前，务必要从各样本的方差来推断其总体方差是否相同，即<strong>方差同质性检验</strong>。</p>
-<p>在本文中，主要介绍的是两样本方差的同质性检验，而<strong>单样本（卡方检验）</strong>和<strong>多样本（巴特勒检验）</strong>的方差同质性检验暂不展开。</p>
+<p>在本文中，主要介绍的是两样本方差的同质性检验，而**单样本（卡方检验）<strong>和</strong>多样本（巴特勒检验）**的方差同质性检验暂不展开。</p>
 <p>在R中，F-test的函数为<code>var.test()</code></p>
 <blockquote>
-<p><code>var.test()</code>:<br><strong>Performs an F test to compare the variances of two samples from normal populations.</strong></p>
+<p><code>var.test()</code>:<br>
+<strong>Performs an F test to compare the variances of two samples from normal populations.</strong></p>
 </blockquote>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var.test(x, ...)</span><br><span class="line"><span class="comment">## Default S3 method:</span></span><br><span class="line">var.test(x, y, ratio = <span class="number">1</span>,</span><br><span class="line">         alternative = <span class="built_in">c</span>(<span class="string">&quot;two.sided&quot;</span>, <span class="string">&quot;less&quot;</span>, <span class="string">&quot;greater&quot;</span>),</span><br><span class="line">         conf.level = <span class="number">0.95</span>, ...)</span><br><span class="line"></span><br><span class="line"><span class="comment">## S3 method for class &#x27;formula&#x27;</span></span><br><span class="line">var.test(formula, data, subset, na.action, ...)</span><br></pre></td></tr></table></figure>
-<p><code>x,y</code> ：为进行检验的数据。<br><code>alternative</code>：设定备择假设，包括”two.sided” (default), “greater” or “less”。<br><code>conf.level</code>：设定显著性水平，默认α=0.05。</p>
+<p><code>x,y</code> ：为进行检验的数据。<br>
+<code>alternative</code>：设定备择假设，包括&quot;two.sided&quot; (default), “greater” or “less”。<br>
+<code>conf.level</code>：设定显著性水平，默认α=0.05。</p>
 <p>需要注意的是，<code>var.test()</code>的零假设是x和y的方差比值（ratio）为1（默认），即是x与y的方差相等。</p>
 <p>下面尝试从正态总体中抽取两个方差均为1的，但容量有所差异的样本进行检验：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; x &lt;- rnorm(<span class="number">50</span>, mean = <span class="number">0</span>, sd = <span class="number">1</span>)</span><br><span class="line">&gt; y &lt;- rnorm(<span class="number">30</span>, mean = <span class="number">0</span>, sd = <span class="number">1</span>)</span><br><span class="line">&gt; var.test(x, y)</span><br><span class="line"></span><br><span class="line">	<span class="built_in">F</span> test to compare two variances</span><br><span class="line"></span><br><span class="line">data:  x and y</span><br><span class="line"><span class="built_in">F</span> = <span class="number">1.0895</span>, num df = <span class="number">49</span>, denom df = <span class="number">29</span>, p-value = <span class="number">0.8199</span></span><br><span class="line">alternative hypothesis: true ratio of variances is not equal to <span class="number">1</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">0.5473957</span> <span class="number">2.0498245</span></span><br><span class="line">sample estimates:</span><br><span class="line">ratio of variances </span><br><span class="line">          <span class="number">1.089511</span> </span><br></pre></td></tr></table></figure>
@@ -249,16 +249,15 @@
 </ol>
 <p>从p-value一项可以看出，本次检验接受零假设，即两样本的总体方差同质。</p>
 <p>对F-test有了大致的了解后，我们可以对上篇<a href="https://thereallda.github.io/2022/01/13/R-%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%A6%E7%94%9F%E6%A3%80%E9%AA%8C%EF%BC%88t-test%EF%BC%89">R-简单的学生检验（t-test）</a>中的独立样本的均值检验进行方差同质性检验了。</p>
-<p><strong>【例】</strong>用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
+<p>**【例】**用高蛋白和低蛋白两种饲料养1月龄大白鼠，在3个月时，测定两组大白鼠的增重量(g)，检验两组数据均值有无显著性差异。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; X &lt;- <span class="built_in">c</span>(<span class="number">134</span>, <span class="number">146</span>, <span class="number">106</span>, <span class="number">119</span>, <span class="number">124</span>, <span class="number">161</span>, <span class="number">107</span>, <span class="number">83</span>, <span class="number">113</span>, <span class="number">129</span>, <span class="number">97</span>, <span class="number">123</span>)</span><br><span class="line">&gt; Y &lt;- <span class="built_in">c</span>(<span class="number">70</span>, <span class="number">118</span>, <span class="number">101</span>, <span class="number">85</span>, <span class="number">107</span>, <span class="number">132</span>, <span class="number">94</span>)</span><br><span class="line">&gt; var.test(X, Y)</span><br><span class="line"></span><br><span class="line">	<span class="built_in">F</span> test to compare two variances</span><br><span class="line"></span><br><span class="line">data:  X and Y</span><br><span class="line"><span class="built_in">F</span> = <span class="number">1.0626</span>, num df = <span class="number">11</span>, denom df = <span class="number">6</span>, p-value = <span class="number">0.9917</span></span><br><span class="line">alternative hypothesis: true ratio of variances is not equal to <span class="number">1</span></span><br><span class="line"><span class="number">95</span> percent confidence interval:</span><br><span class="line"> <span class="number">0.1964273</span> <span class="number">4.1236757</span></span><br><span class="line">sample estimates:</span><br><span class="line">ratio of variances </span><br><span class="line">          <span class="number">1.062625</span> </span><br></pre></td></tr></table></figure>
-
 <p>F-test的结果也如同我们上篇中所假设，两组大白鼠的方差是同质的，因此可以进行t-test分析两者均值有无显著差异。</p>
 <p>F-test的介绍就简单地到此结束了，如有不足，请各位指出。</p>
 <blockquote>
 <p>Ref:</p>
 <p>《生物统计学》（第五版）李春喜等著</p>
 </blockquote>
-<p>完。 </p>
+<p>完。</p>
 
     </div>
 
@@ -376,7 +375,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -229,30 +229,38 @@
       
         <p>Smart-seq是由路德维格癌症研究所的 <a target="_blank" rel="noopener" href="http://sandberg.cmb.ki.se/">Rickard Sandberg实验室</a>所开发的一套在全转录组范围进行<strong>单细胞RNA测序 (scRNA-seq)</strong> 的方法。Smart-seq因为以全长mRNA建库，所以对转录本的测序覆盖度也有所上升。Smart-seq2是由Picelli等人从Smart-seq中改良而来<a target="_blank" rel="noopener" href="http://www.ncbi.nlm.nih.gov/pubmed/24056875">(Picelli et al., 2013)</a> <a target="_blank" rel="noopener" href="http://www.ncbi.nlm.nih.gov/pubmed/24385147">(Picelli et al., 2014)</a>。本文将从Smart-seq2的原理、优点和缺点来为大家介绍这项scRNA-seq技术。</p>
 <span id="more"></span>
-
-<h2 id="Smart-seq2建库原理"><a href="#Smart-seq2建库原理" class="headerlink" title="Smart-seq2建库原理"></a>Smart-seq2建库原理</h2><p>Smart-seq2的建库原理如下：</p>
+<h2 id="Smart-seq2建库原理">Smart-seq2建库原理</h2>
+<p>Smart-seq2的建库原理如下：</p>
 <ol>
-<li><strong>单细胞分选</strong>：Smart-seq使用流式细胞仪进行细胞分选，一次最大分选细胞通量为96个。<br><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124123768.png" alt="Cell sorting"></li>
-</ol>
-<ol start="2">
-<li><p><strong>细胞裂解</strong>：在细胞裂解液中进行细胞裂解。</p>
+<li>
+<p><strong>单细胞分选</strong>：Smart-seq使用流式细胞仪进行细胞分选，一次最大分选细胞通量为96个。<br>
+<img src="image-20220124124123768.png" alt="Cell sorting"></p>
 </li>
-<li><p><strong>反转录（ 一链合成 ）</strong>：使用<strong>Oligo(dT) primer</strong> 对带有polyA尾的RNA( <em>主要是mRNA</em> )进行反转录。由于使用了鼠源的反转录酶( <em>Moloney Murine Leukemia Virus</em> )进行反转录，所以会在cDNA链3’端加上三个C</p>
+<li>
+<p><strong>细胞裂解</strong>：在细胞裂解液中进行细胞裂解。</p>
 </li>
-<li><p><strong>模板置换（ 二链合成 ）</strong>：该步使用<strong>TSO ( template-switching oligo )引物</strong>合成了cDNA的二链，从而置换了与一链cDNA互补的RNA。要注意的是TSO 3’端有三个G能与一链3’端的三个C互补，而最末端的+G是一个修饰过的G，能<strong>增加</strong>TSO的<strong>热稳定性</strong>，以及其与一链cDNA游离的3’端的<strong>互补的能力</strong>。TSO 还带有PCR所需的引物（图中绿色的部分）。</p>
+<li>
+<p><strong>反转录（ 一链合成 ）</strong>：使用<strong>Oligo(dT) primer</strong> 对带有polyA尾的RNA( <em>主要是mRNA</em> )进行反转录。由于使用了鼠源的反转录酶( <em>Moloney Murine Leukemia Virus</em> )进行反转录，所以会在cDNA链3’端加上三个C</p>
 </li>
-<li><p><strong>PCR扩增</strong>：该步进行轻度的cDNA富集，将cDNA扩增至ng级即可。</p>
+<li>
+<p><strong>模板置换（ 二链合成 ）</strong>：该步使用<strong>TSO ( template-switching oligo )引物</strong>合成了cDNA的二链，从而置换了与一链cDNA互补的RNA。要注意的是TSO 3’端有三个G能与一链3’端的三个C互补，而最末端的+G是一个修饰过的G，能<strong>增加</strong>TSO的<strong>热稳定性</strong>，以及其与一链cDNA游离的3’端的<strong>互补的能力</strong>。TSO 还带有PCR所需的引物（图中绿色的部分）。</p>
 </li>
-<li><p><strong>标记</strong>：利用改造后的高活性Tn5转座酶对DNA进行<strong>打断</strong>的同时将<strong>接头添加</strong>到cDNA的两端。标记完成后的DNA片段通常在<strong>200-600bp</strong></p>
+<li>
+<p><strong>PCR扩增</strong>：该步进行轻度的cDNA富集，将cDNA扩增至ng级即可。</p>
 </li>
-<li><p><strong>PCR富集&amp;上级测序</strong>：在进行最后一次PCR扩增后，即可上机测序。</p>
+<li>
+<p><strong>标记</strong>：利用改造后的高活性Tn5转座酶对DNA进行<strong>打断</strong>的同时将<strong>接头添加</strong>到cDNA的两端。标记完成后的DNA片段通常在<strong>200-600bp</strong></p>
+</li>
+<li>
+<p><strong>PCR富集&amp;上级测序</strong>：在进行最后一次PCR扩增后，即可上机测序。</p>
 </li>
 </ol>
 <blockquote>
 <p>Smart-seq2使用的测序仪为一般的Illumina 测序仪，因其文库最后都与一般的bulk RNA-seq相差无几。</p>
 </blockquote>
-<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-Smart-seq2/image-20220124124240678.png" alt="Schematic workflow of Smart-seq2"></p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p><strong>优点：</strong></p>
+<p><img src="image-20220124124240678.png" alt="Schematic workflow of Smart-seq2"></p>
+<h2 id="优缺点">优缺点</h2>
+<p><strong>优点：</strong></p>
 <ul>
 <li>以全长mRNA建库，对转录本覆盖度很高，能够知道每个外显子的表达量，甚至可以获取转录本剪接的信息</li>
 <li>（号称）50pg RNA起始建库</li>
@@ -397,7 +405,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

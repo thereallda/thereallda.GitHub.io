@@ -32,8 +32,8 @@
 <meta property="article:published_time" content="2022-01-24T09:22:14.000Z">
 <meta property="article:modified_time" content="2022-01-24T09:25:01.035Z">
 <meta property="article:author" content="Dean Li">
-<meta property="article:tag" content="Data_analysis">
 <meta property="article:tag" content="R">
+<meta property="article:tag" content="Data_analysis">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://thereallda.github.io/2022/01/24/R-%E7%BB%9F%E8%AE%A1%E8%BF%9E%E7%BB%AD%E5%8F%98%E9%87%8F%E5%9C%A8%E5%90%84%E4%B8%AA%E5%8C%BA%E9%97%B4%E7%9A%84%E9%A2%91%E6%AC%A1/image-20220124172317753.png">
 
@@ -229,34 +229,26 @@
       
         <p>我们通常会通过直方图来观察数据的结构，但对于如何在R中实际地统计各个区间的数据频次却较少接触。因此，本文总结三种将连续变量离散化的操作：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot2::cut_width()</span><br><span class="line">ggplot2::cut_interval()</span><br><span class="line">ggplot2::cut_number()</span><br></pre></td></tr></table></figure>
-
 <span id="more"></span>
-
-<h1 id="数据模拟"><a href="#数据模拟" class="headerlink" title="数据模拟"></a>数据模拟</h1><p>首先，我们从正态分布模拟100个数据进行后续分析</p>
+<h1>数据模拟</h1>
+<p>首先，我们从正态分布模拟100个数据进行后续分析</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set.seed(<span class="number">123</span>)</span><br><span class="line">dat1 &lt;- tibble(Num=rnorm(<span class="number">100</span>))</span><br></pre></td></tr></table></figure>
-
-<h1 id="cut-width"><a href="#cut-width" class="headerlink" title="cut_width"></a>cut_width</h1><p><code>cut_width()</code>将数据切成长度为<code>width</code>的区间</p>
+<h1>cut_width</h1>
+<p><code>cut_width()</code>将数据切成长度为<code>width</code>的区间</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dat1 %&gt;% </span><br><span class="line">  mutate(Interval=cut_width(dat1$Num, width=<span class="number">0.5</span>)) %&gt;% </span><br><span class="line">  count(Interval)</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A tibble: 10 x 2</span></span><br><span class="line">   Interval          n</span><br><span class="line">   &lt;fct&gt;         &lt;int&gt;</span><br><span class="line"> <span class="number">1</span> [-<span class="number">2.75</span>,-<span class="number">2.25</span>]     <span class="number">1</span></span><br><span class="line"> <span class="number">2</span> (-<span class="number">2.25</span>,-<span class="number">1.75</span>]     <span class="number">1</span></span><br><span class="line"> <span class="number">3</span> (-<span class="number">1.75</span>,-<span class="number">1.25</span>]     <span class="number">4</span></span><br><span class="line"> <span class="number">4</span> (-<span class="number">1.25</span>,-<span class="number">0.75</span>]     <span class="number">8</span></span><br><span class="line"> <span class="number">5</span> (-<span class="number">0.75</span>,-<span class="number">0.25</span>]    <span class="number">23</span></span><br><span class="line"> <span class="number">6</span> (-<span class="number">0.25</span>,<span class="number">0.25</span>]     <span class="number">21</span></span><br><span class="line"> <span class="number">7</span> (<span class="number">0.25</span>,<span class="number">0.75</span>]      <span class="number">18</span></span><br><span class="line"> <span class="number">8</span> (<span class="number">0.75</span>,<span class="number">1.25</span>]      <span class="number">13</span></span><br><span class="line"> <span class="number">9</span> (<span class="number">1.25</span>,<span class="number">1.75</span>]       <span class="number">7</span></span><br><span class="line"><span class="number">10</span> (<span class="number">1.75</span>,<span class="number">2.25</span>]       <span class="number">4</span></span><br></pre></td></tr></table></figure>
-
-
-
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dat1 %&gt;% </span><br><span class="line">  mutate(Interval=cut_width(dat1$Num, width=<span class="number">0.5</span>)) %&gt;% </span><br><span class="line">  count(Interval) %&gt;% </span><br><span class="line">  ggplot(aes(x=Interval, y=n)) + </span><br><span class="line">  geom_bar(stat=<span class="string">&#x27;identity&#x27;</span>)</span><br></pre></td></tr></table></figure>
-
-
-<p><img src="/2022/01/24/R-%E7%BB%9F%E8%AE%A1%E8%BF%9E%E7%BB%AD%E5%8F%98%E9%87%8F%E5%9C%A8%E5%90%84%E4%B8%AA%E5%8C%BA%E9%97%B4%E7%9A%84%E9%A2%91%E6%AC%A1/image-20220124172317753.png"></p>
-<h1 id="cut-interval"><a href="#cut-interval" class="headerlink" title="cut_interval"></a>cut_interval</h1><p><code>cut_interval()</code>将数据切成 n 个区间</p>
+<p><img src="image-20220124172317753.png" alt=""></p>
+<h1>cut_interval</h1>
+<p><code>cut_interval()</code>将数据切成 n 个区间</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dat1 %&gt;% </span><br><span class="line">  mutate(Interval=cut_interval(dat1$Num, n=<span class="number">10</span>)) %&gt;% </span><br><span class="line">  count(Interval)</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A tibble: 10 x 2</span></span><br><span class="line">   Interval             n</span><br><span class="line">   &lt;fct&gt;            &lt;int&gt;</span><br><span class="line"> <span class="number">1</span> [-<span class="number">2.31</span>,-<span class="number">1.86</span>]        <span class="number">2</span></span><br><span class="line"> <span class="number">2</span> (-<span class="number">1.86</span>,-<span class="number">1.41</span>]        <span class="number">2</span></span><br><span class="line"> <span class="number">3</span> (-<span class="number">1.41</span>,-<span class="number">0.96</span>]       <span class="number">10</span></span><br><span class="line"> <span class="number">4</span> (-<span class="number">0.96</span>,-<span class="number">0.511</span>]      <span class="number">10</span></span><br><span class="line"> <span class="number">5</span> (-<span class="number">0.511</span>,-<span class="number">0.0609</span>]    <span class="number">22</span></span><br><span class="line"> <span class="number">6</span> (-<span class="number">0.0609</span>,<span class="number">0.389</span>]     <span class="number">18</span></span><br><span class="line"> <span class="number">7</span> (<span class="number">0.389</span>,<span class="number">0.838</span>]       <span class="number">15</span></span><br><span class="line"> <span class="number">8</span> (<span class="number">0.838</span>,<span class="number">1.29</span>]        <span class="number">11</span></span><br><span class="line"> <span class="number">9</span> (<span class="number">1.29</span>,<span class="number">1.74</span>]          <span class="number">6</span></span><br><span class="line"><span class="number">10</span> (<span class="number">1.74</span>,<span class="number">2.19</span>]          <span class="number">4</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/01/24/R-%E7%BB%9F%E8%AE%A1%E8%BF%9E%E7%BB%AD%E5%8F%98%E9%87%8F%E5%9C%A8%E5%90%84%E4%B8%AA%E5%8C%BA%E9%97%B4%E7%9A%84%E9%A2%91%E6%AC%A1/image-20220124172325841.png"></p>
-<h1 id="cut-number"><a href="#cut-number" class="headerlink" title="cut_number"></a>cut_number</h1><p><code>cut_number()</code>将数据等分，确保每个区间有n个数据。类似于划分为n分位数。</p>
+<p><img src="image-20220124172325841.png" alt=""></p>
+<h1>cut_number</h1>
+<p><code>cut_number()</code>将数据等分，确保每个区间有n个数据。类似于划分为n分位数。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dat1 %&gt;% </span><br><span class="line">  mutate(Interval=cut_number(dat1$Num, n=<span class="number">10</span>)) %&gt;% </span><br><span class="line">  count(Interval)</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A tibble: 10 x 2</span></span><br><span class="line">   Interval            n</span><br><span class="line">   &lt;fct&gt;           &lt;int&gt;</span><br><span class="line"> <span class="number">1</span> [-<span class="number">2.31</span>,-<span class="number">1.07</span>]      <span class="number">10</span></span><br><span class="line"> <span class="number">2</span> (-<span class="number">1.07</span>,-<span class="number">0.626</span>]     <span class="number">10</span></span><br><span class="line"> <span class="number">3</span> (-<span class="number">0.626</span>,-<span class="number">0.387</span>]    <span class="number">10</span></span><br><span class="line"> <span class="number">4</span> (-<span class="number">0.387</span>,-<span class="number">0.223</span>]    <span class="number">10</span></span><br><span class="line"> <span class="number">5</span> (-<span class="number">0.223</span>,<span class="number">0.0618</span>]    <span class="number">10</span></span><br><span class="line"> <span class="number">6</span> (<span class="number">0.0618</span>,<span class="number">0.315</span>]     <span class="number">10</span></span><br><span class="line"> <span class="number">7</span> (<span class="number">0.315</span>,<span class="number">0.513</span>]      <span class="number">10</span></span><br><span class="line"> <span class="number">8</span> (<span class="number">0.513</span>,<span class="number">0.882</span>]      <span class="number">10</span></span><br><span class="line"> <span class="number">9</span> (<span class="number">0.882</span>,<span class="number">1.26</span>]       <span class="number">10</span></span><br><span class="line"><span class="number">10</span> (<span class="number">1.26</span>,<span class="number">2.19</span>]        <span class="number">10</span></span><br></pre></td></tr></table></figure>
-<p><img src="/2022/01/24/R-%E7%BB%9F%E8%AE%A1%E8%BF%9E%E7%BB%AD%E5%8F%98%E9%87%8F%E5%9C%A8%E5%90%84%E4%B8%AA%E5%8C%BA%E9%97%B4%E7%9A%84%E9%A2%91%E6%AC%A1/image-20220124172332152.png"></p>
+<p><img src="image-20220124172332152.png" alt=""></p>
 <blockquote>
 <p>Ref:</p>
 <p><a target="_blank" rel="noopener" href="https://ggplot2.tidyverse.org/reference/cut_interval.html">https://ggplot2.tidyverse.org/reference/cut_interval.html</a></p>
@@ -288,8 +280,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
               <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
           </div>
 
         
@@ -364,7 +356,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A8%A1%E6%8B%9F"><span class="nav-number">1.</span> <span class="nav-text">数据模拟</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cut-width"><span class="nav-number">2.</span> <span class="nav-text">cut_width</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cut-interval"><span class="nav-number">3.</span> <span class="nav-text">cut_interval</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cut-number"><span class="nav-number">4.</span> <span class="nav-text">cut_number</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">数据模拟</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">cut_width</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">cut_interval</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">cut_number</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -380,7 +372,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -235,9 +235,9 @@
       
         <p>10X Genomics 是一个综合的单细胞测序技术平台，可以应用于多种单细胞测序上，包括Single cell gene expression, Single cell Immune Profiling, Single cell CNV, Single cell ATAC。这篇文章将主要简述10X Genomics在<strong>单细胞基因表达</strong>检测方面，也就是scRNA-seq上的应用。</p>
 <span id="more"></span>
-
 <p>10X Genomics 一次测序可以捕捉<strong>100-80,000个细胞</strong>，具有极高的细胞通量。单细胞的测序通量平均也在<strong>50,000 reads/per cell <strong>左右，而如果使用细胞核进行测序则平均通量为</strong>25,000 reads/per nuclei</strong>。比起使用FACS进行细胞分选的单细胞测序技术而言，10X Genomics的细胞通量有显著的提高。</p>
-<h1 id="10X-Genomics-Workflow"><a href="#10X-Genomics-Workflow" class="headerlink" title="10X Genomics Workflow"></a>10X Genomics Workflow</h1><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131835861.png" alt="Workflow of 10X Genomics"></p>
+<h1>10X Genomics Workflow</h1>
+<p><img src="image-20220124131835861.png" alt="Workflow of 10X Genomics"></p>
 <ol>
 <li>将样品组织/细胞分散成单细胞悬液</li>
 <li>在微流控系统中与sequencing beads形成GEMs</li>
@@ -246,33 +246,46 @@
 <li>下载数据进行分析（cellranger）</li>
 </ol>
 <p>10X Genomics与其他测序技术的主要区别在于其<strong>barcode和建库</strong>的操作。虽然上样之后都是自动化操作，但了解其建库原理对后续的生物信息学分析也是有必要的。</p>
-<h2 id="Cell-sorting"><a href="#Cell-sorting" class="headerlink" title="Cell sorting"></a>Cell sorting</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131851039.png" alt="Cell sorting"></p>
+<h2 id="Cell-sorting">Cell sorting</h2>
+<p><img src="image-20220124131851039.png" alt="Cell sorting"></p>
 <p>10X Genomics运用微流控系统进行细胞分选，带有Barcode的Gel Beads 匀速地从左方进入，待分选的细胞和酶从下方以一定时间间隔进入，并与Gel Beads结合，进入油相中形成<strong>GEMs (Gel Bead in emulsion)</strong></p>
-<h2 id="Barcoding"><a href="#Barcoding" class="headerlink" title="Barcoding"></a>Barcoding</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131900937.png" alt="Barcoding"></p>
-<p>Gel Beads上的Barcode带有一段每个细胞特异的<strong>UMI</strong>，在随后的文库构建中，只要是由该细胞扩增出的cDNA都会带上这段UMI以及前面的10x Barcode。因此，便可区分出不同细胞扩增出的cDNA。要注意的是，10X Genomics也是通过poly(dT)富集细胞的mRNA，会有无法避免的3‘ bias.<br><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131924764.png" alt="GEMs"></p>
+<h2 id="Barcoding">Barcoding</h2>
+<p><img src="image-20220124131900937.png" alt="Barcoding"></p>
+<p>Gel Beads上的Barcode带有一段每个细胞特异的<strong>UMI</strong>，在随后的文库构建中，只要是由该细胞扩增出的cDNA都会带上这段UMI以及前面的10x Barcode。因此，便可区分出不同细胞扩增出的cDNA。要注意的是，10X Genomics也是通过poly(dT)富集细胞的mRNA，会有无法避免的3‘ bias.<br>
+<img src="image-20220124131924764.png" alt="GEMs"></p>
 <p>一般而言，每个GEMs会形成如上图一般的结构，即一个细胞一个gel beads。但有时候也会出现一个GEM里有0或多个细胞(empty droplet or doublet)，对于这种GEMs则需要通过我们在后续分析中识别出来并进行排除。</p>
-<h2 id="Library-construction"><a href="#Library-construction" class="headerlink" title="Library construction"></a>Library construction</h2><p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131935711.png" alt="library construction"></p>
+<h2 id="Library-construction">Library construction</h2>
+<p><img src="image-20220124131935711.png" alt="library construction"></p>
 <p>形成GEMs后，<strong>细胞裂解后经过反转录(RT) —— cDNA generation</strong> 便形成cDNA文库。这一系列建库过程都在GEMs中发生，因此GEMs的存在相当于一个物理隔离，保证每个单细胞都在独特的“小室”中发生。另外，由于GEMs是在油相中形成了一种乳浊液(emulsion) 的形态 ，而乳浊液中会形成上万个微液滴，每一个微液滴就是一个GEMs，这也解释了为何10X Geonmics细胞通量如此之高的原因。</p>
-<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131946904.png"></p>
-<p>建库完成后，采用Illumina的测序仪进行测序，通常进行<strong>双端不等长测序</strong>。其中5’测28nt检测barcode与UMI，3’测90nt用于定量基因表达。<br><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124131956654.png"></p>
+<p><img src="image-20220124131946904.png" alt=""></p>
+<p>建库完成后，采用Illumina的测序仪进行测序，通常进行<strong>双端不等长测序</strong>。其中5’测28nt检测barcode与UMI，3’测90nt用于定量基因表达。<br>
+<img src="image-20220124131956654.png" alt=""></p>
 <p>最后，测序完成后，现在的10X Genomics测序仪会同时进行一些简单的数据分析，包括每个样品的数据量，mapping rate，data filtering ，每细胞reads等等。当然，我们也可以自己拿数据跑Cell Ranger，随后可以用seurat包等进行后续的个性化分析也是没有问题的。</p>
-<p><img src="/2022/01/24/%E7%AC%94%E8%AE%B0-%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F-10X-Genomics/image-20220124132013421.png"></p>
-<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><ul>
-<li><p>优点</p>
+<p><img src="image-20220124132013421.png" alt=""></p>
+<h1>优缺点</h1>
+<ul>
+<li>
+<p>优点</p>
 <ol>
-<li><p>细胞通量高，可达到80,000 cells/per run</p>
+<li>
+<p>细胞通量高，可达到80,000 cells/per run</p>
 </li>
-<li><p>可以进行单细胞和单细胞核测序</p>
+<li>
+<p>可以进行单细胞和单细胞核测序</p>
 </li>
-<li><p>单细胞测序覆盖度高，平均为50,000 reads/per cell </p>
+<li>
+<p>单细胞测序覆盖度高，平均为50,000 reads/per cell</p>
 </li>
 </ol>
 </li>
-<li><p>缺点</p>
+<li>
+<p>缺点</p>
 <ol>
-<li><p>存在一定doublet or empty droplet 的情况，导致部分数据不可用。</p>
+<li>
+<p>存在一定doublet or empty droplet 的情况，导致部分数据不可用。</p>
 </li>
-<li><p>构建出3’ cDNA文库，一方面存在3’ bias。另一方面检测不到转录剪接等转录后加工事件。</p>
+<li>
+<p>构建出3’ cDNA文库，一方面存在3’ bias。另一方面检测不到转录剪接等转录后加工事件。</p>
 </li>
 </ol>
 </li>
@@ -281,7 +294,9 @@
 <p>完。</p>
 <blockquote>
 <p>Ref：</p>
-<p><a target="_blank" rel="noopener" href="https://www.10xgenomics.com/solutions/single-cell/">https://www.10xgenomics.com/solutions/single-cell/</a><br><a target="_blank" rel="noopener" href="https://tgc.net.technion.ac.il/the-chromium-single-cell-gene-expression-solution/">https://tgc.net.technion.ac.il/the-chromium-single-cell-gene-expression-solution/</a><br><a target="_blank" rel="noopener" href="https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-">https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.10xgenomics.com/solutions/single-cell/">https://www.10xgenomics.com/solutions/single-cell/</a><br>
+<a target="_blank" rel="noopener" href="https://tgc.net.technion.ac.il/the-chromium-single-cell-gene-expression-solution/">https://tgc.net.technion.ac.il/the-chromium-single-cell-gene-expression-solution/</a><br>
+<a target="_blank" rel="noopener" href="https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-">https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-</a></p>
 </blockquote>
 
     </div>
@@ -386,7 +401,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#10X-Genomics-Workflow"><span class="nav-number">1.</span> <span class="nav-text">10X Genomics Workflow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cell-sorting"><span class="nav-number">1.1.</span> <span class="nav-text">Cell sorting</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Barcoding"><span class="nav-number">1.2.</span> <span class="nav-text">Barcoding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Library-construction"><span class="nav-number">1.3.</span> <span class="nav-text">Library construction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">10X Genomics Workflow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cell-sorting"><span class="nav-number">1.1.</span> <span class="nav-text">Cell sorting</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Barcoding"><span class="nav-number">1.2.</span> <span class="nav-text">Barcoding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Library-construction"><span class="nav-number">1.3.</span> <span class="nav-text">Library construction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -402,7 +417,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

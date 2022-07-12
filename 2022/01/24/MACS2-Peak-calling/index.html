@@ -19,12 +19,12 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="整理ChIP-seq &#x2F; CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。  MACS2 MACS2是一款常用的peak calling软件，可以鉴定ChIP-seq&#x2F;Cut&amp;Tag数据的peaks，本文简单介绍MACS2的安装及peak calling的用法。">
+  <meta name="description" content="整理ChIP-seq &#x2F; CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。  MACS2  MACS2是一款常用的peak calling软件，可以鉴定ChIP-seq&#x2F;Cut&amp;Tag数据的peaks，本文简单介绍MACS2的安装及peak calling的用法。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MACS2-Peak-calling">
 <meta property="og:url" content="https://thereallda.github.io/2022/01/24/MACS2-Peak-calling/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="整理ChIP-seq &#x2F; CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。  MACS2 MACS2是一款常用的peak calling软件，可以鉴定ChIP-seq&#x2F;Cut&amp;Tag数据的peaks，本文简单介绍MACS2的安装及peak calling的用法。">
+<meta property="og:description" content="整理ChIP-seq &#x2F; CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。  MACS2  MACS2是一款常用的peak calling软件，可以鉴定ChIP-seq&#x2F;Cut&amp;Tag数据的peaks，本文简单介绍MACS2的安装及peak calling的用法。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/MACS2-Peak-calling/image-20220124163309889.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/01/24/MACS2-Peak-calling/image-20220124163316542.png">
@@ -231,18 +231,23 @@
         <blockquote>
 <p>整理ChIP-seq / CUT &amp; Tag 分析时用到的工具。本文只对使用的工具用法进行简单介绍。</p>
 </blockquote>
-<h1 id="MACS2"><a href="#MACS2" class="headerlink" title="MACS2"></a>MACS2</h1><p><img src="/2022/01/24/MACS2-Peak-calling/image-20220124163309889.png"></p>
+<h1>MACS2</h1>
+<p><img src="image-20220124163309889.png" alt=""></p>
 <p>MACS2是一款常用的peak calling软件，可以鉴定ChIP-seq/Cut&amp;Tag数据的peaks，本文简单介绍MACS2的安装及peak calling的用法。</p>
 <span id="more"></span>
-
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>MACS2可以通过conda、pip的方法进行安装，也可以下载其源文件进行安装。以下展示conda的安装方法</p>
+<h2 id="安装">安装</h2>
+<p>MACS2可以通过conda、pip的方法进行安装，也可以下载其源文件进行安装。以下展示conda的安装方法</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># --prefix 指定安装到`ChIPseq`环境中</span></span><br><span class="line">$ conda install -c bioconda macs2 --prefix=ChIPseq</span><br></pre></td></tr></table></figure>
-
-<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><p>MACS2 有多个子命令，这里我们只介绍用于peak calling的<code>callpeak</code></p>
-<p><img src="/2022/01/24/MACS2-Peak-calling/image-20220124163316542.png"></p>
+<h2 id="用法">用法</h2>
+<p>MACS2 有多个子命令，这里我们只介绍用于peak calling的<code>callpeak</code></p>
+<p><img src="image-20220124163316542.png" alt=""></p>
 <p><code>macs2 callpeak</code>的示例用法如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">macs2 callpeak -t treatment.bam \</span><br><span class="line">               -c control.bam  \</span><br><span class="line">               -f BAM \</span><br><span class="line">               -g hs \</span><br><span class="line">               -n &lt;output_prefix&gt; </span><br><span class="line">               --outdir &lt;out_dir&gt; \</span><br><span class="line">               --min-length 100 \</span><br><span class="line">               --nomodel --extsize 200 2&gt;macs.log</span><br></pre></td></tr></table></figure>
-<p><code>-t</code>：这是MACS唯一需要的参数，指明处理组的文件，如果有多个可以用空格隔开输入<code>-t A B C</code>.如果没有对照组，也可以单独使用<code>-t</code>进行peak calling，但假阳性率会有所提升。<br><code>-c</code>：对照组的文件，通常是input或者mock IP<br><code>-n</code>：输出结果的前缀<br><code>-f</code>：输入文件的类型，可以是：<code>ELAND</code>, <code>BED</code>, <code>ELANDMULTI</code>, <code>ELANDEXPORT</code>, <code>SAM</code>, <code>BAM</code>, <code>BOWTIE</code>, <code>BAMPE</code>, or <code>BEDPE</code>格式。默认自动检测，但如果是<code>BAMPE</code>或<code>BEDPE</code>格式需要手动声明。<br><code>-g</code>：有效基因组大小，即目前可被测到的基因组大小。</p>
+<p><code>-t</code>：这是MACS唯一需要的参数，指明处理组的文件，如果有多个可以用空格隔开输入<code>-t A B C</code>.如果没有对照组，也可以单独使用<code>-t</code>进行peak calling，但假阳性率会有所提升。<br>
+<code>-c</code>：对照组的文件，通常是input或者mock IP<br>
+<code>-n</code>：输出结果的前缀<br>
+<code>-f</code>：输入文件的类型，可以是：<code>ELAND</code>, <code>BED</code>, <code>ELANDMULTI</code>, <code>ELANDEXPORT</code>, <code>SAM</code>, <code>BAM</code>, <code>BOWTIE</code>, <code>BAMPE</code>, or <code>BEDPE</code>格式。默认自动检测，但如果是<code>BAMPE</code>或<code>BEDPE</code>格式需要手动声明。<br>
+<code>-g</code>：有效基因组大小，即目前可被测到的基因组大小。</p>
 <blockquote>
 <p>MACS给出了几个内置的基因组大小，如果callpeak的物种不在此列需要给出相应物种的有效基因组大小。</p>
 <ul>
@@ -252,15 +257,25 @@
 <li>dm: 1.2e8</li>
 </ul>
 </blockquote>
-<p><code>--outdir</code>：输出的文件夹<br><code>--min-length</code>：peak最短的长度，只有大于该长度的peak才被认为是一个peak。<br><code>--max-gap</code>：定义了两个相邻peaks最大的距离，如果两个peaks之间的距离小于该值则被merge为一个peak。<br><code>--nomodel</code>：输入这个参数后，MACS不会使用shifting model。<br><code>--extsize</code>：使用<code>--nomodel</code>参数后，MACS会使用该参数对reads从5’-&gt;3’ 延伸到指定的长度。例如，TF的结合区域是200bp左右时，可以通过设置<code>  --nomodel --extsize 200</code>来指定reads延伸的长度。<br><code>-B/--bdg</code>：设置该参数后，MACS会用bedGraph存储片段累积值（<code>NAME_treat_pileup.bdg</code>）和local lambda（<code>NAME_control_lambda.bdg</code>）。</p>
+<p><code>--outdir</code>：输出的文件夹<br>
+<code>--min-length</code>：peak最短的长度，只有大于该长度的peak才被认为是一个peak。<br>
+<code>--max-gap</code>：定义了两个相邻peaks最大的距离，如果两个peaks之间的距离小于该值则被merge为一个peak。<br>
+<code>--nomodel</code>：输入这个参数后，MACS不会使用shifting model。<br>
+<code>--extsize</code>：使用<code>--nomodel</code>参数后，MACS会使用该参数对reads从5’-&gt;3’ 延伸到指定的长度。例如，TF的结合区域是200bp左右时，可以通过设置<code>  --nomodel --extsize 200</code>来指定reads延伸的长度。<br>
+<code>-B/--bdg</code>：设置该参数后，MACS会用bedGraph存储片段累积值（<code>NAME_treat_pileup.bdg</code>）和local lambda（<code>NAME_control_lambda.bdg</code>）。</p>
 <blockquote>
-<p>关于shifting model的一个解释可以参考<a target="_blank" rel="noopener" href="https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html">https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html</a></p>
+<p>关于shifting model的一个解释可以参考https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html</p>
 </blockquote>
-<p>当需要进行宽峰的peak calling时，可以使用以下参数<br><code>--broad</code>：使用该参数后，MACS进行宽峰的callpeak。<br><code>--broad-cutoff</code>：宽峰的统计值cutoff。默认使用q值过滤不显著的峰，如果加了<code>-p</code>就用p值过滤。</p>
-<h3 id="示例用法"><a href="#示例用法" class="headerlink" title="示例用法"></a>示例用法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 常规转录因子ChIP-seq的peak calling:</span></span><br><span class="line">$ macs2 callpeak -t ChIP.bam -c Control.bam -f BAM -g hs -n <span class="built_in">test</span> -B -q 0.01</span><br><span class="line"></span><br><span class="line"><span class="comment"># 组蛋白修饰类宽峰ChIP-seq的peak calling:</span></span><br><span class="line">$ macs2 callpeak -t ChIP.bam -c Control.bam --broad -g hs --broad-cutoff 0.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 双端测序的ATAC-seq的peak calling:</span></span><br><span class="line">$ macs2 callpeak -f BAMPE -t ATAC.bam -g hs -n <span class="built_in">test</span> -B -q 0.01</span><br></pre></td></tr></table></figure>
-
-<h2 id="输出结果"><a href="#输出结果" class="headerlink" title="输出结果"></a>输出结果</h2><h3 id="非宽峰"><a href="#非宽峰" class="headerlink" title="非宽峰"></a>非宽峰</h3><p>以非宽峰callpeak结果为例，通常MACS2 会输出以下文件</p>
-<p><strong>1. NAME_peaks.xls</strong><br>该文件可以通过excel打开，包括以下信息：</p>
+<p>当需要进行宽峰的peak calling时，可以使用以下参数<br>
+<code>--broad</code>：使用该参数后，MACS进行宽峰的callpeak。<br>
+<code>--broad-cutoff</code>：宽峰的统计值cutoff。默认使用q值过滤不显著的峰，如果加了<code>-p</code>就用p值过滤。</p>
+<h3 id="示例用法">示例用法</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 常规转录因子ChIP-seq的peak calling:</span></span><br><span class="line">$ macs2 callpeak -t ChIP.bam -c Control.bam -f BAM -g hs -n <span class="built_in">test</span> -B -q 0.01</span><br><span class="line"></span><br><span class="line"><span class="comment"># 组蛋白修饰类宽峰ChIP-seq的peak calling:</span></span><br><span class="line">$ macs2 callpeak -t ChIP.bam -c Control.bam --broad -g hs --broad-cutoff 0.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 双端测序的ATAC-seq的peak calling:</span></span><br><span class="line">$ macs2 callpeak -f BAMPE -t ATAC.bam -g hs -n <span class="built_in">test</span> -B -q 0.01</span><br></pre></td></tr></table></figure>
+<h2 id="输出结果">输出结果</h2>
+<h3 id="非宽峰">非宽峰</h3>
+<p>以非宽峰callpeak结果为例，通常MACS2 会输出以下文件</p>
+<p><strong>1. NAME_peaks.xls</strong><br>
+该文件可以通过excel打开，包括以下信息：</p>
 <ul>
 <li>染色体名称</li>
 <li>peak起始的染色体坐标</li>
@@ -272,28 +287,36 @@
 <li>峰顶处reads相对于local background的富集倍数 (fold enrichment for this peak summit against random Poisson distribution with local lambda)</li>
 <li>-log10(qvalue) at peak summit</li>
 </ul>
-<p><strong>2. NAME_peaks.narrowPeak</strong><br><code>NAME_peaks.narrowPeak</code>是一个BED6+4格式的文件，其中每列的含义如下：</p>
-<p><img src="/2022/01/24/MACS2-Peak-calling/image-20220124163325270.png"></p>
+<p><strong>2. NAME_peaks.narrowPeak</strong><br>
+<code>NAME_peaks.narrowPeak</code>是一个BED6+4格式的文件，其中每列的含义如下：</p>
+<p><img src="image-20220124163325270.png" alt=""></p>
 <p>以一个test.narrowPeak 为例</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ head test.narrowPeak -n 2</span><br><span class="line">GL000008.2      3142    3399    test_peak_1       50      .       3.81679 5.1     0.995095        23</span><br><span class="line">GL000194.1      1917    2116    test_peak_2       56      .       4.41176 5.65309 1.289   106</span><br></pre></td></tr></table></figure>
-
-<p><strong>3. NAME_summits.bed</strong><br>该文件为BED5格式，包含了每个peaks峰顶的位置信息，可用于motif和binding sites的预测。</p>
+<p><strong>3. NAME_summits.bed</strong><br>
+该文件为BED5格式，包含了每个peaks峰顶的位置信息，可用于motif和binding sites的预测。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ head test_summits.bed -n 2</span><br><span class="line">GL000008.2      3165    3166    test_peak_1       5.1</span><br><span class="line">GL000194.1      2023    2024    test_peak_2       5.65309</span><br></pre></td></tr></table></figure>
-<p>注意的是”NAME_summits.bed:的第五列score与”NAME_peaks.narrowPeak”的第8列（峰顶处的-log10pvalue）一致。</p>
-<h3 id="宽峰"><a href="#宽峰" class="headerlink" title="宽峰"></a>宽峰</h3><p>如果是宽峰的callpeak，则产生以下的peak calling结果：</p>
-<p><strong>NAME_peaks.broadPeak</strong><br>该文件为BED6+3格式，没有了 .narrowPeak文件的第10列，即峰顶的位置。由于broad peak并不存在峰顶的含义，所以这个文件的第5，7-9列都是整个peak的平均值（而narrowPeak是峰顶处的值）。</p>
+<p>注意的是&quot;NAME_summits.bed:的第五列score与&quot;NAME_peaks.narrowPeak&quot;的第8列（峰顶处的-log10pvalue）一致。</p>
+<h3 id="宽峰">宽峰</h3>
+<p>如果是宽峰的callpeak，则产生以下的peak calling结果：</p>
+<p><strong>NAME_peaks.broadPeak</strong><br>
+该文件为BED6+3格式，没有了 .narrowPeak文件的第10列，即峰顶的位置。由于broad peak并不存在峰顶的含义，所以这个文件的第5，7-9列都是整个peak的平均值（而narrowPeak是峰顶处的值）。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ head test.broadPeak</span><br><span class="line">chr2L   5129    9425    test_peak_1      67      .       2.56825 6.77836 5.42387</span><br><span class="line">chr2L   365789  388188  test_peak_2      115     .       3.23359 11.5768 10.0304</span><br></pre></td></tr></table></figure>
-
-<h2 id="Blacklist-regions"><a href="#Blacklist-regions" class="headerlink" title="Blacklist regions"></a>Blacklist regions</h2><p>需要注意的是由于NGS测序读长的限制，目前的参考基因组有一些测不准的区域，即黑名单区域（Blacklist regions）。这些区域的有时候会具有高信号的富集，影响我们peak calling的结果。<br><img src="/2022/01/24/MACS2-Peak-calling/image-20220124163336632.png"></p>
+<h2 id="Blacklist-regions">Blacklist regions</h2>
+<p>需要注意的是由于NGS测序读长的限制，目前的参考基因组有一些测不准的区域，即黑名单区域（Blacklist regions）。这些区域的有时候会具有高信号的富集，影响我们peak calling的结果。<br>
+<img src="image-20220124163336632.png" alt=""></p>
 <p>为了提高peak calling的质量，我们可以在peak calling结束后，手动去除这些区域。通过<code>bedtools</code>这一工具就可以实现对blaklist region的去除。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ bedtools intersect -v -a NAME_peaks.narrowPeak -b BLACKLIST.BED &gt; FILTERED.narrowPeak</span><br></pre></td></tr></table></figure>
-
 <p>Blacklist region的bed 文件可以在这里下载：<a target="_blank" rel="noopener" href="https://github.com/Boyle-Lab/Blacklist/tree/master/lists">https://github.com/Boyle-Lab/Blacklist/tree/master/lists</a></p>
-<p><img src="/2022/01/24/MACS2-Peak-calling/image-20220124163342855.png"></p>
+<p><img src="image-20220124163342855.png" alt=""></p>
 <p>目前v2版好像只提供了人、小鼠、果蝇和线虫的。</p>
 <p>对MACS2 Peak calling的简单介绍到此结束了。MACS3已经更新了，大体参数和使用方法与MACS2区别不大，但具体的区别在哪还没有深究，以后有机会再作更新。</p>
 <blockquote>
-<p>Ref:<br><strong>MACS3 callpeak doc</strong>: <a target="_blank" rel="noopener" href="https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md">https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md</a><br><a target="_blank" rel="noopener" href="https://pypi.org/project/MACS2/#description">https://pypi.org/project/MACS2/#description</a><br><strong>MACS2 peak calling tutorial</strong>: <a target="_blank" rel="noopener" href="https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html">https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html</a><br><strong>Blacklist regions</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/184537/">https://www.biostars.org/p/184537/</a><br><strong>ENCODE paper about blacklist regions</strong>: <a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41598-019-45839-z">https://www.nature.com/articles/s41598-019-45839-z</a></p>
+<p>Ref:<br>
+<strong>MACS3 callpeak doc</strong>: <a target="_blank" rel="noopener" href="https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md">https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md</a><br>
+<a target="_blank" rel="noopener" href="https://pypi.org/project/MACS2/#description">https://pypi.org/project/MACS2/#description</a><br>
+<strong>MACS2 peak calling tutorial</strong>: <a target="_blank" rel="noopener" href="https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html">https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html</a><br>
+<strong>Blacklist regions</strong>: <a target="_blank" rel="noopener" href="https://www.biostars.org/p/184537/">https://www.biostars.org/p/184537/</a><br>
+<strong>ENCODE paper about blacklist regions</strong>: <a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41598-019-45839-z">https://www.nature.com/articles/s41598-019-45839-z</a></p>
 </blockquote>
 <p>完。</p>
 
@@ -397,7 +420,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MACS2"><span class="nav-number">1.</span> <span class="nav-text">MACS2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E7%94%A8%E6%B3%95"><span class="nav-number">1.2.1.</span> <span class="nav-text">示例用法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C"><span class="nav-number">1.3.</span> <span class="nav-text">输出结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%AE%BD%E5%B3%B0"><span class="nav-number">1.3.1.</span> <span class="nav-text">非宽峰</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%BD%E5%B3%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">宽峰</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Blacklist-regions"><span class="nav-number">1.4.</span> <span class="nav-text">Blacklist regions</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">MACS2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E7%94%A8%E6%B3%95"><span class="nav-number">1.2.1.</span> <span class="nav-text">示例用法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C"><span class="nav-number">1.3.</span> <span class="nav-text">输出结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%AE%BD%E5%B3%B0"><span class="nav-number">1.3.1.</span> <span class="nav-text">非宽峰</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%BD%E5%B3%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">宽峰</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Blacklist-regions"><span class="nav-number">1.4.</span> <span class="nav-text">Blacklist regions</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -413,7 +436,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -253,80 +253,82 @@
 <p>从油画当中汲取了一些配色方案，写成了一个R包 <code>paintingr</code> (<a target="_blank" rel="noopener" href="https://github.com/thereallda/paintingr">https://github.com/thereallda/paintingr</a>)</p>
 <p>欢迎使用R画图的朋友给点意见和建议！</p>
 <span id="more"></span>
-
-<h1 id="paintingr"><a href="#paintingr" class="headerlink" title="paintingr"></a>paintingr</h1><p><code>paintingr</code> 提供了一系列油画来源的调色板</p>
+<h1>paintingr</h1>
+<p><code>paintingr</code> 提供了一系列油画来源的调色板</p>
 <p><code>paintingr</code> 的代码结构参考了<a target="_blank" rel="noopener" href="https://github.com/karthik/wesanderson">wesanderson</a> 包</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>目前可以通过github安装开发版本:</p>
+<h2 id="安装">安装</h2>
+<p>目前可以通过github安装开发版本:</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># install.packages(&quot;devtools&quot;)</span></span><br><span class="line">devtools::install_github(<span class="string">&quot;thereallda/paintingr&quot;</span>)</span><br></pre></td></tr></table></figure>
-
 <p>后续会考虑发布到 CRAN 上</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>可以通过 <code>display_all_palettes()</code> 查看当前提供的调色板</p>
+<h2 id="使用">使用</h2>
+<p>可以通过 <code>display_all_palettes()</code> 查看当前提供的调色板</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">library(paintingr)</span><br><span class="line"><span class="comment"># display all palettes</span></span><br><span class="line">display_all_palettes()</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-2-1-16472567814541.png"></p>
+<p><img src="README-unnamed-chunk-2-1-16472567814541.png" alt=""></p>
 <p>使用 <code>paint_palette(&quot;name&quot;)</code> 获取某个调色板的颜色</p>
 <p><code>paintingr</code> 提供以下调色板</p>
-<h2 id="调色板"><a href="#调色板" class="headerlink" title="调色板"></a>调色板</h2><h3 id="Pearlgirl"><a href="#Pearlgirl" class="headerlink" title="Pearlgirl"></a>Pearlgirl</h3><p>Girl with a Pearl Earring - Johannes Vermeer (1665), <a target="_blank" rel="noopener" href="https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring/">Source</a></p>
+<h2 id="调色板">调色板</h2>
+<h3 id="Pearlgirl">Pearlgirl</h3>
+<p>Girl with a Pearl Earring - Johannes Vermeer (1665), <a target="_blank" rel="noopener" href="https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring/">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Pearlgirl&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-5-1-16472568749852.png"></p>
-<h3 id="Splash"><a href="#Splash" class="headerlink" title="Splash"></a>Splash</h3><p>A Bigger Splash - David Hockney (1967), <a target="_blank" rel="noopener" href="https://www.tate.org.uk/art/artworks/hockney-a-bigger-splash-t03254">Source</a></p>
+<p><img src="README-unnamed-chunk-5-1-16472568749852.png" alt=""></p>
+<h3 id="Splash">Splash</h3>
+<p>A Bigger Splash - David Hockney (1967), <a target="_blank" rel="noopener" href="https://www.tate.org.uk/art/artworks/hockney-a-bigger-splash-t03254">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Splash&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-7-1-16472568812043.png"></p>
-<h3 id="Autumn"><a href="#Autumn" class="headerlink" title="Autumn"></a>Autumn</h3><p>Autumn at Oirase - Kawase Hasui (1933), <a target="_blank" rel="noopener" href="https://www.pepperholm.com/products/autumn-at-oirase">Source</a></p>
+<p><img src="README-unnamed-chunk-7-1-16472568812043.png" alt=""></p>
+<h3 id="Autumn">Autumn</h3>
+<p>Autumn at Oirase - Kawase Hasui (1933), <a target="_blank" rel="noopener" href="https://www.pepperholm.com/products/autumn-at-oirase">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Autumn&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-9-1-16472568889224.png"></p>
-<h3 id="Villeneuve"><a href="#Villeneuve" class="headerlink" title="Villeneuve"></a>Villeneuve</h3><p>Matin à Villeneuve - Henri Biva (1905), <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Matin_%C3%A0_Villeneuve">Source</a></p>
+<p><img src="README-unnamed-chunk-9-1-16472568889224.png" alt=""></p>
+<h3 id="Villeneuve">Villeneuve</h3>
+<p>Matin à Villeneuve - Henri Biva (1905), <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Matin_%C3%A0_Villeneuve">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Villeneuve&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-11-1-16472568948815.png"></p>
-<h3 id="Ophelia"><a href="#Ophelia" class="headerlink" title="Ophelia"></a>Ophelia</h3><p>Ophelia - John Everett Millais (1851-1852), <a target="_blank" rel="noopener" href="https://www.tate.org.uk/art/artworks/millais-ophelia-n01506">Source</a></p>
+<p><img src="README-unnamed-chunk-11-1-16472568948815.png" alt=""></p>
+<h3 id="Ophelia">Ophelia</h3>
+<p>Ophelia - John Everett Millais (1851-1852), <a target="_blank" rel="noopener" href="https://www.tate.org.uk/art/artworks/millais-ophelia-n01506">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Ophelia&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-13-1-16472569013426.png"></p>
-<h3 id="Kitchen"><a href="#Kitchen" class="headerlink" title="Kitchen"></a>Kitchen</h3><p>Kitchen (Detail 2) - Liza Lou (1991–1996), <a target="_blank" rel="noopener" href="https://whitney.org/collection/works/34855">Source</a></p>
+<p><img src="README-unnamed-chunk-13-1-16472569013426.png" alt=""></p>
+<h3 id="Kitchen">Kitchen</h3>
+<p>Kitchen (Detail 2) - Liza Lou (1991–1996), <a target="_blank" rel="noopener" href="https://whitney.org/collection/works/34855">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Kitchen&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-15-1-16472569115397.png"></p>
-<h3 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h3><p>SPRING BY THE SEINE - Claude Monet (1875), <a target="_blank" rel="noopener" href="https://www.mcgawgraphics.com/products/claude-monet-spring-by-the-seine-1875">Source</a></p>
+<p><img src="README-unnamed-chunk-15-1-16472569115397.png" alt=""></p>
+<h3 id="Spring">Spring</h3>
+<p>SPRING BY THE SEINE - Claude Monet (1875), <a target="_blank" rel="noopener" href="https://www.mcgawgraphics.com/products/claude-monet-spring-by-the-seine-1875">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Spring&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-17-1-16472569189478.png"></p>
-<h3 id="Strawberries"><a href="#Strawberries" class="headerlink" title="Strawberries"></a>Strawberries</h3><p>Strawberries - Édouard Manet (1882), <a target="_blank" rel="noopener" href="https://www.metmuseum.org/art/collection/search/436963">Source</a></p>
+<p><img src="README-unnamed-chunk-17-1-16472569189478.png" alt=""></p>
+<h3 id="Strawberries">Strawberries</h3>
+<p>Strawberries - Édouard Manet (1882), <a target="_blank" rel="noopener" href="https://www.metmuseum.org/art/collection/search/436963">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Strawberries&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-19-1-16472569269689.png"></p>
-<h3 id="Seascape"><a href="#Seascape" class="headerlink" title="Seascape"></a>Seascape</h3><p>Seascape at Saintes-Maries - Vincent van Gogh (1888), <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Saintes-Maries_(Van_Gogh_series)">Source</a></p>
+<p><img src="README-unnamed-chunk-19-1-16472569269689.png" alt=""></p>
+<h3 id="Seascape">Seascape</h3>
+<p>Seascape at Saintes-Maries - Vincent van Gogh (1888), <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Saintes-Maries_(Van_Gogh_series)">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Seascape&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-21-1-164725693223310.png"></p>
-<h3 id="Twilight"><a href="#Twilight" class="headerlink" title="Twilight"></a>Twilight</h3><p>Twilight, Venice - Claude Monet (1908), <a target="_blank" rel="noopener" href="https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Twilight,_Venice.jpg">Source</a></p>
+<p><img src="README-unnamed-chunk-21-1-164725693223310.png" alt=""></p>
+<h3 id="Twilight">Twilight</h3>
+<p>Twilight, Venice - Claude Monet (1908), <a target="_blank" rel="noopener" href="https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Twilight,_Venice.jpg">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Twilight&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-23-1-164725693760711.png"></p>
-<h3 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h3><p>Abstract Composition - Jessica Dismorr (1915), <a target="_blank" rel="noopener" href="https://www.tate.org.uk/art/artworks/dismorr-abstract-composition-t01084">Source</a></p>
+<p><img src="README-unnamed-chunk-23-1-164725693760711.png" alt=""></p>
+<h3 id="Abstract">Abstract</h3>
+<p>Abstract Composition - Jessica Dismorr (1915), <a target="_blank" rel="noopener" href="https://www.tate.org.uk/art/artworks/dismorr-abstract-composition-t01084">Source</a></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paint_palette(<span class="string">&quot;Abstract&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-25-1-164725694839812.png"></p>
-<h2 id="一些例子"><a href="#一些例子" class="headerlink" title="一些例子"></a>一些例子</h2><p><code>ggplot2</code>-based examples</p>
-<h3 id="Heatmap"><a href="#Heatmap" class="headerlink" title="Heatmap"></a>Heatmap</h3><p>如果你需要更多的颜色（n &gt; 5/6）时，可以使用 <code>type=&quot;continuous&quot;</code> 参数，并指定需要的颜色个数</p>
+<p><img src="README-unnamed-chunk-25-1-164725694839812.png" alt=""></p>
+<h2 id="一些例子">一些例子</h2>
+<p><code>ggplot2</code>-based examples</p>
+<h3 id="Heatmap">Heatmap</h3>
+<p>如果你需要更多的颜色（n &gt; 5/6）时，可以使用 <code>type=&quot;continuous&quot;</code> 参数，并指定需要的颜色个数</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">library(ggplot2)</span><br><span class="line"><span class="comment"># Dummy data</span></span><br><span class="line">x &lt;- <span class="built_in">LETTERS</span>[<span class="number">1</span>:<span class="number">20</span>]</span><br><span class="line">y &lt;- paste0(<span class="string">&quot;var&quot;</span>, seq(<span class="number">1</span>,<span class="number">20</span>))</span><br><span class="line">data &lt;- expand.grid(X=x, Y=y)</span><br><span class="line">data$Z &lt;- seq(<span class="number">1</span>,<span class="number">20</span>)+runif(<span class="number">400</span>, <span class="number">0</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Heatmap </span></span><br><span class="line">pal &lt;- paint_palette(<span class="string">&quot;Autumn&quot;</span>, n=<span class="number">100</span>, type=<span class="string">&quot;continuous&quot;</span>)</span><br><span class="line">ggplot(data, aes(X, Y, fill= Z)) + </span><br><span class="line">  geom_tile() + </span><br><span class="line">  scale_fill_gradientn(colours = pal) + </span><br><span class="line">  scale_x_discrete(expand = <span class="built_in">c</span>(<span class="number">0</span>, <span class="number">0</span>)) +</span><br><span class="line">  scale_y_discrete(expand = <span class="built_in">c</span>(<span class="number">0</span>, <span class="number">0</span>)) + </span><br><span class="line">  coord_equal() </span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-26-1-164725696540513.png"></p>
-<h3 id="Boxplot"><a href="#Boxplot" class="headerlink" title="Boxplot"></a>Boxplot</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># use iris data from `ggplot2` for demonstration</span></span><br><span class="line">data(iris)</span><br><span class="line"></span><br><span class="line">ggplot(iris, aes(Species, Sepal.Length)) +</span><br><span class="line">  geom_boxplot(aes(fill = Species)) +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  theme(legend.position = <span class="string">&quot;top&quot;</span>) +</span><br><span class="line">  scale_fill_manual(values = paint_palette(<span class="string">&quot;Villeneuve&quot;</span>))</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-27-1-164725699073815.png"></p>
-<h3 id="Scatter"><a href="#Scatter" class="headerlink" title="Scatter"></a>Scatter</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Scatter</span></span><br><span class="line">ggplot(iris, aes(Sepal.Length, Sepal.Width)) +</span><br><span class="line">  geom_point(aes(color = Species)) +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  theme(legend.position = <span class="string">&quot;top&quot;</span>) +</span><br><span class="line">  scale_color_manual(values = paint_palette(<span class="string">&quot;Kitchen&quot;</span>))</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-28-1-164725697251614.png"></p>
-<h3 id="Violin-plot"><a href="#Violin-plot" class="headerlink" title="Violin plot"></a>Violin plot</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">data(mpg)</span><br><span class="line"><span class="comment"># violin plot with 7 colors, Spring palette only have six colors add one more</span></span><br><span class="line">ggplot(mpg, aes(x=<span class="built_in">class</span>, y=hwy, fill=<span class="built_in">class</span>)) + </span><br><span class="line">  geom_violin() +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  scale_fill_manual(values = <span class="built_in">c</span>(paint_palette(<span class="string">&quot;Spring&quot;</span>, n=<span class="number">6</span>), <span class="string">&quot;black&quot;</span>))</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-29-1-164725699955916.png"></p>
-<h3 id="Barplot"><a href="#Barplot" class="headerlink" title="Barplot"></a>Barplot</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ggplot(mpg, aes(x = <span class="built_in">class</span>, fill = drv)) + </span><br><span class="line">  geom_bar() +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  scale_fill_manual(values = paint_palette(<span class="string">&quot;Ophelia&quot;</span>))</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/14/R-paintingr-palette/README-unnamed-chunk-30-1-164725700376518.png"></p>
+<p><img src="README-unnamed-chunk-26-1-164725696540513.png" alt=""></p>
+<h3 id="Boxplot">Boxplot</h3>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># use iris data from `ggplot2` for demonstration</span></span><br><span class="line">data(iris)</span><br><span class="line"></span><br><span class="line">ggplot(iris, aes(Species, Sepal.Length)) +</span><br><span class="line">  geom_boxplot(aes(fill = Species)) +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  theme(legend.position = <span class="string">&quot;top&quot;</span>) +</span><br><span class="line">  scale_fill_manual(values = paint_palette(<span class="string">&quot;Villeneuve&quot;</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="README-unnamed-chunk-27-1-164725699073815.png" alt=""></p>
+<h3 id="Scatter">Scatter</h3>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Scatter</span></span><br><span class="line">ggplot(iris, aes(Sepal.Length, Sepal.Width)) +</span><br><span class="line">  geom_point(aes(color = Species)) +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  theme(legend.position = <span class="string">&quot;top&quot;</span>) +</span><br><span class="line">  scale_color_manual(values = paint_palette(<span class="string">&quot;Kitchen&quot;</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="README-unnamed-chunk-28-1-164725697251614.png" alt=""></p>
+<h3 id="Violin-plot">Violin plot</h3>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">data(mpg)</span><br><span class="line"><span class="comment"># violin plot with 7 colors, Spring palette only have six colors add one more</span></span><br><span class="line">ggplot(mpg, aes(x=<span class="built_in">class</span>, y=hwy, fill=<span class="built_in">class</span>)) + </span><br><span class="line">  geom_violin() +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  scale_fill_manual(values = <span class="built_in">c</span>(paint_palette(<span class="string">&quot;Spring&quot;</span>, n=<span class="number">6</span>), <span class="string">&quot;black&quot;</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="README-unnamed-chunk-29-1-164725699955916.png" alt=""></p>
+<h3 id="Barplot">Barplot</h3>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ggplot(mpg, aes(x = <span class="built_in">class</span>, fill = drv)) + </span><br><span class="line">  geom_bar() +</span><br><span class="line">  theme_classic() +</span><br><span class="line">  scale_fill_manual(values = paint_palette(<span class="string">&quot;Ophelia&quot;</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="README-unnamed-chunk-30-1-164725700376518.png" alt=""></p>
 
     </div>
 
@@ -429,7 +431,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#paintingr"><span class="nav-number">1.</span> <span class="nav-text">paintingr</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%89%B2%E6%9D%BF"><span class="nav-number">1.3.</span> <span class="nav-text">调色板</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Pearlgirl"><span class="nav-number">1.3.1.</span> <span class="nav-text">Pearlgirl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Splash"><span class="nav-number">1.3.2.</span> <span class="nav-text">Splash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Autumn"><span class="nav-number">1.3.3.</span> <span class="nav-text">Autumn</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Villeneuve"><span class="nav-number">1.3.4.</span> <span class="nav-text">Villeneuve</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ophelia"><span class="nav-number">1.3.5.</span> <span class="nav-text">Ophelia</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kitchen"><span class="nav-number">1.3.6.</span> <span class="nav-text">Kitchen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring"><span class="nav-number">1.3.7.</span> <span class="nav-text">Spring</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Strawberries"><span class="nav-number">1.3.8.</span> <span class="nav-text">Strawberries</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Seascape"><span class="nav-number">1.3.9.</span> <span class="nav-text">Seascape</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Twilight"><span class="nav-number">1.3.10.</span> <span class="nav-text">Twilight</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract"><span class="nav-number">1.3.11.</span> <span class="nav-text">Abstract</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E4%BE%8B%E5%AD%90"><span class="nav-number">1.4.</span> <span class="nav-text">一些例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Heatmap"><span class="nav-number">1.4.1.</span> <span class="nav-text">Heatmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Boxplot"><span class="nav-number">1.4.2.</span> <span class="nav-text">Boxplot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scatter"><span class="nav-number">1.4.3.</span> <span class="nav-text">Scatter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Violin-plot"><span class="nav-number">1.4.4.</span> <span class="nav-text">Violin plot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Barplot"><span class="nav-number">1.4.5.</span> <span class="nav-text">Barplot</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">paintingr</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%89%B2%E6%9D%BF"><span class="nav-number">1.3.</span> <span class="nav-text">调色板</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Pearlgirl"><span class="nav-number">1.3.1.</span> <span class="nav-text">Pearlgirl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Splash"><span class="nav-number">1.3.2.</span> <span class="nav-text">Splash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Autumn"><span class="nav-number">1.3.3.</span> <span class="nav-text">Autumn</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Villeneuve"><span class="nav-number">1.3.4.</span> <span class="nav-text">Villeneuve</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ophelia"><span class="nav-number">1.3.5.</span> <span class="nav-text">Ophelia</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kitchen"><span class="nav-number">1.3.6.</span> <span class="nav-text">Kitchen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring"><span class="nav-number">1.3.7.</span> <span class="nav-text">Spring</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Strawberries"><span class="nav-number">1.3.8.</span> <span class="nav-text">Strawberries</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Seascape"><span class="nav-number">1.3.9.</span> <span class="nav-text">Seascape</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Twilight"><span class="nav-number">1.3.10.</span> <span class="nav-text">Twilight</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract"><span class="nav-number">1.3.11.</span> <span class="nav-text">Abstract</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E4%BE%8B%E5%AD%90"><span class="nav-number">1.4.</span> <span class="nav-text">一些例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Heatmap"><span class="nav-number">1.4.1.</span> <span class="nav-text">Heatmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Boxplot"><span class="nav-number">1.4.2.</span> <span class="nav-text">Boxplot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scatter"><span class="nav-number">1.4.3.</span> <span class="nav-text">Scatter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Violin-plot"><span class="nav-number">1.4.4.</span> <span class="nav-text">Violin plot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Barplot"><span class="nav-number">1.4.5.</span> <span class="nav-text">Barplot</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -445,7 +447,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

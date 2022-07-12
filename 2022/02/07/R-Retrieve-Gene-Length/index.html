@@ -31,8 +31,8 @@
 <meta property="article:published_time" content="2022-02-07T08:12:25.000Z">
 <meta property="article:modified_time" content="2022-02-07T09:48:49.726Z">
 <meta property="article:author" content="Dean Li">
-<meta property="article:tag" content="Data_analysis">
 <meta property="article:tag" content="R">
+<meta property="article:tag" content="Data_analysis">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://thereallda.github.io/2022/02/07/R-Retrieve-Gene-Length/paste-CBFC7C07.png">
 
@@ -233,23 +233,23 @@
 <p>4. 非重叠CDS序列长度之和</p>
 <p>本文介绍使用<code>gtf</code>文件在R中获取基因长度（<strong>非重叠外显子长度之和</strong>）的方法</p>
 <span id="more"></span>
-
-<h1 id="基因长度的定义"><a href="#基因长度的定义" class="headerlink" title="基因长度的定义"></a>基因长度的定义</h1><p><img src="/2022/02/07/R-Retrieve-Gene-Length/paste-CBFC7C07.png"></p>
+<h1>基因长度的定义</h1>
+<p><img src="paste-CBFC7C07.png" alt=""></p>
 <p><em>Figure Source</em>: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Gene_structure">Gene structure</a></p>
 <p>在真核生物，一个基因的DNA序列主要可以分为调控元件和编码序列，而编码序列又可以进一步分为外显子（Exon）和内含子（Intron）序列。经过剪接后，成熟的mRNA一般不包含内含子序列。所以，在统计基因长度时，也只考虑外显子的长度。由于可变剪接的存在，一个基因可能会有多个转录本，在进行基因水平的表达分析时，我们并不会区分各个转录本剪接变体的表达量，而是以基因为单位进行统计。因此，通过合并重叠外显子的区域来获得每个基因的非重叠外显子长度是一种基因长度估算的方法。</p>
-<p><img src="/2022/02/07/R-Retrieve-Gene-Length/paste-2878321A.png"><br><em>Figure Source</em>: <a target="_blank" rel="noopener" href="https://davetang.org/muse/2013/01/18/defining-genomic-regions/">Schematic of non-overlapping exons</a></p>
-<h1 id="R实现-–-从GTF文件中获取基因长度"><a href="#R实现-–-从GTF文件中获取基因长度" class="headerlink" title="R实现 – 从GTF文件中获取基因长度"></a>R实现 – 从GTF文件中获取基因长度</h1><ol>
-<li> 首先，读取计算基因counts时用的GTF文件，并将其转换为<code>TxDb</code>对象；</li>
-<li> 然后，提取每个基因的外显子注释信息；</li>
-<li> 最后，合并重叠的外显子，计算非重叠外显子的长度作为基因长度（bp）</li>
+<p><img src="paste-2878321A.png" alt=""><br>
+<em>Figure Source</em>: <a target="_blank" rel="noopener" href="https://davetang.org/muse/2013/01/18/defining-genomic-regions/">Schematic of non-overlapping exons</a></p>
+<h1>R实现 – 从GTF文件中获取基因长度</h1>
+<ol>
+<li>首先，读取计算基因counts时用的GTF文件，并将其转换为<code>TxDb</code>对象；</li>
+<li>然后，提取每个基因的外显子注释信息；</li>
+<li>最后，合并重叠的外显子，计算非重叠外显子的长度作为基因长度（bp）</li>
 </ol>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Non-Overlapping Exon Length ----</span></span><br><span class="line"><span class="comment"># https://www.biostars.org/p/83901/</span></span><br><span class="line"><span class="comment"># First, import the GTF-file that you have also used as input for counting program</span></span><br><span class="line">library(GenomicFeatures)</span><br><span class="line">txdb &lt;- makeTxDbFromGFF(<span class="string">&#x27;gencode.vM23.annotation.gtf&#x27;</span>, format=<span class="string">&#x27;gtf&#x27;</span>)</span><br><span class="line"><span class="comment"># then collect the exons per gene id</span></span><br><span class="line">exons.list.per.gene &lt;- exonsBy(txdb, by=<span class="string">&quot;gene&quot;</span>)</span><br><span class="line"><span class="comment"># then for each gene, reduce all the exons to a set of non overlapping exons, </span></span><br><span class="line"><span class="comment"># calculate their lengths (widths) and sum then</span></span><br><span class="line">exonic.gene.sizes &lt;- <span class="built_in">sum</span>(width(reduce(exons.list.per.gene)))</span><br><span class="line">head(exonic.gene.sizes)</span><br><span class="line"></span><br><span class="line"><span class="comment">##  ENSMUSG00000000001.4 ENSMUSG00000000003.15 ENSMUSG00000000028.15 </span></span><br><span class="line"><span class="comment">##                  3262                   902                  3506 </span></span><br><span class="line"><span class="comment">## ENSMUSG00000000031.16 ENSMUSG00000000037.17 ENSMUSG00000000049.11 </span></span><br><span class="line"><span class="comment">##                  2460                  6397                  1594</span></span><br></pre></td></tr></table></figure>
-
 <p>在使用<code>featureCounts</code>统计基因counts时，其输出的counts.txt文件中通常会包含一列长度信息<code>Length</code></p>
 <p>我们可以比较一下使用相同注释文件时，两个程序计算的基因长度是否一致。</p>
 <p>查看基因<code>ENSMUSG00000000001.4</code>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ awk <span class="string">&#x27;NR==2 || /ENSMUSG00000000001.4/&#x27;</span> counts.txt</span><br><span class="line"></span><br><span class="line">Geneid  Chr     Start   End     Strand  Length  a.bam</span><br><span class="line">ENSMUSG00000000001.4    chr3;chr3;chr3;chr3;chr3;chr3;chr3;chr3;chr3    108107280;108109403;108111935;108112473;108115763;108118301;108123542;108123795;108145888    108109316;108109612;108112088;108112602;108115891;108118458;108123683;108123837;108146146    -;-;-;-;-;-;-;-;-       3262    1112</span><br></pre></td></tr></table></figure>
-
 <p>可以发现<code>featureCoutns</code>输出的基因长度与我们计算的一致，这是由于<code>featureCounts</code>也是采用非重叠外显子作为基因长度。</p>
 <blockquote>
 <p><code>featureCounts</code> Documentation:</p>
@@ -258,7 +258,8 @@
 <p>以上就是在R中获取基因长度的方法。</p>
 <blockquote>
 <p>Ref:</p>
-<p><strong>Tutorial: Extract Total Non-Overlapping Exon Length Per Gene With Bioconductor</strong>:<br><a target="_blank" rel="noopener" href="https://www.biostars.org/p/83901/">https://www.biostars.org/p/83901/</a></p>
+<p><strong>Tutorial: Extract Total Non-Overlapping Exon Length Per Gene With Bioconductor</strong>:<br>
+<a target="_blank" rel="noopener" href="https://www.biostars.org/p/83901/">https://www.biostars.org/p/83901/</a></p>
 <p><strong>How featureCounts define the gene length</strong>: <a target="_blank" rel="noopener" href="https://support.bioconductor.org/p/88133/">https://support.bioconductor.org/p/88133/</a></p>
 <p><strong>基因长度之多少</strong>: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/yL6C66C-cMhu_RKiAobCXg">https://mp.weixin.qq.com/s/yL6C66C-cMhu_RKiAobCXg</a></p>
 </blockquote>
@@ -289,8 +290,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
               <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/Data-analysis/" rel="tag"># Data_analysis</a>
           </div>
 
         
@@ -365,7 +366,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E5%9B%A0%E9%95%BF%E5%BA%A6%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">基因长度的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R%E5%AE%9E%E7%8E%B0-%E2%80%93-%E4%BB%8EGTF%E6%96%87%E4%BB%B6%E4%B8%AD%E8%8E%B7%E5%8F%96%E5%9F%BA%E5%9B%A0%E9%95%BF%E5%BA%A6"><span class="nav-number">2.</span> <span class="nav-text">R实现 – 从GTF文件中获取基因长度</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">基因长度的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">R实现 – 从GTF文件中获取基因长度</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -381,7 +382,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
