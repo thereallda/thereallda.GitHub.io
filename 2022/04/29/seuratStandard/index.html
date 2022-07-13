@@ -19,12 +19,12 @@
     var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Seurat standard pipeline  创建Seurat对象 质控 Normalization 特征选择 数据缩放 线性降维 维数选择 细胞聚类 非线性降维（UMAP&#x2F;tSNE） 鉴定差异表达特征（cluster markers） 细胞注释">
+  <meta name="description" content="Seurat standard pipeline   创建Seurat对象   质控   Normalization   特征选择   数据缩放   线性降维   维数选择   细胞聚类   非线性降维（UMAP&#x2F;tSNE）   鉴定差异表达特征（cluster markers）   细胞注释">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R-Seurat数据分析流程">
 <meta property="og:url" content="https://thereallda.github.io/2022/04/29/seuratStandard/index.html">
 <meta property="og:site_name" content="Dean&#39;s blog">
-<meta property="og:description" content="Seurat standard pipeline  创建Seurat对象 质控 Normalization 特征选择 数据缩放 线性降维 维数选择 细胞聚类 非线性降维（UMAP&#x2F;tSNE） 鉴定差异表达特征（cluster markers） 细胞注释">
+<meta property="og:description" content="Seurat standard pipeline   创建Seurat对象   质控   Normalization   特征选择   数据缩放   线性降维   维数选择   细胞聚类   非线性降维（UMAP&#x2F;tSNE）   鉴定差异表达特征（cluster markers）   细胞注释">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://thereallda.github.io/2022/04/29/seuratStandard/unnamed-chunk-7-1.png">
 <meta property="og:image" content="https://thereallda.github.io/2022/04/29/seuratStandard/unnamed-chunk-11-1.png">
@@ -224,7 +224,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>13k</span>
+              <span>14k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -244,97 +244,98 @@
 
       
         <ul>
-<li><a href="#seurat-standard-pipeline">Seurat standard pipeline</a>
-<ul>
-<li><a href="#%E5%88%9B%E5%BB%BAseurat%E5%AF%B9%E8%B1%A1">创建Seurat对象</a></li>
-<li><a href="#%E8%B4%A8%E6%8E%A7">质控</a></li>
-<li><a href="#normalization">Normalization</a></li>
-<li><a href="#%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9">特征选择</a></li>
-<li><a href="#%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE">数据缩放</a></li>
-<li><a href="#%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4">线性降维</a></li>
-<li><a href="#%E7%BB%B4%E6%95%B0%E9%80%89%E6%8B%A9">维数选择</a></li>
-<li><a href="#%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB">细胞聚类</a></li>
-<li><a href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4umaptsne">非线性降维（UMAP/tSNE）</a></li>
-<li><a href="#%E9%89%B4%E5%AE%9A%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E7%89%B9%E5%BE%81cluster-markers">鉴定差异表达特征（cluster markers）</a></li>
-<li><a href="#%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A">细胞注释</a></li>
+<li><a href="#seurat-standard-pipeline">Seurat standard pipeline</a><ul>
+<li>  <a href="#%E5%88%9B%E5%BB%BAseurat%E5%AF%B9%E8%B1%A1">创建Seurat对象</a></li>
+<li>  <a href="#%E8%B4%A8%E6%8E%A7">质控</a></li>
+<li>  <a href="#normalization">Normalization</a></li>
+<li>  <a href="#%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9">特征选择</a></li>
+<li>  <a href="#%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE">数据缩放</a></li>
+<li>  <a href="#%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4">线性降维</a></li>
+<li>  <a href="#%E7%BB%B4%E6%95%B0%E9%80%89%E6%8B%A9">维数选择</a></li>
+<li>  <a href="#%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB">细胞聚类</a></li>
+<li>  <a href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4umaptsne">非线性降维（UMAP/tSNE）</a></li>
+<li>  <a href="#%E9%89%B4%E5%AE%9A%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E7%89%B9%E5%BE%81cluster-markers">鉴定差异表达特征（cluster markers）</a></li>
+<li>  <a href="#%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A">细胞注释</a></li>
 </ul>
 </li>
 </ul>
 <span id="more"></span>
-<h1>Seurat standard pipeline</h1>
-<p>记录一下Seurat标准的单细胞分析流程，这里使用官方提供的pbmc3k作为示例</p>
+
+<h1 id="Seurat-standard-pipeline"><a href="#Seurat-standard-pipeline" class="headerlink" title="Seurat standard pipeline"></a>Seurat standard pipeline</h1><p>记录一下Seurat标准的单细胞分析流程，这里使用官方提供的pbmc3k作为示例</p>
 <blockquote>
 <p>pbmc3k: <a target="_blank" rel="noopener" href="https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz">https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz</a></p>
 </blockquote>
 <p>Seurat单细胞分析流程主要就是以下十句代码</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">pbmc.counts &lt;- Read10X(data.dir = <span class="string">&quot;data/filtered_gene_bc_matrices/hg19/&quot;</span>)</span><br><span class="line">pbmc &lt;- CreateSeuratObject(counts = pbmc.counts)</span><br><span class="line">pbmc &lt;- NormalizeData(object = pbmc)</span><br><span class="line">pbmc &lt;- FindVariableFeatures(object = pbmc)</span><br><span class="line">pbmc &lt;- ScaleData(object = pbmc)</span><br><span class="line">pbmc &lt;- RunPCA(object = pbmc)</span><br><span class="line">pbmc &lt;- FindNeighbors(object = pbmc)</span><br><span class="line">pbmc &lt;- FindClusters(object = pbmc)</span><br><span class="line">pbmc &lt;- RunTSNE(object = pbmc)</span><br><span class="line">DimPlot(object = pbmc, reduction = <span class="string">&quot;tsne&quot;</span>)</span><br></pre></td></tr></table></figure>
+
 <p>以下详细展开某一步的功能</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library(dplyr)</span><br></pre></td></tr></table></figure>
-<pre><code>## 
-## Attaching package: 'dplyr'
 
-## The following objects are masked from 'package:stats':
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;
+
+## The following objects are masked from &#39;package:stats&#39;:
 ## 
 ##     filter, lag
 
-## The following objects are masked from 'package:base':
+## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     intersect, setdiff, setequal, union
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library(Seurat)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Attaching SeuratObject
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library(patchwork)</span><br></pre></td></tr></table></figure>
-<h2 id="创建Seurat对象">创建Seurat对象</h2>
-<p>Seurat接受counts文件作为输入（一般经过cellranger处理），创建包含细胞信息和counts信息的对象。</p>
+
+<h2 id="创建Seurat对象"><a href="#创建Seurat对象" class="headerlink" title="创建Seurat对象"></a>创建Seurat对象</h2><p>Seurat接受counts文件作为输入（一般经过cellranger处理），创建包含细胞信息和counts信息的对象。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Load the PBMC dataset</span></span><br><span class="line">pbmc.data &lt;- Read10X(data.dir = <span class="string">&quot;data/filtered_gene_bc_matrices/hg19/&quot;</span>)</span><br><span class="line"><span class="comment"># Initialize the Seurat object with the raw (non-normalized data).</span></span><br><span class="line">pbmc &lt;- CreateSeuratObject(counts = pbmc.data, project = <span class="string">&quot;pbmc3k&quot;</span>, min.cells = <span class="number">3</span>, min.features = <span class="number">200</span>)</span><br></pre></td></tr></table></figure>
-<pre><code>## Warning: Feature names cannot have underscores ('_'), replacing with dashes
-## ('-')
+
+<pre><code>## Warning: Feature names cannot have underscores (&#39;_&#39;), replacing with dashes
+## (&#39;-&#39;)
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc</span><br></pre></td></tr></table></figure>
+
 <pre><code>## An object of class Seurat 
 ## 13714 features across 2700 samples within 1 assay 
 ## Active assay: RNA (13714 features, 0 variable features)
 </code></pre>
 <p>Seurat对象中的counts以稀疏矩阵的方式存储以节省内存，<code>.</code> 表示没有检测到counts</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Lets examine a few genes in the first thirty cells</span></span><br><span class="line">pbmc.data[<span class="built_in">c</span>(<span class="string">&quot;CD3D&quot;</span>, <span class="string">&quot;TCL1A&quot;</span>, <span class="string">&quot;MS4A1&quot;</span>), <span class="number">1</span>:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
+
 <pre><code>## 3 x 10 sparse Matrix of class &quot;dgCMatrix&quot;
 
-##    [[ suppressing 10 column names 'AAACATACAACCAC-1', 'AAACATTGAGCTAC-1', 'AAACATTGATCAGC-1' ... ]]
+##    [[ suppressing 10 column names &#39;AAACATACAACCAC-1&#39;, &#39;AAACATTGAGCTAC-1&#39;, &#39;AAACATTGATCAGC-1&#39; ... ]]
 
 ##                           
 ## CD3D  4 . 10 . . 1 2 3 1 .
 ## TCL1A . .  . . . . . . 1 .
 ## MS4A1 . 6  . . . . . . 1 1
 </code></pre>
-<h2 id="质控">质控</h2>
-<p>一般而言，我们需要对数据进行质控以保证数据的质量，在进行后续的分析。常用的质控指标包括：</p>
+<h2 id="质控"><a href="#质控" class="headerlink" title="质控"></a>质控</h2><p>一般而言，我们需要对数据进行质控以保证数据的质量，在进行后续的分析。常用的质控指标包括：</p>
 <ul>
-<li>
-<p>每个细胞的唯一基因数目</p>
+<li><p>每个细胞的唯一基因数目</p>
 <ul>
-<li>
-<p>低质量或空液泡往往只能检测到少量基因</p>
+<li><p>  低质量或空液泡往往只能检测到少量基因</p>
 </li>
-<li>
-<p>双液泡（doublet）或多液泡（multiplets）会具有异常多的基因数目</p>
+<li><p>  双液泡（doublet）或多液泡（multiplets）会具有异常多的基因数目</p>
 </li>
 </ul>
 </li>
-<li>
-<p>每个细胞的总counts数（相当于每个细胞的测序深度）</p>
+<li><p>  每个细胞的总counts数（相当于每个细胞的测序深度）</p>
 </li>
-<li>
-<p>线粒体基因占比</p>
+<li><p>线粒体基因占比</p>
 <ul>
-<li>低质量或死细胞会具有异常高的线粒体基因表达</li>
+<li>  低质量或死细胞会具有异常高的线粒体基因表达</li>
 </ul>
 </li>
 </ul>
 <p>由于每个细胞的基因数和测序深度在cellranger分析的时候已经计算过了，这里我们只需要再计算线粒体基因表达的比例即可</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The [[ operator can add columns to object metadata. This is a great place to stash QC stats</span></span><br><span class="line">pbmc[[<span class="string">&quot;percent.mt&quot;</span>]] &lt;- PercentageFeatureSet(pbmc, pattern = <span class="string">&quot;^MT-&quot;</span>)</span><br></pre></td></tr></table></figure>
+
 <p>Seurat将细胞相关的元数据以列的形式存储在 <code>pbmc@meta.data</code></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Show QC metrics for the first 5 cells</span></span><br><span class="line">head(pbmc@meta.data, <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>##                  orig.ident nCount_RNA nFeature_RNA percent.mt
 ## AAACATACAACCAC-1     pbmc3k       2419          779  3.0177759
 ## AAACATTGAGCTAC-1     pbmc3k       4903         1352  3.7935958
@@ -343,35 +344,36 @@
 ## AAACCGTGTATGCG-1     pbmc3k        980          521  1.2244898
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Visualize QC metrics as a violin plot</span></span><br><span class="line">VlnPlot(pbmc, features = <span class="built_in">c</span>(<span class="string">&quot;nFeature_RNA&quot;</span>, <span class="string">&quot;nCount_RNA&quot;</span>, <span class="string">&quot;percent.mt&quot;</span>), ncol = <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-7-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-7-1.png"></p>
 <p>随后，我们过滤掉基因数（<code>nFeature_RNA</code>）大于2500或小于200的细胞，以及线粒体基因组比例大于5%的细胞</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- subset(pbmc, subset = nFeature_RNA &gt; <span class="number">200</span> &amp; nFeature_RNA &lt; <span class="number">2500</span> &amp; percent.mt &lt; <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
 <p>需要注意的是这里的过滤标准在适合在这个数据集中使用，未必适用于其他的数据集。更好的质控方法是根据质控指标的分位数进行过滤，例如过滤掉 <code>nFeature_RNA</code> 上四分位数和下四分位数的细胞。</p>
 <p>另外，这里只使用了三种指标对细胞进行质控，在实际分析中我们还可以使用其他工具进行更精密的质控，例如：</p>
 <ul>
-<li><strong>SoupX</strong> removes ambient RNA contamination from droplet-based single-cell RNA sequencing data (<a target="_blank" rel="noopener" href="https://github.com/constantAmateur/SoupX">https://github.com/constantAmateur/SoupX</a>)</li>
-<li><strong>DoubletFinder</strong>: Doublet Detection in Single-Cell RNA Sequencing Data Using Artificial Nearest Neighbors (<a target="_blank" rel="noopener" href="https://github.com/chris-mcginnis-ucsf/DoubletFinder">https://github.com/chris-mcginnis-ucsf/DoubletFinder</a>)</li>
-<li><strong>DropletQC</strong>: improved identification of empty droplets and damaged cells in single-cell RNA-seq data (<a target="_blank" rel="noopener" href="https://github.com/powellgenomicslab/DropletQC">https://github.com/powellgenomicslab/DropletQC</a>)</li>
+<li>  <strong>SoupX</strong> removes ambient RNA contamination from droplet-based single-cell RNA sequencing data (<a target="_blank" rel="noopener" href="https://github.com/constantAmateur/SoupX">https://github.com/constantAmateur/SoupX</a>)</li>
+<li>  <strong>DoubletFinder</strong>: Doublet Detection in Single-Cell RNA Sequencing Data Using Artificial Nearest Neighbors (<a target="_blank" rel="noopener" href="https://github.com/chris-mcginnis-ucsf/DoubletFinder">https://github.com/chris-mcginnis-ucsf/DoubletFinder</a>)</li>
+<li>  <strong>DropletQC</strong>: improved identification of empty droplets and damaged cells in single-cell RNA-seq data (<a target="_blank" rel="noopener" href="https://github.com/powellgenomicslab/DropletQC">https://github.com/powellgenomicslab/DropletQC</a>)</li>
 </ul>
-<h2 id="Normalization">Normalization</h2>
-<p>在质控后，我们进行counts的normalization，默认使用 “LogNormalize” 的方法，即将每个基因的counts除以细胞总的counts数，乘上10,000，再进行对数转换。</p>
+<h2 id="Normalization"><a href="#Normalization" class="headerlink" title="Normalization"></a>Normalization</h2><p>在质控后，我们进行counts的normalization，默认使用 “LogNormalize” 的方法，即将每个基因的counts除以细胞总的counts数，乘上10,000，再进行对数转换。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- NormalizeData(pbmc)</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>Seurat提供了另外的normalization方法，通过 <code>normalization.method</code> 指定， 包括：</p>
 <ul>
-<li>
-<p>“CLR”: centered log ratio transformation</p>
+<li><p>  “CLR”: centered log ratio transformation</p>
 </li>
-<li>
-<p>“RC”: equals to “LogNormalize” without log-transformation</p>
+<li><p>  “RC”: equals to “LogNormalize” without log-transformation</p>
 </li>
 </ul>
 </blockquote>
 <p>校正后的数据在 <code>pbmc[[&quot;RNA&quot;]]@data</code></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc[[<span class="string">&quot;RNA&quot;</span>]]@data[<span class="built_in">c</span>(<span class="string">&quot;CD3D&quot;</span>, <span class="string">&quot;TCL1A&quot;</span>, <span class="string">&quot;MS4A1&quot;</span>), <span class="number">1</span>:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
+
 <pre><code>## 3 x 10 sparse Matrix of class &quot;dgCMatrix&quot;
 
-##    [[ suppressing 10 column names 'AAACATACAACCAC-1', 'AAACATTGAGCTAC-1', 'AAACATTGATCAGC-1' ... ]]
+##    [[ suppressing 10 column names &#39;AAACATACAACCAC-1&#39;, &#39;AAACATTGAGCTAC-1&#39;, &#39;AAACATTGATCAGC-1&#39; ... ]]
 
 ##                                                                         
 ## CD3D  2.864242 .        3.489706 . . 1.726902 2.321937 2.658463 2.179642
@@ -382,21 +384,23 @@
 ## TCL1A .       
 ## MS4A1 2.309182
 </code></pre>
-<h2 id="特征选择">特征选择</h2>
-<p>Seurat选择在细胞细胞之间具有高度变异性的基因（例如某些细胞高表达，而其他细胞不表达）进行后续分析，这是由于这些基因可以代表了细胞与细胞间的主要生物学差异</p>
+<h2 id="特征选择"><a href="#特征选择" class="headerlink" title="特征选择"></a>特征选择</h2><p>Seurat选择在细胞细胞之间具有高度变异性的基因（例如某些细胞高表达，而其他细胞不表达）进行后续分析，这是由于这些基因可以代表了细胞与细胞间的主要生物学差异</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- FindVariableFeatures(pbmc, selection.method = <span class="string">&quot;vst&quot;</span>, nfeatures = <span class="number">2000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Identify the 10 most highly variable genes</span></span><br><span class="line">top10 &lt;- head(VariableFeatures(pbmc), <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># plot variable features with and without labels</span></span><br><span class="line">plot1 &lt;- VariableFeaturePlot(pbmc)</span><br><span class="line">plot2 &lt;- LabelPoints(plot = plot1, points = top10, repel = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## When using repel, set xnudge and ynudge to 0 for optimal results
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plot1 + plot2</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-11-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-11-1.png"></p>
 <p>默认选择前2000个高度变异基因。</p>
-<h2 id="数据缩放">数据缩放</h2>
-<p>Normalization后，需要对数据进行缩放（Scaling）。 Scaling后，数据的均值为0，方差为1</p>
+<h2 id="数据缩放"><a href="#数据缩放" class="headerlink" title="数据缩放"></a>数据缩放</h2><p>Normalization后，需要对数据进行缩放（Scaling）。 Scaling后，数据的均值为0，方差为1</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">all.genes &lt;- rownames(pbmc)</span><br><span class="line">pbmc &lt;- ScaleData(pbmc, features = all.genes)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Centering and scaling data matrix
 </code></pre>
 <p>scaled data存放在 <code>pbmc[[&quot;RNA&quot;]]@scale.data</code></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc[[<span class="string">&quot;RNA&quot;</span>]]@scale.data[<span class="built_in">c</span>(<span class="string">&quot;CD3D&quot;</span>, <span class="string">&quot;TCL1A&quot;</span>, <span class="string">&quot;MS4A1&quot;</span>), <span class="number">1</span>:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
+
 <pre><code>##       AAACATACAACCAC-1 AAACATTGAGCTAC-1 AAACATTGATCAGC-1 AAACCGTGCTTCCG-1
 ## CD3D         1.2509633       -0.9797929        1.7380926       -0.9797929
 ## TCL1A       -0.3187677       -0.3187677       -0.3187677       -0.3187677
@@ -410,9 +414,9 @@
 ## TCL1A        2.3330706       -0.3187677
 ## MS4A1        2.1268583        2.2776908
 </code></pre>
-<h2 id="线性降维">线性降维</h2>
-<p>Seurat 使用PCA进行降维，这里只对 <code>FindVariableFeatures</code> 挑选出的高变基因进行PCA分析</p>
+<h2 id="线性降维"><a href="#线性降维" class="headerlink" title="线性降维"></a>线性降维</h2><p>Seurat 使用PCA进行降维，这里只对 <code>FindVariableFeatures</code> 挑选出的高变基因进行PCA分析</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- RunPCA(pbmc, features = VariableFeatures(object = pbmc))</span><br></pre></td></tr></table></figure>
+
 <pre><code>## PC_ 1 
 ## Positive:  CST3, TYROBP, LST1, AIF1, FTL, FTH1, LYZ, FCN1, S100A9, TYMP 
 ##     FCER1G, CFD, LGALS1, S100A8, CTSS, LGALS2, SERPINA1, IFITM3, SPI1, CFP 
@@ -450,32 +454,37 @@
 ##     FAM110A, ATP1A1, TRADD, PPA1, CCDC109B, ABRACL, CTD-2006K23.1, WARS, VMO1, FYB
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DimPlot(pbmc, reduction = <span class="string">&quot;pca&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-15-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-15-1.png"></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DimHeatmap(pbmc, dims = <span class="number">1</span>:<span class="number">5</span>, cells = <span class="number">500</span>, balanced = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-16-1.png" alt=""></p>
-<h2 id="维数选择">维数选择</h2>
-<p>Seurat在主成分PC上进行聚类。然而直接对所有PC聚类是不现实的，我们需要选择足够的PC以代表数据的主要变异度，同时控制计算资源的开销。</p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-16-1.png"></p>
+<h2 id="维数选择"><a href="#维数选择" class="headerlink" title="维数选择"></a>维数选择</h2><p>Seurat在主成分PC上进行聚类。然而直接对所有PC聚类是不现实的，我们需要选择足够的PC以代表数据的主要变异度，同时控制计算资源的开销。</p>
 <p>因此，Seurat结合JackStraw程序和置换检验对PC进行显著性分析，鉴定出显著的PC以进行后续分析。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># <span class="doctag">NOTE:</span> This process can take a long time for big datasets, comment out for expediency. More</span></span><br><span class="line"><span class="comment"># approximate techniques such as those implemented in ElbowPlot() can be used to reduce</span></span><br><span class="line"><span class="comment"># computation time</span></span><br><span class="line">pbmc &lt;- JackStraw(pbmc, num.replicate = <span class="number">100</span>)</span><br><span class="line">pbmc &lt;- ScoreJackStraw(pbmc, dims = <span class="number">1</span>:<span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+
 <p>PC11之后，PC的p-value就发生了迅速的上升，而变得不显著。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JackStrawPlot(pbmc, dims = <span class="number">1</span>:<span class="number">15</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Warning: Removed 23496 rows containing missing values (geom_point).
 </code></pre>
-<p><img src="unnamed-chunk-18-1.png" alt=""></p>
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-18-1.png"></p>
 <p>我们还可以结合elbow plot进行判断，选择拐点和曲线平滑的PC</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ElbowPlot(pbmc)</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-19-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-19-1.png"></p>
 <p>综上，我们选取前10个维度进行后续分析</p>
-<h2 id="细胞聚类">细胞聚类</h2>
-<p>Seurat使用基于图的聚类算法对细胞进行聚类</p>
+<h2 id="细胞聚类"><a href="#细胞聚类" class="headerlink" title="细胞聚类"></a>细胞聚类</h2><p>Seurat使用基于图的聚类算法对细胞进行聚类</p>
 <p><code>FindNeighbors</code> 中的 <code>dims</code> 参数指定聚类使用的维度</p>
 <p><code>FindClusters</code> 中的 <code>resolution</code> 参数指定类别的精度，越大则分出越多的类；越小则类别越少</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- FindNeighbors(pbmc, dims = <span class="number">1</span>:<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Computing nearest neighbor graph
 
 ## Computing SNN
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- FindClusters(pbmc, resolution = <span class="number">0.5</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
 ## 
 ## Number of nodes: 2638
@@ -487,15 +496,16 @@
 ## Elapsed time: 0 seconds
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">table(Idents(pbmc))</span><br></pre></td></tr></table></figure>
+
 <pre><code>## 
 ##   0   1   2   3   4   5   6   7   8 
 ## 711 480 472 344 279 162 144  32  14
 </code></pre>
-<h2 id="非线性降维（UMAP-tSNE）">非线性降维（UMAP/tSNE）</h2>
-<p>非线性降维捕捉数据内部的流式（manifold）以将细胞投射到低维空间中。</p>
+<h2 id="非线性降维（UMAP-tSNE）"><a href="#非线性降维（UMAP-tSNE）" class="headerlink" title="非线性降维（UMAP/tSNE）"></a>非线性降维（UMAP/tSNE）</h2><p>非线性降维捕捉数据内部的流式（manifold）以将细胞投射到低维空间中。</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># If you haven&#x27;t installed UMAP, you can do so via reticulate::py_install(packages =</span></span><br><span class="line"><span class="comment"># &#x27;umap-learn&#x27;)</span></span><br><span class="line">pbmc &lt;- RunUMAP(pbmc, dims = <span class="number">1</span>:<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
-## To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
+## To use Python UMAP via reticulate, set umap.method to &#39;umap-learn&#39; and metric to &#39;correlation&#39;
 ## This message will be shown once per session
 
 ## 22:52:48 UMAP embedding parameters a = 0.9922 b = 1.112
@@ -520,18 +530,22 @@
 ## 22:52:57 Optimization finished
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- RunTSNE(pbmc, dims = <span class="number">1</span>:<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># note that you can set `label = TRUE` or use the LabelClusters function to help label</span></span><br><span class="line"><span class="comment"># individual clusters</span></span><br><span class="line">DimPlot(pbmc, reduction = <span class="string">&quot;umap&quot;</span>, label = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-23-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-23-1.png"></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DimPlot(pbmc, reduction = <span class="string">&quot;tsne&quot;</span>, label = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-24-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-24-1.png"></p>
 <p>UMAP和tSNE的降维效果不同，需要根据实际情况选择。</p>
 <p>在这里可以保存中间数据，作为一个checkpoint</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">saveRDS(pbmc, file = <span class="string">&quot;data/pbmc_tutorial.rds&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h2 id="鉴定差异表达特征（cluster-markers）">鉴定差异表达特征（cluster markers）</h2>
-<p>Seurat支持对cluster之间进行差异表达分析，主要有 <code>FindMarkers</code> 和 <code>FindAllMarkers</code> 两种方法。</p>
+
+<h2 id="鉴定差异表达特征（cluster-markers）"><a href="#鉴定差异表达特征（cluster-markers）" class="headerlink" title="鉴定差异表达特征（cluster markers）"></a>鉴定差异表达特征（cluster markers）</h2><p>Seurat支持对cluster之间进行差异表达分析，主要有 <code>FindMarkers</code> 和 <code>FindAllMarkers</code> 两种方法。</p>
 <p>这里鉴定cluster 5和cluster 0， 3之间的差异基因。如果不指定 <code>ident.2</code> 则鉴定cluster 5 与其余clusters的差异基因。</p>
 <p><code>min.pct</code> 指定差异基因需要在cluster中的表达占比</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># find all markers distinguishing cluster 5 from clusters 0 and 3</span></span><br><span class="line">cluster5.markers &lt;- FindMarkers(pbmc, ident.1 = <span class="number">5</span>, ident.2 = <span class="built_in">c</span>(<span class="number">0</span>, <span class="number">3</span>), min.pct = <span class="number">0.25</span>)</span><br><span class="line">head(cluster5.markers, n = <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>##                       p_val avg_log2FC pct.1 pct.2     p_val_adj
 ## FCGR3A        2.150929e-209   4.267579 0.975 0.039 2.949784e-205
 ## IFITM3        6.103366e-199   3.877105 0.975 0.048 8.370156e-195
@@ -541,6 +555,7 @@
 </code></pre>
 <p><code>FindAllMarkers</code> 可以一次寻找所有clusters的markers，但只返回上调的markers</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># find markers for every cluster compared to all remaining cells, report only the positive</span></span><br><span class="line"><span class="comment"># ones</span></span><br><span class="line">pbmc.markers &lt;- FindAllMarkers(pbmc, only.pos = <span class="literal">TRUE</span>, min.pct = <span class="number">0.25</span>, logfc.threshold = <span class="number">0.25</span>)</span><br></pre></td></tr></table></figure>
+
 <pre><code>## Calculating cluster 0
 
 ## Calculating cluster 1
@@ -560,7 +575,8 @@
 ## Calculating cluster 8
 </code></pre>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pbmc.markers %&gt;%</span><br><span class="line">    group_by(cluster) %&gt;%</span><br><span class="line">    slice_max(n = <span class="number">2</span>, order_by = avg_log2FC)</span><br></pre></td></tr></table></figure>
-<pre><code>## Registered S3 method overwritten by 'cli':
+
+<pre><code>## Registered S3 method overwritten by &#39;cli&#39;:
 ##   method     from         
 ##   print.boxx spatstat.geom
 
@@ -587,40 +603,35 @@
 ## 17 3.68e-110       8.58 1     0.024 5.05e-106 8       PPBP    
 ## 18 7.73e-200       7.24 1     0.01  1.06e-195 8       PF4
 </code></pre>
-<h3 id="Visualization">Visualization</h3>
-<p>Seurat提供多种基因表达量可视化方法</p>
+<h3 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h3><p>Seurat提供多种基因表达量可视化方法</p>
 <ul>
-<li>小提琴图</li>
+<li>  小提琴图</li>
 </ul>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VlnPlot(pbmc, features = <span class="built_in">c</span>(<span class="string">&quot;MS4A1&quot;</span>, <span class="string">&quot;CD79A&quot;</span>))</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-28-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-28-1.png"></p>
 <ul>
-<li>细胞降维图</li>
+<li>  细胞降维图</li>
 </ul>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FeaturePlot(pbmc, features = <span class="built_in">c</span>(<span class="string">&quot;MS4A1&quot;</span>, <span class="string">&quot;GNLY&quot;</span>, <span class="string">&quot;CD3E&quot;</span>, <span class="string">&quot;CD14&quot;</span>, <span class="string">&quot;FCER1A&quot;</span>, <span class="string">&quot;FCGR3A&quot;</span>, <span class="string">&quot;LYZ&quot;</span>, <span class="string">&quot;PPBP&quot;</span>,</span><br><span class="line">    <span class="string">&quot;CD8A&quot;</span>))</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-29-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-29-1.png"></p>
 <ul>
-<li>热图</li>
+<li>  热图</li>
 </ul>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pbmc.markers %&gt;%</span><br><span class="line">    group_by(cluster) %&gt;%</span><br><span class="line">    top_n(n = <span class="number">10</span>, wt = avg_log2FC) -&gt; top10</span><br><span class="line">DoHeatmap(pbmc, features = top10$gene) + NoLegend()</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-30-1.png" alt=""></p>
-<h2 id="细胞注释">细胞注释</h2>
-<p>我们可以根据细胞marker基因的表达对细胞进行注释。虽然目前有一些自动注释的工具，但总的来说大家还是根据细胞的经典markers对细胞进行注释。</p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-30-1.png"></p>
+<h2 id="细胞注释"><a href="#细胞注释" class="headerlink" title="细胞注释"></a>细胞注释</h2><p>我们可以根据细胞marker基因的表达对细胞进行注释。虽然目前有一些自动注释的工具，但总的来说大家还是根据细胞的经典markers对细胞进行注释。</p>
 <p>这里，我们根据教程中提供的cluster markers和细胞类型进行注释</p>
-<p>Cluster ID   Markers         Cell Type</p>
+<p>  Cluster ID   Markers         Cell Type</p>
 <hr>
-<p>0            IL7R, CCR7      Naive CD4+ T<br>
-1            CD14, LYZ       CD14+ Mono<br>
-2            IL7R, S100A4    Memory CD4+<br>
-3            MS4A1           B<br>
-4            CD8A            CD8+ T<br>
-5            FCGR3A, MS4A7   FCGR3A+ Mono<br>
-6            GNLY, NKG7      NK<br>
-7            FCER1A, CST3    DC<br>
-8            PPBP            Platelet</p>
+<p>  0            IL7R, CCR7      Naive CD4+ T<br>  1            CD14, LYZ       CD14+ Mono<br>  2            IL7R, S100A4    Memory CD4+<br>  3            MS4A1           B<br>  4            CD8A            CD8+ T<br>  5            FCGR3A, MS4A7   FCGR3A+ Mono<br>  6            GNLY, NKG7      NK<br>  7            FCER1A, CST3    DC<br>  8            PPBP            Platelet</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">new.cluster.ids &lt;- <span class="built_in">c</span>(<span class="string">&quot;Naive CD4 T&quot;</span>, <span class="string">&quot;CD14+ Mono&quot;</span>, <span class="string">&quot;Memory CD4 T&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;CD8 T&quot;</span>, <span class="string">&quot;FCGR3A+ Mono&quot;</span>,</span><br><span class="line">    <span class="string">&quot;NK&quot;</span>, <span class="string">&quot;DC&quot;</span>, <span class="string">&quot;Platelet&quot;</span>)</span><br><span class="line"><span class="built_in">names</span>(new.cluster.ids) &lt;- levels(pbmc)</span><br><span class="line">pbmc &lt;- RenameIdents(pbmc, new.cluster.ids)</span><br><span class="line">DimPlot(pbmc, reduction = <span class="string">&quot;umap&quot;</span>, label = <span class="literal">TRUE</span>, pt.size = <span class="number">0.5</span>) + NoLegend()</span><br></pre></td></tr></table></figure>
-<p><img src="unnamed-chunk-31-1.png" alt=""></p>
+
+<p><img src="/2022/04/29/seuratStandard/unnamed-chunk-31-1.png"></p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">saveRDS(pbmc, file = <span class="string">&quot;data/pbmc3k_final.rds&quot;</span>)</span><br></pre></td></tr></table></figure>
+
 <p>至此，Seurat分析的常规流程就结束了。</p>
 <blockquote>
 <p>Ref:</p>
@@ -729,7 +740,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Seurat standard pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BASeurat%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.1.</span> <span class="nav-text">创建Seurat对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%A8%E6%8E%A7"><span class="nav-number">1.2.</span> <span class="nav-text">质控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normalization"><span class="nav-number">1.3.</span> <span class="nav-text">Normalization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9"><span class="nav-number">1.4.</span> <span class="nav-text">特征选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE"><span class="nav-number">1.5.</span> <span class="nav-text">数据缩放</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4"><span class="nav-number">1.6.</span> <span class="nav-text">线性降维</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%B4%E6%95%B0%E9%80%89%E6%8B%A9"><span class="nav-number">1.7.</span> <span class="nav-text">维数选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB"><span class="nav-number">1.8.</span> <span class="nav-text">细胞聚类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4%EF%BC%88UMAP-tSNE%EF%BC%89"><span class="nav-number">1.9.</span> <span class="nav-text">非线性降维（UMAP&#x2F;tSNE）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%89%B4%E5%AE%9A%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E7%89%B9%E5%BE%81%EF%BC%88cluster-markers%EF%BC%89"><span class="nav-number">1.10.</span> <span class="nav-text">鉴定差异表达特征（cluster markers）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization"><span class="nav-number">1.10.1.</span> <span class="nav-text">Visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A"><span class="nav-number">1.11.</span> <span class="nav-text">细胞注释</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Seurat-standard-pipeline"><span class="nav-number">1.</span> <span class="nav-text">Seurat standard pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BASeurat%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.1.</span> <span class="nav-text">创建Seurat对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%A8%E6%8E%A7"><span class="nav-number">1.2.</span> <span class="nav-text">质控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normalization"><span class="nav-number">1.3.</span> <span class="nav-text">Normalization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9"><span class="nav-number">1.4.</span> <span class="nav-text">特征选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE"><span class="nav-number">1.5.</span> <span class="nav-text">数据缩放</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4"><span class="nav-number">1.6.</span> <span class="nav-text">线性降维</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%B4%E6%95%B0%E9%80%89%E6%8B%A9"><span class="nav-number">1.7.</span> <span class="nav-text">维数选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB"><span class="nav-number">1.8.</span> <span class="nav-text">细胞聚类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E9%99%8D%E7%BB%B4%EF%BC%88UMAP-tSNE%EF%BC%89"><span class="nav-number">1.9.</span> <span class="nav-text">非线性降维（UMAP&#x2F;tSNE）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%89%B4%E5%AE%9A%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E7%89%B9%E5%BE%81%EF%BC%88cluster-markers%EF%BC%89"><span class="nav-number">1.10.</span> <span class="nav-text">鉴定差异表达特征（cluster markers）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization"><span class="nav-number">1.10.1.</span> <span class="nav-text">Visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A"><span class="nav-number">1.11.</span> <span class="nav-text">细胞注释</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
