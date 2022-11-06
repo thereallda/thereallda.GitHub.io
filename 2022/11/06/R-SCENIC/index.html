@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="SCENIC_Tutorial   Setup   Load Packages   Input   Initialize SCENIC settings   Co-expression network   Build and score the GRN   Optional steps   Exploring&#x2F;interpreting the results    SCENIC_Tutorial">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R-SCENIC">
+<meta property="og:url" content="https://thereallda.github.io/2022/11/06/R-SCENIC/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="SCENIC_Tutorial   Setup   Load Packages   Input   Initialize SCENIC settings   Co-expression network   Build and score the GRN   Optional steps   Exploring&#x2F;interpreting the results    SCENIC_Tutorial">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111655645.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111730508.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111821002.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111844875.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111853549.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111901760.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111909826.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111917525.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111929359.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111937144.png">
+<meta property="og:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111946554.png">
+<meta property="article:published_time" content="2022-11-06T03:14:59.000Z">
+<meta property="article:modified_time" content="2022-11-06T03:20:11.262Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="single-cell">
+<meta property="article:tag" content="data_analysis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2022/11/06/R-SCENIC/image-20221106111655645.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2022/11/06/R-SCENIC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>R-SCENIC | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2022/11/06/R-SCENIC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          R-SCENIC
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-11-06 11:14:59 / Modified: 11:20:11" itemprop="dateCreated datePublished" datetime="2022-11-06T11:14:59+08:00">2022-11-06</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>17 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#scenic_tutorial">SCENIC_Tutorial</a><ul>
+<li>  <a href="#setup">Setup</a></li>
+<li>  <a href="#load-packages">Load Packages</a></li>
+<li>  <a href="#input">Input</a></li>
+<li>  <a href="#initialize-scenic-settings">Initialize SCENIC settings</a></li>
+<li>  <a href="#co-expression-network">Co-expression network</a></li>
+<li>  <a href="#build-and-score-the-grn">Build and score the GRN</a></li>
+<li>  <a href="#optional-steps">Optional steps</a></li>
+<li>  <a href="#exploringinterpreting-the-results">Exploring/interpreting the results</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="SCENIC-Tutorial"><a href="#SCENIC-Tutorial" class="headerlink" title="SCENIC_Tutorial"></a>SCENIC_Tutorial</h1><p><a target="_blank" rel="noopener" href="http://htmlpreview.github.io/?https://github.com/aertslab/SCENIC/blob/master/inst/doc/SCENIC_Running.html">http://htmlpreview.github.io/?https://github.com/aertslab/SCENIC/blob/master/inst/doc/SCENIC_Running.html</a></p>
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111655645.png" alt="image-20221106111655645"></p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># http://htmlpreview.github.io/?https://github.com/aertslab/SCENIC/blob/master/inst/doc/SCENIC_Setup.html</span></span><br><span class="line"><span class="comment">## Required</span></span><br><span class="line">BiocManager::install(<span class="built_in">c</span>(<span class="string">&quot;RcisTarget&quot;</span>))</span><br><span class="line">BiocManager::install(<span class="built_in">c</span>(<span class="string">&quot;GENIE3&quot;</span>)) <span class="comment"># Optional. Can be replaced by GRNBoost</span></span><br><span class="line"><span class="comment">## Optional (but highly recommended):</span></span><br><span class="line"><span class="comment"># To score the network on cells (i.e. run AUCell):</span></span><br><span class="line">BiocManager::install(<span class="built_in">c</span>(<span class="string">&quot;zoo&quot;</span>, <span class="string">&quot;mixtools&quot;</span>, <span class="string">&quot;rbokeh&quot;</span>), update=<span class="built_in">F</span>)</span><br><span class="line"><span class="comment"># For various visualizations and perform t-SNEs:</span></span><br><span class="line">BiocManager::install(<span class="built_in">c</span>(<span class="string">&quot;DT&quot;</span>, <span class="string">&quot;NMF&quot;</span>, <span class="string">&quot;ComplexHeatmap&quot;</span>, <span class="string">&quot;R2HTML&quot;</span>, <span class="string">&quot;Rtsne&quot;</span>), update=<span class="built_in">F</span>)</span><br><span class="line">BiocManager::install(<span class="string">&quot;doRNG&quot;</span>)</span><br><span class="line">devtools::install_github(<span class="string">&quot;aertslab/SCENIC&quot;</span>) </span><br><span class="line">devtools::install_github(<span class="string">&quot;aertslab/SCopeLoomR&quot;</span>)</span><br><span class="line">devtools::install_github(<span class="string">&quot;aertslab/AUCell&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#if (!dir.exists(&quot;SCENIC_MouseBrain/&quot;)) dir.create(&quot;SCENIC_MouseBrain/&quot;)</span></span><br><span class="line"><span class="keyword">if</span> (!dir.exists(<span class="string">&quot;int/&quot;</span>)) dir.create(<span class="string">&quot;int/&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> (!dir.exists(<span class="string">&quot;cisTarget_databases/&quot;</span>)) dir.create(<span class="string">&quot;cisTarget_databases/&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>下载相应转录因子数据库，本文用的数据来自小鼠，所以下载小鼠的数据库</p>
+<p>由于直接从R这里下载的话会下载不完整，所以这里使用 <code>zsync_curl</code> 下载数据库。</p>
+<blockquote>
+<p>ubuntu下zsync_curl安装可以参考: <a target="_blank" rel="noopener" href="https://github.com/AppImage/zsync-curl">https://github.com/AppImage/zsync-curl</a><br>相应数据库的下载方式：<a target="_blank" rel="noopener" href="https://resources.aertslab.org/cistarget/help.html">https://resources.aertslab.org/cistarget/help.html</a></p>
+</blockquote>
+<p><em>以下为shell命令行</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/bash</span></span><br><span class="line"><span class="comment"># Specify database name:</span></span><br><span class="line"><span class="comment"># for human </span></span><br><span class="line">feather_database_url_hg=(<span class="string">&quot;https://resources.aertslab.org/cistarget/databases/homo_sapiens/hg19/refseq_r45/mc9nr/gene_based/hg19-500bp-upstream-7species.mc9nr.feather&quot;</span> </span><br><span class="line"><span class="string">&quot;https://resources.aertslab.org/cistarget/databases/homo_sapiens/hg19/refseq_r45/mc9nr/gene_based/hg19-tss-centered-10kb-7species.mc9nr.feather&quot;</span>)</span><br><span class="line"><span class="comment"># for mouse</span></span><br><span class="line">feather_database_url_mm=(<span class="string">&#x27;https://resources.aertslab.org/cistarget/databases/mus_musculus/mm9/refseq_r45/mc9nr/gene_based/mm9-500bp-upstream-7species.mc9nr.feather&#x27;</span> <span class="string">&#x27;https://resources.aertslab.org/cistarget/databases/mus_musculus/mm9/refseq_r45/mc9nr/gene_based/mm9-tss-centered-10kb-7species.mc9nr.feather&#x27;</span>)</span><br><span class="line"><span class="comment"># for fly</span></span><br><span class="line">feather_database_url_dm=<span class="string">&#x27;https://resources.aertslab.org/cistarget/databases/drosophila_melanogaster/dm6/flybase_r6.02/mc8nr/gene_based/dm6-5kb-upstream-full-tx-11species.mc8nr.feather&#x27;</span></span><br><span class="line"><span class="comment"># download</span></span><br><span class="line"><span class="keyword">for</span> url <span class="keyword">in</span> <span class="variable">$&#123;feather_database_url_mm[*]&#125;</span>; <span class="keyword">do</span></span><br><span class="line">    feather_database=<span class="string">&quot;<span class="variable">$&#123;url##*/&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$feather_database</span>&quot;</span></span><br><span class="line">    zsync_curl <span class="string">&quot;<span class="variable">$&#123;url&#125;</span>.zsync&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>下载后，将数据库置于当前工作目录的 <code>cisTarget_databases/</code></p>
+<p>其他的db和相关注释文件可从该网址下载<a target="_blank" rel="noopener" href="https://resources.aertslab.org/cistarget/">https://resources.aertslab.org/cistarget/</a></p>
+<h2 id="Load-Packages"><a href="#Load-Packages" class="headerlink" title="Load Packages"></a>Load Packages</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">library(SCopeLoomR)</span><br><span class="line">library(SCENIC)</span><br><span class="line">library(tidyverse)</span><br><span class="line">library(AUCell)</span><br><span class="line">library(foreach)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Input"><a href="#Input" class="headerlink" title="Input"></a>Input</h2><h3 id="Expression-matrix"><a href="#Expression-matrix" class="headerlink" title="Expression matrix"></a>Expression matrix</h3><p>这里使用官方提供的小鼠大脑的单细胞表达矩阵（862 genes * 200 cells）进行演示.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">loomPath &lt;- system.file(package=<span class="string">&quot;SCENIC&quot;</span>, <span class="string">&quot;examples/mouseBrain_toy.loom&quot;</span>)</span><br><span class="line">loom &lt;- open_loom(loomPath)</span><br><span class="line">exprMat &lt;- get_dgem(loom)</span><br><span class="line">cellInfo &lt;- get_cell_annotation(loom)</span><br><span class="line">close_loom(loom)</span><br><span class="line"></span><br><span class="line"><span class="built_in">dim</span>(exprMat)</span><br></pre></td></tr></table></figure>
+
+<pre><code>## [1] 862 200
+</code></pre>
+<h3 id="Cell-info-phenodata"><a href="#Cell-info-phenodata" class="headerlink" title="Cell info/phenodata"></a>Cell info/phenodata</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">head(cellInfo)</span><br></pre></td></tr></table></figure>
+
+<pre><code>##                        CellType nGene nUMI
+## 1772066100_D04     interneurons   170  509
+## 1772063062_G01 oligodendrocytes   152  443
+## 1772060224_F07        microglia   218  737
+## 1772071035_G09    pyramidal CA1   265 1068
+## 1772067066_E12 oligodendrocytes    81  273
+## 1772066100_B01    pyramidal CA1   108  191
+</code></pre>
+<p>Numbers of different celltypes</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">table(cellInfo$CellType)</span><br></pre></td></tr></table></figure>
+
+<pre><code>## 
+## astrocytes_ependymal         interneurons            microglia 
+##                   29                   43                   14 
+##     oligodendrocytes        pyramidal CA1 
+##                   55                   59
+</code></pre>
+<p>save cell information</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">saveRDS(cellInfo, file=<span class="string">&quot;int/cellInfo.Rds&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>设置每个celltype的颜色</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Color to assign to the variables (same format as for NMF::aheatmap)</span></span><br><span class="line">colVars &lt;- <span class="built_in">list</span>(CellType=<span class="built_in">c</span>(<span class="string">&quot;microglia&quot;</span>=<span class="string">&quot;forestgreen&quot;</span>, </span><br><span class="line">                           <span class="string">&quot;endothelial-mural&quot;</span>=<span class="string">&quot;darkorange&quot;</span>, </span><br><span class="line">                           <span class="string">&quot;astrocytes_ependymal&quot;</span>=<span class="string">&quot;magenta4&quot;</span>, </span><br><span class="line">                           <span class="string">&quot;oligodendrocytes&quot;</span>=<span class="string">&quot;hotpink&quot;</span>, </span><br><span class="line">                           <span class="string">&quot;interneurons&quot;</span>=<span class="string">&quot;red3&quot;</span>, </span><br><span class="line">                           <span class="string">&quot;pyramidal CA1&quot;</span>=<span class="string">&quot;skyblue&quot;</span>, </span><br><span class="line">                           <span class="string">&quot;pyramidal SS&quot;</span>=<span class="string">&quot;darkblue&quot;</span>))</span><br><span class="line">colVars$CellType &lt;- colVars$CellType[intersect(<span class="built_in">names</span>(colVars$CellType), cellInfo$CellType)]</span><br><span class="line">saveRDS(colVars, file=<span class="string">&quot;int/colVars.Rds&quot;</span>)</span><br><span class="line">plot.new(); legend(<span class="number">0</span>,<span class="number">1</span>, fill=colVars$CellType, legend=<span class="built_in">names</span>(colVars$CellType))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111730508.png" alt="image-20221106111730508"></p>
+<h2 id="Initialize-SCENIC-settings"><a href="#Initialize-SCENIC-settings" class="headerlink" title="Initialize SCENIC settings"></a>Initialize SCENIC settings</h2><p>在开始分析前，我们先初始化SCENIC分析的一些参数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">org &lt;- <span class="string">&quot;mgi&quot;</span> <span class="comment"># or hgnc, or dmel</span></span><br><span class="line">dbDir &lt;- <span class="string">&quot;cisTarget_databases&quot;</span> <span class="comment"># RcisTarget databases location</span></span><br><span class="line">myDatasetTitle &lt;- <span class="string">&quot;SCENIC example on Mouse brain&quot;</span> <span class="comment"># choose a name for your analysis</span></span><br><span class="line">data(defaultDbNames)</span><br><span class="line">dbs &lt;- defaultDbNames[[org]]</span><br><span class="line">scenicOptions &lt;- initializeScenic(org=org, </span><br><span class="line">                                  dbDir=dbDir, </span><br><span class="line">                                  dbs=dbs[<span class="string">&#x27;10kb&#x27;</span>], </span><br><span class="line">                                  datasetTitle=myDatasetTitle, </span><br><span class="line">                                  nCores=<span class="number">6</span>) </span><br><span class="line"></span><br><span class="line"><span class="comment"># Save to use at a later time...</span></span><br><span class="line">saveRDS(scenicOptions, file=<span class="string">&quot;int/scenicOptions.Rds&quot;</span>) </span><br></pre></td></tr></table></figure>
+
+<p>为了演示，我们只分析10kb的数据库</p>
+<h2 id="Co-expression-network"><a href="#Co-expression-network" class="headerlink" title="Co-expression network"></a>Co-expression network</h2><p>SCENIC流程的第一步是基于表达数据推断潜在的转录因子靶标。这可以通过GENIE3或GRNBoost完成</p>
+<p>这里我们需要输入的是：</p>
+<ul>
+<li>  过滤后的单细胞表达矩阵</li>
+<li>  TF的列表（潜在的调控因子）</li>
+</ul>
+<p>这一步完成后将会输出一个相关性矩阵，以生成基因共表达模块</p>
+<h3 id="Gene-filter-selection"><a href="#Gene-filter-selection" class="headerlink" title="Gene filter/selection"></a>Gene filter/selection</h3><p>运行GENIE3/GRNBoost之前需要先对表达矩阵进行过滤，过滤的条件包括：</p>
+<ol>
+<li> 按每个基因的所有read counts过滤，以排除极低reads的测序噪声；</li>
+<li> 按检测到基因的细胞数过滤；</li>
+<li> 只保留在RcisTarget数据库中的基因进行分析。</li>
+</ol>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># (Adjust minimum values according to your dataset)</span></span><br><span class="line">genesKept &lt;- geneFiltering(exprMat, scenicOptions=scenicOptions,</span><br><span class="line">                           minCountsPerGene=<span class="number">3</span>*<span class="number">.01</span>*ncol(exprMat),</span><br><span class="line">                           minSamples=ncol(exprMat)*<span class="number">.01</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     0.0    17.0    48.0   146.8   137.0  5868.0 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00   10.00   25.00   39.01   60.00  180.00
+</code></pre>
+<p>需要注意的是过滤的条件需要根据数据集进行相应调整。</p>
+<p>应用以上条件过滤，最终过滤后的表达矩阵为: 770 genes * 200 cells</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">exprMat_filtered &lt;- exprMat[genesKept, ]</span><br><span class="line"><span class="built_in">dim</span>(exprMat_filtered)</span><br></pre></td></tr></table></figure>
+
+<pre><code>## [1] 770 200
+</code></pre>
+<h3 id="Correlation"><a href="#Correlation" class="headerlink" title="Correlation"></a>Correlation</h3><p>计算TF和其靶标的Spearman correlation。这一步会在 <code>int/</code> 文件夹下生成 <code>corrMat.Rds</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">runCorrelation(exprMat_filtered, scenicOptions)</span><br><span class="line">list.files(<span class="string">&quot;int/&quot;</span>, pattern=<span class="string">&quot;corrMat&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>## [1] &quot;1.2_corrMat.Rds&quot;
+</code></pre>
+<h3 id="GENIE3"><a href="#GENIE3" class="headerlink" title="GENIE3"></a>GENIE3</h3><p>GENIE3是一种基于随机森林的算法，每次运行的结果都有些许差别，可以通过 <code>set.seed</code> 设置固定的种子以获得可重复的结果。</p>
+<p>GENIE3使用转录因子的表达量作为变量预测每个靶基因的表达量，最后把训练输出模型的权重作为转录因子-靶基因的调控强度。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Optional: add log (if it is not logged/normalized already)</span></span><br><span class="line">exprMat_filtered &lt;- log2(exprMat_filtered+<span class="number">1</span>) </span><br><span class="line"></span><br><span class="line">set.seed(<span class="number">1001</span>)</span><br><span class="line"><span class="comment"># Run GENIE3</span></span><br><span class="line">runGenie3(exprMat_filtered, scenicOptions)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Build-and-score-the-GRN"><a href="#Build-and-score-the-GRN" class="headerlink" title="Build and score the GRN"></a>Build and score the GRN</h2><p>GENIE3/GRNBoost 完成后，就可以使用SCENIC推断基因调控网路（Gene Regulatory Network, GRN）.</p>
+<p>SCENIC的流程包括：</p>
+<ol>
+<li> 获取基因共表达模块</li>
+<li> 获取调控子 (with RcisTarget)</li>
+<li> 对每个细胞的GRN进行打分 (with AUCell)</li>
+<li> 根据GRN的活性对细胞进行聚类</li>
+</ol>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">loom &lt;- open_loom(loomPath)</span><br><span class="line">exprMat &lt;- get_dgem(loom)</span><br><span class="line">close_loom(loom)</span><br><span class="line"><span class="comment"># Optional: log expression (for TF expression plot, it does not affect any other calculation)</span></span><br><span class="line">exprMat_log &lt;- log2(exprMat+<span class="number">1</span>)</span><br><span class="line"><span class="built_in">dim</span>(exprMat)</span><br></pre></td></tr></table></figure>
+
+<pre><code>## [1] 862 200
+</code></pre>
+<p>运行SCENIC</p>
+<ul>
+<li><code>runSCENIC_1_coexNetwork2modules</code>: 将GENIE3/GRNBoost的结果转换为共表达模块</li>
+<li><code>runSCENIC_2_createRegulons</code>: 调用<code>RcisTarget</code>，保留通过TF-motif富集分析后的共表达模块</li>
+<li><code>runSCENIC_3_scoreCells</code>: 调用<code>AUCell</code>在每个细胞中对regulon进行打分，分数作为regulon在该细胞的活性</li>
+</ul>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scenicOptions &lt;- runSCENIC_1_coexNetwork2modules(scenicOptions)</span><br></pre></td></tr></table></figure>
+
+<pre><code>##            [,1]
+## nTFs          8
+## nTargets    770
+## nGeneSets    47
+## nLinks    17308
+</code></pre>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scenicOptions &lt;- runSCENIC_2_createRegulons(scenicOptions, coexMethod=<span class="built_in">c</span>(<span class="string">&quot;top5perTarget&quot;</span>)) <span class="comment">#** Only for toy run!!</span></span><br></pre></td></tr></table></figure>
+
+<pre><code>##               [,1]
+## top5perTarget    8
+## [1] 22058
+</code></pre>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scenicOptions@settings$nCores &lt;- 1 <span class="comment"># for runSCENIC_3_scoreCells</span></span><br><span class="line">scenicOptions &lt;- runSCENIC_3_scoreCells(scenicOptions, exprMat_log)</span><br></pre></td></tr></table></figure>
+
+<pre><code>##    min     1%     5%    10%    50%   100% 
+##  46.00  58.99  77.00  84.80 154.00 342.00
+</code></pre>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">saveRDS(scenicOptions, file=<span class="string">&quot;int/scenicOptions.Rds&quot;</span>) <span class="comment"># To save status</span></span><br></pre></td></tr></table></figure>
+
+<p>上述每一步都会在<code>int/</code>中生成若干文件。</p>
+<p><code>runSCENIC_1_coexNetwork2modules</code> 计算了TF与每个基因的相关性权重，为了避免in-direct TF-target pairs的干扰，作者使用了几种过滤方法的组合来形成共表达基因模块（Modules）</p>
+<hr>
+<p>  方法             含义</p>
+<hr>
+<p>  w0.001           以TF为单位，保留weight &gt; 0.01的基因形成modules</p>
+<p>  w0.005           以TF为单位，保留weight &gt; 0.05的基因形成modules</p>
+<p>  top50            保留每个TF中weight top 50的基因</p>
+<p>  top5perTarget    以基因为单位，保留weight top 5的TF得到简化的TF-target pairs list，然后把基因分配给TF构建共表达模块</p>
+<p>  top10perTarget   以基因为单位，保留weight top 10的TF得到简化的TF-target pairs list，然后把基因分配给TF构建共表达模块</p>
+<p>  top50perTarget   以基因为单位，保留weight top 50的TF得到简化的TF-target pairs list，然后把基因分配给TF构建共表达模块</p>
+<p>  top1sd           保留每个TF中，weight大于 <code>mean(weight) + sd(weight)</code>的targets</p>
+<p>  top3sd           保留每个TF中，weight大于 <code>mean(weight) + 3*sd(weight)</code>的targets</p>
+<p><code>runSCENIC_3_scoreCells</code>使用AUCell计算每个regulon的活性</p>
+<blockquote>
+<p>AUCell calculates the enrichment of the regulon as an area under the recovery curve (AUC) across the ranking of all genes in a particular cell, whereby genes are ranked by their expression value.</p>
+<p>In brief, the scoring method is based on a recovery analysis where the <em>x</em>-axis (<a target="_blank" rel="noopener" href="https://www-nature-com-443.webvpn.las.ac.cn/articles/nmeth.4463#Fig4">Supplementary Fig. 1c</a>) is the ranking of all genes based on expression level (genes with the same expression value, e.g., ‘0’, are randomly sorted); and the <em>y</em>-axis is the number of genes recovered from the input set.</p>
+<p>AUCell then uses the AUC to calculate whether a critical subset of the input gene set is enriched at the top of the ranking for each cell. In this way, the AUC represents the proportion of expressed genes in the signature and their relative expression values compared to the other genes within the cell.</p>
+</blockquote>
+<h3 id="get-regulon-activity-matrix"><a href="#get-regulon-activity-matrix" class="headerlink" title="get regulon activity matrix"></a>get regulon activity matrix</h3><p><code>runSCENIC_3_scoreCells</code>将regulon打分的结果保存到’int/3.4_regulonAUC.Rds’中，我们可以读入这个数据进行分析。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">regulonAUC &lt;- readRDS(<span class="string">&#x27;int/3.4_regulonAUC.Rds&#x27;</span>)</span><br><span class="line">regulonAUC &lt;- regulonAUC[onlyNonDuplicatedExtended(rownames(regulonAUC)),]</span><br><span class="line"></span><br><span class="line">regAct &lt;- getAUC(regulonAUC)</span><br><span class="line"><span class="built_in">dim</span>(regAct);regAct[,<span class="number">1</span>:<span class="number">3</span>]</span><br></pre></td></tr></table></figure>
+
+<pre><code>## [1]   7 200
+
+##              cells
+## gene sets     1772066100_D04 1772063062_G01 1772060224_F07
+##   Tef (405g)     0.595558153     0.46756283    0.275862069
+##   Dlx5 (35g)     0.097560976     0.00000000    0.009059233
+##   Irf1 (105g)    0.000000000     0.05610754    0.382817066
+##   Stat6 (27g)    0.000000000     0.01399177    0.146502058
+##   Sox9 (150g)    0.210987726     0.22676797    0.049678551
+##   Sox10 (88g)    0.003506721     0.31092928    0.023962595
+##   Sox8 (98g)     0.042080655     0.26241964    0.026300409
+</code></pre>
+<p>这里我们获得了7个regulon在200个细胞中的打分矩阵，其中每一行是一个regulon，每一列是一个细胞。以”Tef (405g)”为例，该regulon id表示的意思是转录因子Tef这个模块当前调控405个潜在的靶基因。</p>
+<h2 id="Optional-steps"><a href="#Optional-steps" class="headerlink" title="Optional steps"></a>Optional steps</h2><p>在获取调控模块（regulons）X 细胞（cells）的AUC矩阵后，SCENIC的主要分析已经完成了，后续可以根据个人需求进一步分析。例如以下的这些分析。</p>
+<h3 id="二值化网络活性-regulon-on-off"><a href="#二值化网络活性-regulon-on-off" class="headerlink" title="二值化网络活性(regulon on/off)"></a>二值化网络活性(regulon on/off)</h3><p>这一步可以手动查看每一个regulon的binarized threshold是否合理，AUCell自动判断的阈值有时候会过于严格，以致某一regulon在所有细胞都被判断为off的状态。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aucellApp &lt;- plotTsne_AUCellApp(scenicOptions, exprMat_log)</span><br><span class="line">savedSelections &lt;- shiny::runApp(aucellApp)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111821002.png" alt="image-20221106111821002"></p>
+<p>这一步会创建一个shinyapp，以探索定义基因模块激活的阈值。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Save the modified thresholds:</span></span><br><span class="line">newThresholds &lt;- savedSelections$thresholds</span><br><span class="line">saveRDS(newThresholds, file=getIntName(scenicOptions, <span class="string">&quot;aucell_thresholds&quot;</span>))</span><br><span class="line">saveRDS(scenicOptions, file=<span class="string">&quot;int/scenicOptions.Rds&quot;</span>) </span><br></pre></td></tr></table></figure>
+
+<p>二值化AUC</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scenicOptions &lt;- runSCENIC_4_aucell_binarize(scenicOptions)</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于调控活性的聚类与降维"><a href="#基于调控活性的聚类与降维" class="headerlink" title="基于调控活性的聚类与降维"></a>基于调控活性的聚类与降维</h3><p>我们可以根据调控模块的活性对细胞进行聚类。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nPcs &lt;- <span class="built_in">c</span>(<span class="number">5</span>)</span><br><span class="line"><span class="comment"># Run t-SNE with different settings:</span></span><br><span class="line">fileNames &lt;- tsneAUC(scenicOptions, aucType=<span class="string">&quot;AUC&quot;</span>, nPcs=nPcs, perpl=<span class="built_in">c</span>(<span class="number">5</span>,<span class="number">15</span>,<span class="number">50</span>))</span><br><span class="line">fileNames &lt;- tsneAUC(scenicOptions, aucType=<span class="string">&quot;AUC&quot;</span>, nPcs=nPcs, perpl=<span class="built_in">c</span>(<span class="number">5</span>,<span class="number">15</span>,<span class="number">50</span>), onlyHighConf=<span class="literal">TRUE</span>, filePrefix=<span class="string">&quot;int/tSNE_oHC&quot;</span>)</span><br><span class="line"><span class="comment"># Plot as pdf (individual files in int/):</span></span><br><span class="line">fileNames &lt;- paste0(<span class="string">&quot;int/&quot;</span>,grep(<span class="string">&quot;.Rds&quot;</span>, grep(<span class="string">&quot;tSNE_&quot;</span>, list.files(<span class="string">&quot;int&quot;</span>), value=<span class="built_in">T</span>), value=<span class="built_in">T</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">par(mfrow=<span class="built_in">c</span>(<span class="built_in">length</span>(nPcs), <span class="number">3</span>))</span><br><span class="line">fileNames &lt;- paste0(<span class="string">&quot;int/&quot;</span>,grep(<span class="string">&quot;.Rds&quot;</span>, grep(<span class="string">&quot;tSNE_AUC&quot;</span>, list.files(<span class="string">&quot;int&quot;</span>), value=<span class="built_in">T</span>, perl = <span class="built_in">T</span>), value=<span class="built_in">T</span>))</span><br><span class="line">plotTsne_compareSettings(fileNames, scenicOptions, showLegend=<span class="literal">FALSE</span>, varName=<span class="string">&quot;CellType&quot;</span>, cex=<span class="number">.5</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111844875.png" alt="image-20221106111844875"></p>
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111853549.png" alt="image-20221106111853549"></p>
+<p>保存tSNE的参数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">scenicOptions@settings$defaultTsne$aucType &lt;- <span class="string">&quot;AUC&quot;</span></span><br><span class="line">scenicOptions@settings$defaultTsne$dims &lt;- 5</span><br><span class="line">scenicOptions@settings$defaultTsne$perpl &lt;- 15</span><br><span class="line">saveRDS(scenicOptions, file=<span class="string">&quot;int/scenicOptions.Rds&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Exploring-interpreting-the-results"><a href="#Exploring-interpreting-the-results" class="headerlink" title="Exploring/interpreting the results"></a>Exploring/interpreting the results</h2><p>SCENIC 分析的结果在当前工作目录下的 <code>output/</code> 中。</p>
+<h3 id="将AUC和TF的表达投影到tSNE"><a href="#将AUC和TF的表达投影到tSNE" class="headerlink" title="将AUC和TF的表达投影到tSNE"></a>将AUC和TF的表达投影到tSNE</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tSNE_scenic &lt;- readRDS(tsneFileName(scenicOptions))</span><br><span class="line">aucell_regulonAUC &lt;- loadInt(scenicOptions, <span class="string">&quot;aucell_regulonAUC&quot;</span>)</span><br><span class="line"><span class="comment"># Show TF expression:</span></span><br><span class="line">par(mfrow=<span class="built_in">c</span>(<span class="number">2</span>,<span class="number">3</span>))</span><br><span class="line">AUCell::AUCell_plotTSNE(tSNE_scenic$Y, exprMat, aucell_regulonAUC[onlyNonDuplicatedExtended(rownames(aucell_regulonAUC))[<span class="built_in">c</span>(<span class="string">&quot;Dlx5&quot;</span>, <span class="string">&quot;Sox10&quot;</span>, <span class="string">&quot;Sox9&quot;</span>,<span class="string">&quot;Irf1&quot;</span>, <span class="string">&quot;Stat6&quot;</span>)],], plots=<span class="string">&quot;Expression&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111901760.png" alt="image-20221106111901760"></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Save AUC as PDF:</span></span><br><span class="line">Cairo::CairoPDF(<span class="string">&quot;output/Step4_BinaryRegulonActivity_tSNE_colByAUC.pdf&quot;</span>, width=<span class="number">20</span>, height=<span class="number">15</span>)</span><br><span class="line">par(mfrow=<span class="built_in">c</span>(<span class="number">4</span>,<span class="number">6</span>))</span><br><span class="line">AUCell::AUCell_plotTSNE(tSNE_scenic$Y, cellsAUC=aucell_regulonAUC, plots=<span class="string">&quot;AUC&quot;</span>)</span><br><span class="line">dev.off()</span><br></pre></td></tr></table></figure>
+
+<pre><code>## png 
+##   2
+</code></pre>
+<p>以密度图的方式展示tSNE</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">library(KernSmooth)</span><br><span class="line">library(RColorBrewer)</span><br><span class="line">dens2d &lt;- bkde2D(tSNE_scenic$Y, <span class="number">1</span>)$fhat</span><br><span class="line">image(dens2d, col=brewer.pal(<span class="number">9</span>, <span class="string">&quot;YlOrBr&quot;</span>), axes=<span class="literal">FALSE</span>)</span><br><span class="line">contour(dens2d, add=<span class="literal">TRUE</span>, nlevels=<span class="number">5</span>, drawlabels=<span class="literal">FALSE</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111909826.png" alt="image-20221106111909826"></p>
+<p>展示多个调控子</p>
+<blockquote>
+<p>这里注意原教程写于2020，用的是 <code>SCENIC_1.2.0</code> 。到了2022年，SCENIC已经更新到1.3.1.,而 <code>plotTsne_rgb</code> 已经被替换为 <code>plotEmb_rgb</code></p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#par(bg = &quot;black&quot;)</span></span><br><span class="line">par(mfrow=<span class="built_in">c</span>(<span class="number">1</span>,<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">regulonNames &lt;- <span class="built_in">c</span>( <span class="string">&quot;Dlx5&quot;</span>,<span class="string">&quot;Sox10&quot;</span>)</span><br><span class="line">cellCol &lt;- SCENIC::plotEmb_rgb(scenicOptions, regulonNames, aucType=<span class="string">&quot;AUC&quot;</span>, aucMaxContrast=<span class="number">0.6</span>)</span><br><span class="line"></span><br><span class="line">regulonNames &lt;- <span class="built_in">list</span>(red=<span class="built_in">c</span>(<span class="string">&quot;Sox10&quot;</span>, <span class="string">&quot;Sox8&quot;</span>),</span><br><span class="line">                     green=<span class="built_in">c</span>(<span class="string">&quot;Irf1&quot;</span>),</span><br><span class="line">                     blue=<span class="built_in">c</span>( <span class="string">&quot;Tef&quot;</span>))</span><br><span class="line">cellCol &lt;- SCENIC::plotEmb_rgb(scenicOptions, regulonNames, aucType=<span class="string">&quot;Binary&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111917525.png" alt="image-20221106111917525"></p>
+<h3 id="GRN-Regulon-targets-and-motifs"><a href="#GRN-Regulon-targets-and-motifs" class="headerlink" title="GRN: Regulon targets and motifs"></a>GRN: Regulon targets and motifs</h3><p>列出当前基因调控网路中某个调控模块下的基因:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">regulons &lt;- loadInt(scenicOptions, <span class="string">&quot;regulons&quot;</span>)</span><br><span class="line">regulons[<span class="built_in">c</span>(<span class="string">&quot;Dlx5&quot;</span>, <span class="string">&quot;Irf1&quot;</span>)]</span><br></pre></td></tr></table></figure>
+
+<pre><code>## $Dlx5
+##  [1] &quot;2610203C20Rik&quot; &quot;Adamts17&quot;      &quot;AI854703&quot;      &quot;Arhgef10l&quot;    
+##  [5] &quot;Bahcc1&quot;        &quot;Cirbp&quot;         &quot;Cplx1&quot;         &quot;Dlx1&quot;         
+##  [9] &quot;Gad1&quot;          &quot;Gadd45gip1&quot;    &quot;Hexim2&quot;        &quot;Igf1&quot;         
+## [13] &quot;Iglon5&quot;        &quot;Ltbp3&quot;         &quot;Myt1&quot;          &quot;Npas1&quot;        
+## [17] &quot;Nxph1&quot;         &quot;Peli2&quot;         &quot;Plekha6&quot;       &quot;Prkab1&quot;       
+## [21] &quot;Ptchd2&quot;        &quot;Racgap1&quot;       &quot;Rgs8&quot;          &quot;Robo1&quot;        
+## [25] &quot;Rpl34&quot;         &quot;Sema3c&quot;        &quot;Shisa9&quot;        &quot;Slc12a5&quot;      
+## [29] &quot;Slc39a6&quot;       &quot;Spns2&quot;         &quot;Stox2&quot;         &quot;Syt6&quot;         
+## [33] &quot;Unc5d&quot;         &quot;Wnt5a&quot;        
+## 
+## $Irf1
+##   [1] &quot;4930523C07Rik&quot; &quot;Acsl5&quot;         &quot;Adrb1&quot;         &quot;Ahdc1&quot;        
+##   [5] &quot;Ahnak&quot;         &quot;Akap1&quot;         &quot;Anxa2&quot;         &quot;Arhgap31&quot;     
+##   [9] &quot;Arhgef10l&quot;     &quot;Arhgef19&quot;      &quot;Atg14&quot;         &quot;B2m&quot;          
+##  [13] &quot;Bank1&quot;         &quot;Bcl2a1b&quot;       &quot;Cald1&quot;         &quot;Capsl&quot;        
+##  [17] &quot;Ccl2&quot;          &quot;Ccl3&quot;          &quot;Ccl7&quot;          &quot;Ccnd1&quot;        
+##  [21] &quot;Ccnd3&quot;         &quot;Cd163&quot;         &quot;Cd48&quot;          &quot;Cited2&quot;       
+##  [25] &quot;Cmtm6&quot;         &quot;Ctgf&quot;          &quot;Ctnnd1&quot;        &quot;Ctss&quot;         
+##  [29] &quot;Ddr2&quot;          &quot;E130114P18Rik&quot; &quot;Egfr&quot;          &quot;Ehd1&quot;         
+##  [33] &quot;Esam&quot;          &quot;Fcer1g&quot;        &quot;Fcgr1&quot;         &quot;Fgf14&quot;        
+##  [37] &quot;Fstl4&quot;         &quot;Fyb&quot;           &quot;Gabrb1&quot;        &quot;Gadd45g&quot;      
+##  [41] &quot;Gja1&quot;          &quot;Gpr34&quot;         &quot;Gramd3&quot;        &quot;H2-K1&quot;        
+##  [45] &quot;Hfe&quot;           &quot;Il6ra&quot;         &quot;Irf1&quot;          &quot;Itgb5&quot;        
+##  [49] &quot;Kcne4&quot;         &quot;Kcnj16&quot;        &quot;Kcnj2&quot;         &quot;Laptm5&quot;       
+##  [53] &quot;Lhfp&quot;          &quot;Lrp4&quot;          &quot;Map3k5&quot;        &quot;Mdk&quot;          
+##  [57] &quot;Med13&quot;         &quot;Midn&quot;          &quot;Mr1&quot;           &quot;Ms4a7&quot;        
+##  [61] &quot;Msr1&quot;          &quot;Myh9&quot;          &quot;Nin&quot;           &quot;Nptx1&quot;        
+##  [65] &quot;Osbpl6&quot;        &quot;P2ry13&quot;        &quot;Parp12&quot;        &quot;Peli2&quot;        
+##  [69] &quot;Plcl2&quot;         &quot;Plekha6&quot;       &quot;Prkab1&quot;        &quot;Rab3il1&quot;      
+##  [73] &quot;Rgs5&quot;          &quot;Rhobtb2&quot;       &quot;Rnase4&quot;        &quot;Sepp1&quot;        
+##  [77] &quot;Sertad2&quot;       &quot;Sgk3&quot;          &quot;Slamf9&quot;        &quot;Slc4a4&quot;       
+##  [81] &quot;Slc7a7&quot;        &quot;Slco5a1&quot;       &quot;Slitrk2&quot;       &quot;Soat1&quot;        
+##  [85] &quot;Srgn&quot;          &quot;St3gal6&quot;       &quot;St5&quot;           &quot;St8sia4&quot;      
+##  [89] &quot;Stard8&quot;        &quot;Stat6&quot;         &quot;Stk17b&quot;        &quot;Tapbp&quot;        
+##  [93] &quot;Tbxas1&quot;        &quot;Tgfa&quot;          &quot;Tgfb3&quot;         &quot;Tmem100&quot;      
+##  [97] &quot;Tnfaip3&quot;       &quot;Tnfaip8&quot;       &quot;Trib1&quot;         &quot;Trpm7&quot;        
+## [101] &quot;Txnip&quot;         &quot;Usp2&quot;          &quot;Vgll4&quot;         &quot;Vps37b&quot;       
+## [105] &quot;Zfp36l2&quot;
+</code></pre>
+<p>一个regulon可以对应多个靶标，而AUC则是在靶标大于10个的regulons中进行运算。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">regulons &lt;- loadInt(scenicOptions, <span class="string">&quot;aucell_regulons&quot;</span>)</span><br><span class="line">head(cbind(onlyNonDuplicatedExtended(<span class="built_in">names</span>(regulons))))</span><br></pre></td></tr></table></figure>
+
+<pre><code>##       [,1]         
+## Tef   &quot;Tef (405g)&quot; 
+## Dlx5  &quot;Dlx5 (35g)&quot; 
+## Sox9  &quot;Sox9 (150g)&quot;
+## Sox8  &quot;Sox8 (98g)&quot; 
+## Sox10 &quot;Sox10 (88g)&quot;
+## Irf1  &quot;Irf1 (105g)&quot;
+</code></pre>
+<p>TF-target详细的对应关系在 <code>output/Step2_regulonTargetsInfo.tsv</code> 中</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">regulonTargetsInfo &lt;- loadInt(scenicOptions, <span class="string">&quot;regulonTargetsInfo&quot;</span>)</span><br><span class="line">tableSubset &lt;- regulonTargetsInfo[TF==<span class="string">&quot;Stat6&quot;</span> &amp; highConfAnnot==<span class="literal">TRUE</span>]</span><br><span class="line">head(tableSubset)</span><br></pre></td></tr></table></figure>
+
+<pre><code>##       TF          gene highConfAnnot nMotifs         bestMotif  NES motifDb
+## 1: Stat6 4930523C07Rik          TRUE      14 tfdimers__MD00051 3.39    10kb
+## 2: Stat6       Bcl2a1b          TRUE      11 tfdimers__MD00051 3.39    10kb
+## 3: Stat6          Ccl3          TRUE       8 tfdimers__MD00051 3.39    10kb
+## 4: Stat6          Cd14          TRUE      14 tfdimers__MD00051 3.39    10kb
+## 5: Stat6       Clec4a2          TRUE       1 tfdimers__MD00051 3.39    10kb
+## 6: Stat6       Col27a1          TRUE       9 tfdimers__MD00051 3.39    10kb
+##       coexModule   spearCor CoexWeight
+## 1: top5perTarget 0.17259814 0.06908293
+## 2: top5perTarget 0.08241394 0.15894490
+## 3: top5perTarget 0.13977515 0.07461879
+## 4: top5perTarget 0.07996444 0.15006861
+## 5: top5perTarget 0.10529877 0.24615271
+## 6: top5perTarget 0.17040821 0.18443827
+</code></pre>
+<h3 id="Regulators-for-known-cell-types-or-clusters"><a href="#Regulators-for-known-cell-types-or-clusters" class="headerlink" title="Regulators for known cell types or clusters"></a>Regulators for known cell types or clusters</h3><ul>
+<li>  每个cluster的平均Regulon活性</li>
+</ul>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">regulonAUC &lt;- loadInt(scenicOptions, <span class="string">&quot;aucell_regulonAUC&quot;</span>)</span><br><span class="line">regulonAUC &lt;- regulonAUC[onlyNonDuplicatedExtended(rownames(regulonAUC)),]</span><br><span class="line">regulonActivity_byCellType &lt;- sapply(split(rownames(cellInfo), cellInfo$CellType),</span><br><span class="line">                                     <span class="keyword">function</span>(cells) rowMeans(getAUC(regulonAUC)[,cells]))</span><br><span class="line">regulonActivity_byCellType_Scaled &lt;- t(scale(t(regulonActivity_byCellType), center = <span class="built_in">T</span>, scale=<span class="built_in">T</span>))</span><br><span class="line"></span><br><span class="line">ComplexHeatmap::Heatmap(regulonActivity_byCellType_Scaled, name=<span class="string">&quot;Regulon activity&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111929359.png" alt="image-20221106111929359"></p>
+<ul>
+<li>  二值化版本（具有调节子活性的细胞类型/簇的细胞百分比）</li>
+</ul>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">minPerc &lt;- .7</span><br><span class="line">binaryRegulonActivity &lt;- loadInt(scenicOptions, <span class="string">&quot;aucell_binary_nonDupl&quot;</span>)</span><br><span class="line">cellInfo_binarizedCells &lt;- cellInfo[which(rownames(cellInfo)%in% colnames(binaryRegulonActivity)),, drop=<span class="literal">FALSE</span>]</span><br><span class="line">regulonActivity_byCellType_Binarized &lt;- sapply(split(rownames(cellInfo_binarizedCells), cellInfo_binarizedCells$CellType), </span><br><span class="line">                                               <span class="keyword">function</span>(cells) rowMeans(binaryRegulonActivity[,cells, drop=<span class="literal">FALSE</span>]))</span><br><span class="line">binaryActPerc_subset &lt;- regulonActivity_byCellType_Binarized[which(rowSums(regulonActivity_byCellType_Binarized&gt;minPerc)&gt;<span class="number">0</span>),]</span><br><span class="line">ComplexHeatmap::Heatmap(binaryActPerc_subset, name=<span class="string">&quot;Regulon activity (%)&quot;</span>, col = <span class="built_in">c</span>(<span class="string">&quot;white&quot;</span>,<span class="string">&quot;pink&quot;</span>,<span class="string">&quot;red&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111937144.png" alt="image-20221106111937144"></p>
+<ul>
+<li>  细胞特异性调控因子</li>
+</ul>
+<p>我们还可以计算每个regulon在细胞中的特异性系数（Regulon Specificity Score, RSS）来衡量regulon在不同细胞类型间的特异程度。</p>
+<blockquote>
+<p>RSS = 1-sqrt(JSD)</p>
+<p>JSD: Jensen-Shannon Divergence</p>
+<p><em>In <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Probability_theory">probability theory</a> and <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Statistics">statistics</a>, the <strong><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Johan_Jensen_(mathematician)">Jensen</a>–<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Claude_Shannon">Shannon</a> divergence</strong> is a method of measuring the similarity between two <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Probability_distribution">probability distributions</a>.</em></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence">https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence</a></p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># regulonAUC &lt;- loadInt(scenicOptions, &quot;aucell_regulonAUC&quot;)</span></span><br><span class="line">rss &lt;- calcRSS(AUC=getAUC(regulonAUC), cellAnnotation=cellInfo[colnames(regulonAUC), <span class="string">&quot;CellType&quot;</span>])</span><br><span class="line">rssPlot &lt;- plotRSS(rss)</span><br><span class="line">print(rssPlot$plot)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/06/R-SCENIC/image-20221106111946554.png" alt="image-20221106111946554"></p>
+<p>以上就是SECENIC的分析流程，实际上计算AUC矩阵后就结束了，后续的分析都是根据课题需求进行的各种探索与可视化。</p>
+<blockquote>
+<p>ref:</p>
+<p><a target="_blank" rel="noopener" href="https://scenic.aertslab.org/tutorials/">https://scenic.aertslab.org/tutorials/</a></p>
+<p><a target="_blank" rel="noopener" href="http://htmlpreview.github.io/?https://github.com/aertslab/SCENIC/blob/master/inst/doc/SCENIC_Running.html">http://htmlpreview.github.io/?https://github.com/aertslab/SCENIC/blob/master/inst/doc/SCENIC_Running.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/aertslab/SCENIC/blob/master/R/runSCENIC_1_coexNetwork2modules.R">https://github.com/aertslab/SCENIC/blob/master/R/runSCENIC_1_coexNetwork2modules.R</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1692240">https://cloud.tencent.com/developer/article/1692240</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/093a835ab056">https://www.jianshu.com/p/093a835ab056</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2022/11/06/R-SCENIC/" title="R-SCENIC">https://thereallda.github.io/2022/11/06/R-SCENIC/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/single-cell/" rel="tag"># single-cell</a>
+              <a href="/tags/data-analysis/" rel="tag"># data_analysis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/12/R-model-predict/" rel="prev" title="R-model-predict">
+      <i class="fa fa-chevron-left"></i> R-model-predict
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SCENIC-Tutorial"><span class="nav-number">1.</span> <span class="nav-text">SCENIC_Tutorial</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Setup"><span class="nav-number">1.1.</span> <span class="nav-text">Setup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Load-Packages"><span class="nav-number">1.2.</span> <span class="nav-text">Load Packages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Input"><span class="nav-number">1.3.</span> <span class="nav-text">Input</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Expression-matrix"><span class="nav-number">1.3.1.</span> <span class="nav-text">Expression matrix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cell-info-phenodata"><span class="nav-number">1.3.2.</span> <span class="nav-text">Cell info&#x2F;phenodata</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Initialize-SCENIC-settings"><span class="nav-number">1.4.</span> <span class="nav-text">Initialize SCENIC settings</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Co-expression-network"><span class="nav-number">1.5.</span> <span class="nav-text">Co-expression network</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gene-filter-selection"><span class="nav-number">1.5.1.</span> <span class="nav-text">Gene filter&#x2F;selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Correlation"><span class="nav-number">1.5.2.</span> <span class="nav-text">Correlation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GENIE3"><span class="nav-number">1.5.3.</span> <span class="nav-text">GENIE3</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Build-and-score-the-GRN"><span class="nav-number">1.6.</span> <span class="nav-text">Build and score the GRN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#get-regulon-activity-matrix"><span class="nav-number">1.6.1.</span> <span class="nav-text">get regulon activity matrix</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optional-steps"><span class="nav-number">1.7.</span> <span class="nav-text">Optional steps</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E5%80%BC%E5%8C%96%E7%BD%91%E7%BB%9C%E6%B4%BB%E6%80%A7-regulon-on-off"><span class="nav-number">1.7.1.</span> <span class="nav-text">二值化网络活性(regulon on&#x2F;off)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%B0%83%E6%8E%A7%E6%B4%BB%E6%80%A7%E7%9A%84%E8%81%9A%E7%B1%BB%E4%B8%8E%E9%99%8D%E7%BB%B4"><span class="nav-number">1.7.2.</span> <span class="nav-text">基于调控活性的聚类与降维</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploring-interpreting-the-results"><span class="nav-number">1.8.</span> <span class="nav-text">Exploring&#x2F;interpreting the results</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86AUC%E5%92%8CTF%E7%9A%84%E8%A1%A8%E8%BE%BE%E6%8A%95%E5%BD%B1%E5%88%B0tSNE"><span class="nav-number">1.8.1.</span> <span class="nav-text">将AUC和TF的表达投影到tSNE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GRN-Regulon-targets-and-motifs"><span class="nav-number">1.8.2.</span> <span class="nav-text">GRN: Regulon targets and motifs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Regulators-for-known-cell-types-or-clusters"><span class="nav-number">1.8.3.</span> <span class="nav-text">Regulators for known cell types or clusters</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '9bdc966b575b22aa4294610a44cbe68b',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
