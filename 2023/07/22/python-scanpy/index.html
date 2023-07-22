@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="scanpy | Preprocessing and clustering 3k PBMCs本文记录使用scanpy处理3k PBMCs scRNA-seq数据的流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python-scanpy">
+<meta property="og:url" content="https://thereallda.github.io/2023/07/22/python-scanpy/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="scanpy | Preprocessing and clustering 3k PBMCs本文记录使用scanpy处理3k PBMCs scRNA-seq数据的流程。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/anndata_schema.svg">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152039543.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152101619.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152114493.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152122306.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152131997.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152142643.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152153454.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152200850.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152208179.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152217306.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152227220.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152233530.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152241627.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152249926.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152258509.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152306092.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152314692.png">
+<meta property="article:published_time" content="2023-07-22T07:17:24.000Z">
+<meta property="article:modified_time" content="2023-07-22T07:24:57.590Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="single-cell">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="scRNA-seq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/anndata_schema.svg">
+
+<link rel="canonical" href="https://thereallda.github.io/2023/07/22/python-scanpy/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>python-scanpy | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2023/07/22/python-scanpy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python-scanpy
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-07-22 15:17:24 / Modified: 15:24:57" itemprop="dateCreated datePublished" datetime="2023-07-22T15:17:24+08:00">2023-07-22</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>21k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>19 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="scanpy-Preprocessing-and-clustering-3k-PBMCs"><a href="#scanpy-Preprocessing-and-clustering-3k-PBMCs" class="headerlink" title="scanpy | Preprocessing and clustering 3k PBMCs"></a>scanpy | Preprocessing and clustering 3k PBMCs</h1><p>本文记录使用<code>scanpy</code>处理3k PBMCs scRNA-seq数据的流程。</p>
+<span id="more"></span>
+
+<h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>创建一个虚拟环境以方便管理相关的库。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">conda create --name pysc python=3.9</span><br><span class="line">conda activate pysc</span><br><span class="line">conda install -c anaconda ipykernel</span><br><span class="line">python -m ipykernel install --user --name pysc</span><br><span class="line"></span><br><span class="line">pip3 install scanpy</span><br><span class="line">pip3 install pandas</span><br><span class="line">pip3 install loompy</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>本文使用PBMCs 3k数据可以在该网址下载（<a target="_blank" rel="noopener" href="http://cf.10xgenomics.com/samples/cell-exp/1.1.0/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz%EF%BC%89">http://cf.10xgenomics.com/samples/cell-exp/1.1.0/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz）</a>.</p>
+<p>下载后，将文件解压至当前的data目录下.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># !mkdir data</span><br><span class="line"># !wget http://cf.10xgenomics.com/samples/cell-exp/1.1.0/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz -O data/pbmc3k_filtered_gene_bc_matrices.tar.gz</span><br><span class="line"># !cd data; tar -xzf pbmc3k_filtered_gene_bc_matrices.tar.gz</span><br><span class="line"># !mkdir output</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> scanpy <span class="keyword">as</span> sc</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sc.settings.verbosity = <span class="number">3</span>             <span class="comment"># verbosity: errors (0), warnings (1), info (2), hints (3)</span></span><br><span class="line">sc.logging.print_header()</span><br><span class="line">sc.settings.set_figure_params(dpi=<span class="number">80</span>, facecolor=<span class="string">&#x27;white&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>e:\miniconda3\envs\pysc\lib\site-packages\umap\distances.py:1063: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  @numba.jit()
+e:\miniconda3\envs\pysc\lib\site-packages\umap\distances.py:1071: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  @numba.jit()
+e:\miniconda3\envs\pysc\lib\site-packages\umap\distances.py:1086: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  @numba.jit()
+e:\miniconda3\envs\pysc\lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+
+
+scanpy==1.9.3 anndata==0.9.1 umap==0.5.3 numpy==1.24.4 scipy==1.11.1 pandas==2.0.3 scikit-learn==1.3.0 statsmodels==0.14.0 python-igraph==0.10.6 pynndescent==0.5.10
+
+
+e:\miniconda3\envs\pysc\lib\site-packages\umap\umap_.py:660: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  @numba.jit()
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">results_file=<span class="string">&#x27;output/pbmc3k.h5ad&#x27;</span> <span class="comment"># the file that will store the analysis results</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adata = sc.read_10x_mtx(<span class="string">&#x27;data/filtered_gene_bc_matrices/hg19/&#x27;</span>,  <span class="comment"># the directory with the `.mtx` file</span></span><br><span class="line">                       var_names=<span class="string">&#x27;gene_symbols&#x27;</span>, <span class="comment"># use gene symbols for the variable names (variables-axis index)</span></span><br><span class="line">                        cache=<span class="literal">True</span> <span class="comment"># write a cache file for faster subsequent reading</span></span><br><span class="line">                       )</span><br></pre></td></tr></table></figure>
+
+<pre><code>... reading from cache file cache\data-filtered_gene_bc_matrices-hg19-matrix.h5ad
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># remove duplicated symbols</span></span><br><span class="line">adata.var_names_make_unique() <span class="comment"># this is unnecessary if using `var_names=&#x27;gene_ids&#x27;` in `sc.read_10x_mtx`</span></span><br><span class="line">adata</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>AnnData object with n_obs × n_vars = 2700 × 32738
+    var: &#39;gene_ids&#39;
+</code></pre>
+<p>我们读入的数据为AnnData格式。</p>
+<p>AnnData是python中处理带注释的数据的一种格式，读入的数据并不直接读入内存当中，而是创建与磁盘数据的链接来进行处理。对于单细胞测序数据而言，一般与细胞相关数据存储于<code>.obs</code>，而与feature相关数据存储于<code>.var</code>中</p>
+<p><img src="/2023/07/22/python-scanpy/anndata_schema.svg" alt="anndata_schema"></p>
+<h2 id="Preprocessing"><a href="#Preprocessing" class="headerlink" title="Preprocessing"></a>Preprocessing</h2><p><code>scanpy</code>包提供的api有几个主要的modules，包括：</p>
+<ul>
+<li>preprocessing: <code>scanpy.pp</code>, such as <code>pp.calculate_qc_metrics</code>, <code>pp.filter_cells</code>, <code>pp.filter_genes</code>, …;</li>
+<li>tools: <code>scanpy.tl</code>, such as <code>tl.pca</code>, <code>tl.tsne</code>, <code>tl.umap</code>, …;</li>
+<li>plots: <code>scanpy.pl</code>, such as <code>pl.scatter</code>, <code>pl.highest_expr_genes</code>, <code>pl.umap</code>, …<blockquote>
+<p><a target="_blank" rel="noopener" href="https://scanpy.readthedocs.io/en/stable/api.html">https://scanpy.readthedocs.io/en/stable/api.html</a></p>
+</blockquote>
+</li>
+</ul>
+<p>接下来，我们先使用<code>scanpy</code>包进行数据预处理，展示高表达基因在各个细胞中的counts。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc.pl.highest_expr_genes(adata, n_top=<span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>normalizing counts per cell
+    finished (0:00:00)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152039543.png"></p>
+<p>执行简单的过滤操作。保留至少有200个基因表达的细胞，至少有3个细胞表达的基因。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc.pp.filter_cells(adata, min_genes=<span class="number">200</span>)</span><br><span class="line">sc.pp.filter_genes(adata, min_cells=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>filtered out 19024 genes that are detected in less than 3 cells
+</code></pre>
+<p>然后，再根据基因的counts和线粒体基因表达进行进一步过滤。</p>
+<p>首先，计算线粒体基因比例.</p>
+<blockquote>
+<p>adata.var 存的是feature-level相关的信息，adata.obs 存的是cell-level的信息</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adata.var[<span class="string">&#x27;mt&#x27;</span>] = adata.var_names.<span class="built_in">str</span>.startswith(<span class="string">&quot;MT-&quot;</span>) </span><br><span class="line">sc.pp.calculate_qc_metrics(adata, qc_vars=[<span class="string">&#x27;mt&#x27;</span>], percent_top=<span class="literal">None</span>, log1p=<span class="literal">False</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">adata.obs[<span class="string">&#x27;pct_counts_mt&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>AAACATACAACCAC-1    3.017776
+AAACATTGAGCTAC-1    3.793596
+AAACATTGATCAGC-1    0.889736
+AAACCGTGCTTCCG-1    1.743085
+AAACCGTGTATGCG-1    1.224490
+                      ...   
+TTTCGAACTCTCAT-1    2.110436
+TTTCTACTGAGGCA-1    0.929422
+TTTCTACTTCCTCG-1    2.197150
+TTTGCATGAGAGGC-1    2.054795
+TTTGCATGCCTCAC-1    0.806452
+Name: pct_counts_mt, Length: 2700, dtype: float32
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc.pl.violin(adata, [<span class="string">&#x27;n_genes_by_counts&#x27;</span>, <span class="string">&#x27;total_counts&#x27;</span>, <span class="string">&#x27;pct_counts_mt&#x27;</span>], jitter=<span class="number">0.4</span>, multi_panel=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>e:\miniconda3\envs\pysc\lib\site-packages\seaborn\axisgrid.py:118: UserWarning: The figure layout has changed to tight
+  self._figure.tight_layout(*args, **kwargs)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152101619.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc.pl.scatter(adata, x=<span class="string">&#x27;total_counts&#x27;</span>, y=<span class="string">&#x27;pct_counts_mt&#x27;</span>)</span><br><span class="line">sc.pl.scatter(adata, x=<span class="string">&#x27;total_counts&#x27;</span>, y=<span class="string">&#x27;n_genes_by_counts&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>​<br><img src="/2023/07/22/python-scanpy/image-20230722152114493.png"></p>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152122306.png"></p>
+<p>过滤基因数和线粒体基因占比过高的细胞</p>
+<p>通过切片的方法过滤</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adata = adata[adata.obs.n_genes_by_counts &lt; <span class="number">2500</span>, :]</span><br><span class="line">adata = adata[adata.obs.pct_counts_mt &lt; <span class="number">5</span>, :]</span><br><span class="line">adata</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>View of AnnData object with n_obs × n_vars = 2638 × 13714
+    obs: &#39;n_genes&#39;, &#39;n_genes_by_counts&#39;, &#39;total_counts&#39;, &#39;total_counts_mt&#39;, &#39;pct_counts_mt&#39;
+    var: &#39;gene_ids&#39;, &#39;n_cells&#39;, &#39;mt&#39;, &#39;n_cells_by_counts&#39;, &#39;mean_counts&#39;, &#39;pct_dropout_by_counts&#39;, &#39;total_counts&#39;
+</code></pre>
+<p>接下来，我们对read counts进行文库大小校正，并进行log转换。</p>
+<p>随后，根据normalized expression鉴定highly-variable genes以供后续PCA等分析使用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Total-count normalization </span></span><br><span class="line">sc.pp.normalize_total(adata, target_sum=<span class="number">1e4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># log transformation</span></span><br><span class="line">sc.pp.log1p(adata)</span><br></pre></td></tr></table></figure>
+
+<pre><code>normalizing counts per cell
+    finished (0:00:00)
+
+
+e:\miniconda3\envs\pysc\lib\site-packages\scanpy\preprocessing\_normalization.py:170: UserWarning: Received a view of an AnnData. Making a copy.
+  view_to_actual(adata)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Identify highly-variable genes</span></span><br><span class="line">sc.pp.highly_variable_genes(adata, min_mean=<span class="number">0.0125</span>, max_mean=<span class="number">3</span>, min_disp=<span class="number">0.5</span>)</span><br><span class="line">sc.pl.highly_variable_genes(adata)</span><br></pre></td></tr></table></figure>
+
+<pre><code>extracting highly variable genes
+    finished (0:00:00)
+--&gt; added
+    &#39;highly_variable&#39;, boolean vector (adata.var)
+    &#39;means&#39;, float vector (adata.var)
+    &#39;dispersions&#39;, float vector (adata.var)
+    &#39;dispersions_norm&#39;, float vector (adata.var)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152131997.png"></p>
+<p>鉴定的基因存储在<code>adata.var.highly_variable</code>中，后续可被PCA、clustering和UMAP/tSNE等函数识别，所以不需要再对数据进行过滤。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adata.var.highly_variable</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>AL627309.1       False
+AP006222.2       False
+RP11-206L10.2    False
+RP11-206L10.9    False
+LINC00115        False
+                 ...  
+AC145212.1       False
+AL592183.1       False
+AL354822.1       False
+PNRC2-1          False
+SRSF10-1         False
+Name: highly_variable, Length: 13714, dtype: bool
+</code></pre>
+<p>这里将<code>adata.raw</code>设置为校正后的数据，以供后续差异分析和可视化使用。相当于是把默认的表达矩阵替换为校正过的。可以通过<code>.raw.to_adta()</code>再替换为原始数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adata.raw = adata</span><br><span class="line"><span class="built_in">print</span>(adata.raw)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Raw AnnData with n_obs × n_vars = 2638 × 13714
+    var: &#39;gene_ids&#39;, &#39;n_cells&#39;, &#39;mt&#39;, &#39;n_cells_by_counts&#39;, &#39;mean_counts&#39;, &#39;pct_dropout_by_counts&#39;, &#39;total_counts&#39;, &#39;highly_variable&#39;, &#39;means&#39;, &#39;dispersions&#39;, &#39;dispersions_norm&#39;
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filtering hvg</span></span><br><span class="line">adata = adata[:, adata.var.highly_variable]</span><br><span class="line"></span><br><span class="line"><span class="comment"># regress out effects of total counts per cell and the percentage of mt genes expressed</span></span><br><span class="line">sc.pp.regress_out(adata, [<span class="string">&#x27;total_counts&#x27;</span>, <span class="string">&#x27;pct_counts_mt&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># cale each gene to unit variance. clip values exceeding standard deviation 10.</span></span><br><span class="line">sc.pp.scale(adata, max_value=<span class="number">10</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<pre><code>regressing out [&#39;total_counts&#39;, &#39;pct_counts_mt&#39;]
+    sparse input is densified and may lead to high memory use
+    finished (0:00:03)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PCA</span></span><br><span class="line">sc.tl.pca(adata, svd_solver=<span class="string">&#x27;arpack&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># elbow plot</span></span><br><span class="line">sc.pl.pca_variance_ratio(adata, log=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>computing PCA
+    on highly variable genes
+    with n_comps=50
+    finished (0:00:00)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152142643.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adata</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>AnnData object with n_obs × n_vars = 2638 × 1838
+    obs: &#39;n_genes&#39;, &#39;n_genes_by_counts&#39;, &#39;total_counts&#39;, &#39;total_counts_mt&#39;, &#39;pct_counts_mt&#39;
+    var: &#39;gene_ids&#39;, &#39;n_cells&#39;, &#39;mt&#39;, &#39;n_cells_by_counts&#39;, &#39;mean_counts&#39;, &#39;pct_dropout_by_counts&#39;, &#39;total_counts&#39;, &#39;highly_variable&#39;, &#39;means&#39;, &#39;dispersions&#39;, &#39;dispersions_norm&#39;, &#39;mean&#39;, &#39;std&#39;
+    uns: &#39;log1p&#39;, &#39;hvg&#39;, &#39;pca&#39;
+    obsm: &#39;X_pca&#39;
+    varm: &#39;PCs&#39;
+</code></pre>
+<h2 id="Computing-the-neighborhood-graph"><a href="#Computing-the-neighborhood-graph" class="headerlink" title="Computing the neighborhood graph"></a>Computing the neighborhood graph</h2><p>接下来，我们基于PCA计算细胞的邻接图</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc.pp.neighbors(adata, n_neighbors=<span class="number">10</span>, n_pcs=<span class="number">40</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>computing neighbors
+    using &#39;X_pca&#39; with n_pcs = 40
+    finished: added to `.uns[&#39;neighbors&#39;]`
+    `.obsp[&#39;distances&#39;]`, distances for each pair of neighbors
+    `.obsp[&#39;connectivities&#39;]`, weighted adjacency matrix (0:00:02)
+</code></pre>
+<h2 id="Embedding-the-neighborhood-graph"><a href="#Embedding-the-neighborhood-graph" class="headerlink" title="Embedding the neighborhood graph"></a>Embedding the neighborhood graph</h2><p>使用UMAP可视化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc.tl.umap(adata)</span><br><span class="line">sc.pl.umap(adata, color=[<span class="string">&#x27;CST3&#x27;</span>,<span class="string">&#x27;NKG7&#x27;</span>, <span class="string">&#x27;PPBP&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<pre><code>computing UMAP
+    finished: added
+    &#39;X_umap&#39;, UMAP coordinates (adata.obsm) (0:00:03)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152153454.png"></p>
+<p><code>pl.umap</code>默认使用<code>adata.raw</code>中的值作图，由于上面我们将其替换为了normalized后的值。如果想用scaled values作图，可以使用参数<code>use_raw=False</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc.pl.umap(adata, color=[<span class="string">&#x27;CST3&#x27;</span>,<span class="string">&#x27;NKG7&#x27;</span>, <span class="string">&#x27;PPBP&#x27;</span>], use_raw=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>​<br><img src="/2023/07/22/python-scanpy/image-20230722152200850.png"></p>
+<h2 id="Clustering-the-neighborhood-graph"><a href="#Clustering-the-neighborhood-graph" class="headerlink" title="Clustering the neighborhood graph"></a>Clustering the neighborhood graph</h2><p>使用Leiden graph-clustering进行聚类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc.tl.leiden(adata, resolution=<span class="number">1</span>)</span><br><span class="line">sc.pl.umap(adata, color=[<span class="string">&#x27;leiden&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<pre><code>running Leiden clustering
+    finished: found 8 clusters and added
+    &#39;leiden&#39;, the cluster labels (adata.obs, categorical) (0:00:00)
+
+
+e:\miniconda3\envs\pysc\lib\site-packages\scanpy\plotting\_tools\scatterplots.py:392: UserWarning: No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39; will be ignored
+  cax = scatter(
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152208179.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># save the result</span></span><br><span class="line">adata.write(results_file)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Finding-marker-genes"><a href="#Finding-marker-genes" class="headerlink" title="Finding marker genes"></a>Finding marker genes</h2><p>Wilcoxon rank-sum test to identify markers</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># compare each group with the rest of cell</span></span><br><span class="line">sc.tl.rank_genes_groups(adata, <span class="string">&#x27;leiden&#x27;</span>, method=<span class="string">&#x27;wilcoxon&#x27;</span>)</span><br><span class="line">sc.pl.rank_genes_groups(adata, n_genes=<span class="number">25</span>, sharey=<span class="literal">False</span>) <span class="comment"># sharey: Controls if the y-axis of each panels should be shared. </span></span><br></pre></td></tr></table></figure>
+
+<pre><code>ranking genes
+    finished: added to `.uns[&#39;rank_genes_groups&#39;]`
+    &#39;names&#39;, sorted np.recarray to be indexed by group ids
+    &#39;scores&#39;, sorted np.recarray to be indexed by group ids
+    &#39;logfoldchanges&#39;, sorted np.recarray to be indexed by group ids
+    &#39;pvals&#39;, sorted np.recarray to be indexed by group ids
+    &#39;pvals_adj&#39;, sorted np.recarray to be indexed by group ids (0:00:01)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152217306.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adata.write(results_file)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># marker gene</span></span><br><span class="line">marker_genes = [<span class="string">&#x27;IL7R&#x27;</span>, <span class="string">&#x27;CD79A&#x27;</span>, <span class="string">&#x27;MS4A1&#x27;</span>, <span class="string">&#x27;CD8A&#x27;</span>, <span class="string">&#x27;CD8B&#x27;</span>, <span class="string">&#x27;LYZ&#x27;</span>, <span class="string">&#x27;CD14&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;LGALS3&#x27;</span>, <span class="string">&#x27;S100A8&#x27;</span>, <span class="string">&#x27;GNLY&#x27;</span>, <span class="string">&#x27;NKG7&#x27;</span>, <span class="string">&#x27;KLRB1&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;FCGR3A&#x27;</span>, <span class="string">&#x27;MS4A7&#x27;</span>, <span class="string">&#x27;FCER1A&#x27;</span>, <span class="string">&#x27;CST3&#x27;</span>, <span class="string">&#x27;PPBP&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># top 5 ranked genes per cluster</span></span><br><span class="line">pd.DataFrame(adata.uns[<span class="string">&#x27;rank_genes_groups&#x27;</span>][<span class="string">&#x27;names&#x27;</span>]).head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>RPS12</td>
+      <td>LYZ</td>
+      <td>CD74</td>
+      <td>CCL5</td>
+      <td>NKG7</td>
+      <td>LST1</td>
+      <td>HLA-DPA1</td>
+      <td>PF4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>LDHB</td>
+      <td>S100A9</td>
+      <td>CD79A</td>
+      <td>NKG7</td>
+      <td>GNLY</td>
+      <td>FCER1G</td>
+      <td>HLA-DPB1</td>
+      <td>SDPR</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>RPS25</td>
+      <td>S100A8</td>
+      <td>HLA-DRA</td>
+      <td>B2M</td>
+      <td>GZMB</td>
+      <td>AIF1</td>
+      <td>HLA-DRA</td>
+      <td>GNG11</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>RPS27</td>
+      <td>TYROBP</td>
+      <td>CD79B</td>
+      <td>CST7</td>
+      <td>CTSW</td>
+      <td>COTL1</td>
+      <td>HLA-DRB1</td>
+      <td>PPBP</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>RPS6</td>
+      <td>FTL</td>
+      <td>HLA-DPB1</td>
+      <td>GZMA</td>
+      <td>PRF1</td>
+      <td>FCGR3A</td>
+      <td>CD74</td>
+      <td>NRGN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">result = adata.uns[<span class="string">&#x27;rank_genes_groups&#x27;</span>]</span><br><span class="line">groups = result[<span class="string">&#x27;names&#x27;</span>].dtype.names</span><br><span class="line">pd.DataFrame(</span><br><span class="line">    &#123;group + <span class="string">&#x27;_&#x27;</span> + key[:<span class="number">1</span>] : result[key][group] <span class="comment"># create new dictionary</span></span><br><span class="line">    <span class="keyword">for</span> group <span class="keyword">in</span> groups <span class="keyword">for</span> key <span class="keyword">in</span> [<span class="string">&#x27;names&#x27;</span>, <span class="string">&#x27;pvals&#x27;</span>]&#125;  </span><br><span class="line">).head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0_n</th>
+      <th>0_p</th>
+      <th>1_n</th>
+      <th>1_p</th>
+      <th>2_n</th>
+      <th>2_p</th>
+      <th>3_n</th>
+      <th>3_p</th>
+      <th>4_n</th>
+      <th>4_p</th>
+      <th>5_n</th>
+      <th>5_p</th>
+      <th>6_n</th>
+      <th>6_p</th>
+      <th>7_n</th>
+      <th>7_p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>RPS12</td>
+      <td>1.659522e-223</td>
+      <td>LYZ</td>
+      <td>7.634876e-249</td>
+      <td>CD74</td>
+      <td>2.487145e-183</td>
+      <td>CCL5</td>
+      <td>1.674383e-128</td>
+      <td>NKG7</td>
+      <td>1.203971e-96</td>
+      <td>LST1</td>
+      <td>1.322111e-88</td>
+      <td>HLA-DPA1</td>
+      <td>5.422417e-21</td>
+      <td>PF4</td>
+      <td>4.722886e-10</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>LDHB</td>
+      <td>3.010889e-218</td>
+      <td>S100A9</td>
+      <td>4.626358e-246</td>
+      <td>CD79A</td>
+      <td>1.679730e-170</td>
+      <td>NKG7</td>
+      <td>5.307754e-104</td>
+      <td>GNLY</td>
+      <td>1.257170e-88</td>
+      <td>FCER1G</td>
+      <td>6.259712e-85</td>
+      <td>HLA-DPB1</td>
+      <td>7.591860e-21</td>
+      <td>SDPR</td>
+      <td>4.733899e-10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>RPS25</td>
+      <td>9.032935e-198</td>
+      <td>S100A8</td>
+      <td>1.622835e-238</td>
+      <td>HLA-DRA</td>
+      <td>6.949695e-167</td>
+      <td>B2M</td>
+      <td>1.364508e-81</td>
+      <td>GZMB</td>
+      <td>1.429027e-88</td>
+      <td>AIF1</td>
+      <td>1.348814e-83</td>
+      <td>HLA-DRA</td>
+      <td>1.306768e-19</td>
+      <td>GNG11</td>
+      <td>4.733899e-10</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>RPS27</td>
+      <td>8.254312e-188</td>
+      <td>TYROBP</td>
+      <td>2.957652e-220</td>
+      <td>CD79B</td>
+      <td>2.569135e-154</td>
+      <td>CST7</td>
+      <td>7.977466e-78</td>
+      <td>CTSW</td>
+      <td>4.144726e-87</td>
+      <td>COTL1</td>
+      <td>5.974694e-82</td>
+      <td>HLA-DRB1</td>
+      <td>1.865104e-19</td>
+      <td>PPBP</td>
+      <td>4.744938e-10</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>RPS6</td>
+      <td>8.002057e-185</td>
+      <td>FTL</td>
+      <td>2.479195e-214</td>
+      <td>HLA-DPB1</td>
+      <td>3.580735e-148</td>
+      <td>GZMA</td>
+      <td>7.266551e-74</td>
+      <td>PRF1</td>
+      <td>1.692100e-85</td>
+      <td>FCGR3A</td>
+      <td>1.392377e-77</td>
+      <td>CD74</td>
+      <td>5.853161e-19</td>
+      <td>NRGN</td>
+      <td>4.800511e-10</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># compare between groups</span></span><br><span class="line">sc.tl.rank_genes_groups(adata, <span class="string">&#x27;leiden&#x27;</span>, groups=[<span class="string">&#x27;0&#x27;</span>], reference=<span class="string">&#x27;1&#x27;</span>, method=<span class="string">&#x27;wilcoxon&#x27;</span>)</span><br><span class="line">sc.pl.rank_genes_groups(adata, groups=[<span class="string">&#x27;0&#x27;</span>], n_genes=<span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>ranking genes
+    finished: added to `.uns[&#39;rank_genes_groups&#39;]`
+    &#39;names&#39;, sorted np.recarray to be indexed by group ids
+    &#39;scores&#39;, sorted np.recarray to be indexed by group ids
+    &#39;logfoldchanges&#39;, sorted np.recarray to be indexed by group ids
+    &#39;pvals&#39;, sorted np.recarray to be indexed by group ids
+    &#39;pvals_adj&#39;, sorted np.recarray to be indexed by group ids (0:00:00)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152227220.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 0 vs. 1</span></span><br><span class="line">sc.pl.rank_genes_groups_violin(adata, groups=<span class="string">&#x27;0&#x27;</span>, n_genes=<span class="number">8</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>e:\miniconda3\envs\pysc\lib\site-packages\seaborn\categorical.py:166: FutureWarning: Setting a gradient palette using color= is deprecated and will be removed in version 0.13. Set `palette=&#39;dark:black&#39;` for same effect.
+  warnings.warn(msg, FutureWarning)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152233530.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Reload the object with the computed differential expression (i.e. DE via a comparison with the rest of the groups):</span></span><br><span class="line">adata = sc.read(results_file)</span><br><span class="line">sc.pl.rank_genes_groups_violin(adata, groups=<span class="string">&#x27;0&#x27;</span>, n_genes=<span class="number">8</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>e:\miniconda3\envs\pysc\lib\site-packages\seaborn\categorical.py:166: FutureWarning: Setting a gradient palette using color= is deprecated and will be removed in version 0.13. Set `palette=&#39;dark:black&#39;` for same effect.
+  warnings.warn(msg, FutureWarning)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152241627.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plot expression across clusters</span></span><br><span class="line">sc.pl.violin(adata, [<span class="string">&#x27;CST3&#x27;</span>, <span class="string">&#x27;NKG7&#x27;</span>, <span class="string">&#x27;PPBP&#x27;</span>], groupby=<span class="string">&#x27;leiden&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>​<br><img src="/2023/07/22/python-scanpy/image-20230722152249926.png"><br>​    </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rename cluster based on cell types</span></span><br><span class="line">new_cluster_names = [</span><br><span class="line">    <span class="string">&#x27;CD4 T&#x27;</span>, <span class="string">&#x27;CD14 Monocytes&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;CD8 T&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;NK&#x27;</span>, <span class="string">&#x27;FCGR3A Monocytes&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Dendritic&#x27;</span>, <span class="string">&#x27;Megakaryocytes&#x27;</span>]</span><br><span class="line">adata.rename_categories(<span class="string">&#x27;leiden&#x27;</span>, new_cluster_names)</span><br><span class="line">sc.pl.umap(adata, color=<span class="string">&#x27;leiden&#x27;</span>, legend_loc=<span class="string">&#x27;on data&#x27;</span>, title=<span class="string">&#x27;&#x27;</span>, frameon=<span class="literal">False</span>, save=<span class="string">&#x27;.pdf&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>WARNING: saving figure to file figures\umap.pdf
+
+
+e:\miniconda3\envs\pysc\lib\site-packages\scanpy\plotting\_tools\scatterplots.py:392: UserWarning: No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39; will be ignored
+  cax = scatter(
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152258509.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># dotplot for marker genes</span></span><br><span class="line">sc.pl.dotplot(adata, marker_genes, groupby=<span class="string">&#x27;leiden&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>e:\miniconda3\envs\pysc\lib\site-packages\scanpy\plotting\_dotplot.py:749: UserWarning: No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39;, &#39;norm&#39; will be ignored
+  dot_ax.scatter(x, y, **kwds)
+</code></pre>
+<p><img src="/2023/07/22/python-scanpy/image-20230722152306092.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># violin plot</span></span><br><span class="line">sc.pl.stacked_violin(adata, marker_genes, groupby=<span class="string">&#x27;leiden&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>​<br><img src="/2023/07/22/python-scanpy/image-20230722152314692.png"><br>​    </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adata</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>AnnData object with n_obs × n_vars = 2638 × 1838
+    obs: &#39;n_genes&#39;, &#39;n_genes_by_counts&#39;, &#39;total_counts&#39;, &#39;total_counts_mt&#39;, &#39;pct_counts_mt&#39;, &#39;leiden&#39;
+    var: &#39;gene_ids&#39;, &#39;n_cells&#39;, &#39;mt&#39;, &#39;n_cells_by_counts&#39;, &#39;mean_counts&#39;, &#39;pct_dropout_by_counts&#39;, &#39;total_counts&#39;, &#39;highly_variable&#39;, &#39;means&#39;, &#39;dispersions&#39;, &#39;dispersions_norm&#39;, &#39;mean&#39;, &#39;std&#39;
+    uns: &#39;hvg&#39;, &#39;leiden&#39;, &#39;leiden_colors&#39;, &#39;log1p&#39;, &#39;neighbors&#39;, &#39;pca&#39;, &#39;rank_genes_groups&#39;, &#39;umap&#39;
+    obsm: &#39;X_pca&#39;, &#39;X_umap&#39;
+    varm: &#39;PCs&#39;
+    obsp: &#39;connectivities&#39;, &#39;distances&#39;
+</code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>scanpy</code>中scRNA-seq分析流程包括：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># read in data</span></span><br><span class="line">adata = sc.read_10x_mtx(<span class="string">&#x27;data/filtered_gene_bc_matrices/hg19/&#x27;</span>, cache=<span class="literal">True</span>)             </span><br><span class="line"><span class="comment"># normalization</span></span><br><span class="line">sc.pp.normalize_total(adata, target_sum=<span class="number">1e4</span>)</span><br><span class="line">sc.pp.log1p(adata)</span><br><span class="line"><span class="comment"># highly variable genes</span></span><br><span class="line">sc.pp.highly_variable_genes(adata, min_mean=<span class="number">0.0125</span>, max_mean=<span class="number">3</span>, min_disp=<span class="number">0.5</span>)</span><br><span class="line"><span class="comment"># scale</span></span><br><span class="line">sc.pp.scale(adata, max_value=<span class="number">10</span>)</span><br><span class="line"><span class="comment"># PCA</span></span><br><span class="line">sc.tl.pca(adata, svd_solver=<span class="string">&#x27;arpack&#x27;</span>)</span><br><span class="line"><span class="comment"># find neighbors</span></span><br><span class="line">sc.pp.neighbors(adata, n_neighbors=<span class="number">10</span>, n_pcs=<span class="number">40</span>)</span><br><span class="line"><span class="comment"># clustering</span></span><br><span class="line">sc.tl.leiden(adata)</span><br><span class="line"><span class="comment"># UMAP</span></span><br><span class="line">sc.tl.umap(adata)</span><br><span class="line">sc.pl.umap(adata, color=[<span class="string">&#x27;leiden&#x27;</span>])</span><br><span class="line"><span class="comment"># find markers</span></span><br><span class="line">sc.tl.rank_genes_groups(adata, <span class="string">&#x27;leiden&#x27;</span>, method=<span class="string">&#x27;wilcoxon&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>由于后续需要在Geneformer中使用该数据，这里我将行名替换为ensembl id，并在细胞注释<code>.obs</code>中增加一列<code>cell_type</code>指定细胞类型和<code>organ_major</code>指定组织类型。随后，以loom格式存储。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># make dataset suitable for Geneformer</span></span><br><span class="line"><span class="comment"># convert row attributes to Ensembl IDs</span></span><br><span class="line">adata.var[<span class="string">&#x27;gene_name&#x27;</span>] = adata.var_names</span><br><span class="line">adata.var_names = adata.var[<span class="string">&#x27;gene_ids&#x27;</span>]</span><br><span class="line">adata.var.rename(columns=&#123;<span class="string">&quot;gene_ids&quot;</span>: <span class="string">&quot;ensembl_id&quot;</span>&#125;, inplace=<span class="literal">True</span>)</span><br><span class="line">adata.var</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ensembl_id</th>
+      <th>n_cells</th>
+      <th>mt</th>
+      <th>n_cells_by_counts</th>
+      <th>mean_counts</th>
+      <th>pct_dropout_by_counts</th>
+      <th>total_counts</th>
+      <th>highly_variable</th>
+      <th>means</th>
+      <th>dispersions</th>
+      <th>dispersions_norm</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>gene_name</th>
+    </tr>
+    <tr>
+      <th>gene_ids</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>ENSG00000186827</th>
+      <td>ENSG00000186827</td>
+      <td>155</td>
+      <td>False</td>
+      <td>155</td>
+      <td>0.077407</td>
+      <td>94.259259</td>
+      <td>209.0</td>
+      <td>True</td>
+      <td>0.277410</td>
+      <td>2.086050</td>
+      <td>0.665406</td>
+      <td>-3.244448e-10</td>
+      <td>0.424481</td>
+      <td>TNFRSF4</td>
+    </tr>
+    <tr>
+      <th>ENSG00000127054</th>
+      <td>ENSG00000127054</td>
+      <td>202</td>
+      <td>False</td>
+      <td>202</td>
+      <td>0.094815</td>
+      <td>92.518519</td>
+      <td>256.0</td>
+      <td>True</td>
+      <td>0.385194</td>
+      <td>4.506987</td>
+      <td>2.955005</td>
+      <td>-1.157975e-10</td>
+      <td>0.460416</td>
+      <td>CPSF3L</td>
+    </tr>
+    <tr>
+      <th>ENSG00000215915</th>
+      <td>ENSG00000215915</td>
+      <td>9</td>
+      <td>False</td>
+      <td>9</td>
+      <td>0.009259</td>
+      <td>99.666667</td>
+      <td>25.0</td>
+      <td>True</td>
+      <td>0.038252</td>
+      <td>3.953486</td>
+      <td>4.352607</td>
+      <td>8.472988e-12</td>
+      <td>0.119465</td>
+      <td>ATAD3C</td>
+    </tr>
+    <tr>
+      <th>ENSG00000162585</th>
+      <td>ENSG00000162585</td>
+      <td>501</td>
+      <td>False</td>
+      <td>501</td>
+      <td>0.227778</td>
+      <td>81.444444</td>
+      <td>615.0</td>
+      <td>True</td>
+      <td>0.678283</td>
+      <td>2.713522</td>
+      <td>0.543183</td>
+      <td>3.502168e-10</td>
+      <td>0.685145</td>
+      <td>C1orf86</td>
+    </tr>
+    <tr>
+      <th>ENSG00000157916</th>
+      <td>ENSG00000157916</td>
+      <td>608</td>
+      <td>False</td>
+      <td>608</td>
+      <td>0.298148</td>
+      <td>77.481481</td>
+      <td>805.0</td>
+      <td>True</td>
+      <td>0.814813</td>
+      <td>3.447533</td>
+      <td>1.582528</td>
+      <td>9.461503e-11</td>
+      <td>0.736050</td>
+      <td>RER1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>ENSG00000160223</th>
+      <td>ENSG00000160223</td>
+      <td>34</td>
+      <td>False</td>
+      <td>34</td>
+      <td>0.016667</td>
+      <td>98.740741</td>
+      <td>45.0</td>
+      <td>True</td>
+      <td>0.082016</td>
+      <td>2.585818</td>
+      <td>1.652185</td>
+      <td>9.984445e-12</td>
+      <td>0.217672</td>
+      <td>ICOSLG</td>
+    </tr>
+    <tr>
+      <th>ENSG00000184900</th>
+      <td>ENSG00000184900</td>
+      <td>570</td>
+      <td>False</td>
+      <td>570</td>
+      <td>0.292963</td>
+      <td>78.888889</td>
+      <td>791.0</td>
+      <td>True</td>
+      <td>0.804815</td>
+      <td>4.046776</td>
+      <td>2.431045</td>
+      <td>-3.911696e-10</td>
+      <td>0.723121</td>
+      <td>SUMO3</td>
+    </tr>
+    <tr>
+      <th>ENSG00000173638</th>
+      <td>ENSG00000173638</td>
+      <td>31</td>
+      <td>False</td>
+      <td>31</td>
+      <td>0.018519</td>
+      <td>98.851852</td>
+      <td>50.0</td>
+      <td>True</td>
+      <td>0.058960</td>
+      <td>3.234231</td>
+      <td>2.932458</td>
+      <td>-1.969986e-10</td>
+      <td>0.173017</td>
+      <td>SLC19A1</td>
+    </tr>
+    <tr>
+      <th>ENSG00000160307</th>
+      <td>ENSG00000160307</td>
+      <td>94</td>
+      <td>False</td>
+      <td>94</td>
+      <td>0.076667</td>
+      <td>96.518519</td>
+      <td>207.0</td>
+      <td>True</td>
+      <td>0.286282</td>
+      <td>3.042992</td>
+      <td>1.078783</td>
+      <td>5.980517e-10</td>
+      <td>0.399946</td>
+      <td>S100B</td>
+    </tr>
+    <tr>
+      <th>ENSG00000160310</th>
+      <td>ENSG00000160310</td>
+      <td>588</td>
+      <td>False</td>
+      <td>588</td>
+      <td>0.275926</td>
+      <td>78.222222</td>
+      <td>745.0</td>
+      <td>True</td>
+      <td>0.816647</td>
+      <td>2.774169</td>
+      <td>0.629058</td>
+      <td>-6.552444e-10</td>
+      <td>0.762753</td>
+      <td>PRMT2</td>
+    </tr>
+  </tbody>
+</table>
+<p>1838 rows × 14 columns</p>
+</div>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># add cell_type and organ_major columns for cell</span></span><br><span class="line">adata.obs[<span class="string">&#x27;cell_type&#x27;</span>] = adata.obs[<span class="string">&#x27;leiden&#x27;</span>]</span><br><span class="line">adata.obs[<span class="string">&#x27;organ_major&#x27;</span>] = <span class="string">&#x27;immune&#x27;</span></span><br><span class="line">adata.obs.rename(columns=&#123;<span class="string">&quot;total_counts&quot;</span>: <span class="string">&quot;n_counts&quot;</span>&#125;, inplace=<span class="literal">True</span>)</span><br><span class="line">adata.obs</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n_genes</th>
+      <th>n_genes_by_counts</th>
+      <th>n_counts</th>
+      <th>total_counts_mt</th>
+      <th>pct_counts_mt</th>
+      <th>leiden</th>
+      <th>cell_type</th>
+      <th>organ_major</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>AAACATACAACCAC-1</th>
+      <td>781</td>
+      <td>779</td>
+      <td>2419.0</td>
+      <td>73.0</td>
+      <td>3.017776</td>
+      <td>CD4 T</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACATTGAGCTAC-1</th>
+      <td>1352</td>
+      <td>1352</td>
+      <td>4903.0</td>
+      <td>186.0</td>
+      <td>3.793596</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACATTGATCAGC-1</th>
+      <td>1131</td>
+      <td>1129</td>
+      <td>3147.0</td>
+      <td>28.0</td>
+      <td>0.889736</td>
+      <td>CD4 T</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACCGTGCTTCCG-1</th>
+      <td>960</td>
+      <td>960</td>
+      <td>2639.0</td>
+      <td>46.0</td>
+      <td>1.743085</td>
+      <td>FCGR3A Monocytes</td>
+      <td>FCGR3A Monocytes</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACCGTGTATGCG-1</th>
+      <td>522</td>
+      <td>521</td>
+      <td>980.0</td>
+      <td>12.0</td>
+      <td>1.224490</td>
+      <td>NK</td>
+      <td>NK</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>TTTCGAACTCTCAT-1</th>
+      <td>1155</td>
+      <td>1153</td>
+      <td>3459.0</td>
+      <td>73.0</td>
+      <td>2.110436</td>
+      <td>CD14 Monocytes</td>
+      <td>CD14 Monocytes</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTCTACTGAGGCA-1</th>
+      <td>1227</td>
+      <td>1224</td>
+      <td>3443.0</td>
+      <td>32.0</td>
+      <td>0.929422</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTCTACTTCCTCG-1</th>
+      <td>622</td>
+      <td>622</td>
+      <td>1684.0</td>
+      <td>37.0</td>
+      <td>2.197150</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTGCATGAGAGGC-1</th>
+      <td>454</td>
+      <td>452</td>
+      <td>1022.0</td>
+      <td>21.0</td>
+      <td>2.054795</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTGCATGCCTCAC-1</th>
+      <td>724</td>
+      <td>723</td>
+      <td>1984.0</td>
+      <td>16.0</td>
+      <td>0.806452</td>
+      <td>CD4 T</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+    </tr>
+  </tbody>
+</table>
+<p>2638 rows × 8 columns</p>
+</div>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># save in h5ad</span></span><br><span class="line">adata.write(results_file)</span><br><span class="line"><span class="comment"># save in loom</span></span><br><span class="line">adata.write_loom(<span class="string">&quot;output/pbmc3k.loom&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>The loom file will lack these fields:
+&#123;&#39;X_umap&#39;, &#39;PCs&#39;, &#39;X_pca&#39;&#125;
+Use write_obsm_varm=True to export multi-dimensional annotations
+e:\miniconda3\envs\pysc\lib\site-packages\loompy\bus_file.py:68: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  def twobit_to_dna(twobit: int, size: int) -&gt; str:
+e:\miniconda3\envs\pysc\lib\site-packages\loompy\bus_file.py:85: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  def dna_to_twobit(dna: str) -&gt; int:
+e:\miniconda3\envs\pysc\lib\site-packages\loompy\bus_file.py:102: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  def twobit_1hamming(twobit: int, size: int) -&gt; List[int]:
+</code></pre>
+<blockquote>
+<p>Ref:</p>
+<p><a target="_blank" rel="noopener" href="https://scanpy-tutorials.readthedocs.io/en/latest/pbmc3k.html#Clustering-3K-PBMCs">https://scanpy-tutorials.readthedocs.io/en/latest/pbmc3k.html#Clustering-3K-PBMCs</a></p>
+<p><a target="_blank" rel="noopener" href="https://anndata.readthedocs.io/en/latest/">https://anndata.readthedocs.io/en/latest/</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2023/07/22/python-scanpy/" title="python-scanpy">https://thereallda.github.io/2023/07/22/python-scanpy/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/single-cell/" rel="tag"># single-cell</a>
+              <a href="/tags/python/" rel="tag"># python</a>
+              <a href="/tags/scRNA-seq/" rel="tag"># scRNA-seq</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/03/23/R-sampling/" rel="prev" title="R-sampling">
+      <i class="fa fa-chevron-left"></i> R-sampling
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#scanpy-Preprocessing-and-clustering-3k-PBMCs"><span class="nav-number">1.</span> <span class="nav-text">scanpy | Preprocessing and clustering 3k PBMCs</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Preprocessing"><span class="nav-number">1.2.</span> <span class="nav-text">Preprocessing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Computing-the-neighborhood-graph"><span class="nav-number">1.3.</span> <span class="nav-text">Computing the neighborhood graph</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedding-the-neighborhood-graph"><span class="nav-number">1.4.</span> <span class="nav-text">Embedding the neighborhood graph</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Clustering-the-neighborhood-graph"><span class="nav-number">1.5.</span> <span class="nav-text">Clustering the neighborhood graph</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Finding-marker-genes"><span class="nav-number">1.6.</span> <span class="nav-text">Finding marker genes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '30c20655ce400d72b18eaea0015a141b',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
