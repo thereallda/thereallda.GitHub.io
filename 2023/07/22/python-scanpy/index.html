@@ -45,7 +45,7 @@
 <meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152306092.png">
 <meta property="og:image" content="https://thereallda.github.io/2023/07/22/python-scanpy/image-20230722152314692.png">
 <meta property="article:published_time" content="2023-07-22T07:17:24.000Z">
-<meta property="article:modified_time" content="2023-07-22T08:53:40.757Z">
+<meta property="article:modified_time" content="2023-07-24T01:35:51.052Z">
 <meta property="article:author" content="Dean Li">
 <meta property="article:tag" content="single-cell">
 <meta property="article:tag" content="python">
@@ -206,10 +206,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-07-22 15:17:24 / Modified: 16:53:40" itemprop="dateCreated datePublished" datetime="2023-07-22T15:17:24+08:00">2023-07-22</time>
+              <time title="Created: 2023-07-22 15:17:24" itemprop="dateCreated datePublished" datetime="2023-07-22T15:17:24+08:00">2023-07-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-24 09:35:51" itemprop="dateModified" datetime="2023-07-24T09:35:51+08:00">2023-07-24</time>
+              </span>
 
           
             <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
@@ -362,7 +368,7 @@ Name: pct_counts_mt, Length: 2700, dtype: float32
 </code></pre>
 <p>接下来，我们对read counts进行文库大小校正，并进行log转换。</p>
 <p>随后，根据normalized expression鉴定highly-variable genes以供后续PCA等分析使用。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Total-count normalization </span></span><br><span class="line">sc.pp.normalize_total(adata, target_sum=<span class="number">1e4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># log transformation</span></span><br><span class="line">sc.pp.log1p(adata)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># make a copy of raw count</span></span><br><span class="line">adata.layers[<span class="string">&#x27;counts&#x27;</span>] = adata.X.copy()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Total-count normalization </span></span><br><span class="line">sc.pp.normalize_total(adata, target_sum=<span class="number">1e4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># log transformation</span></span><br><span class="line">sc.pp.log1p(adata)</span><br><span class="line"></span><br><span class="line"><span class="comment"># store normalized data</span></span><br><span class="line">adata.layers[<span class="string">&#x27;data&#x27;</span>] = adata.X.copy()</span><br></pre></td></tr></table></figure>
 
 <pre><code>normalizing counts per cell
     finished (0:00:00)
@@ -407,7 +413,7 @@ Name: highly_variable, Length: 13714, dtype: bool
 <pre><code>Raw AnnData with n_obs × n_vars = 2638 × 13714
     var: &#39;gene_ids&#39;, &#39;n_cells&#39;, &#39;mt&#39;, &#39;n_cells_by_counts&#39;, &#39;mean_counts&#39;, &#39;pct_dropout_by_counts&#39;, &#39;total_counts&#39;, &#39;highly_variable&#39;, &#39;means&#39;, &#39;dispersions&#39;, &#39;dispersions_norm&#39;
 </code></pre>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filtering hvg</span></span><br><span class="line">adata = adata[:, adata.var.highly_variable]</span><br><span class="line"></span><br><span class="line"><span class="comment"># regress out effects of total counts per cell and the percentage of mt genes expressed</span></span><br><span class="line">sc.pp.regress_out(adata, [<span class="string">&#x27;total_counts&#x27;</span>, <span class="string">&#x27;pct_counts_mt&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># cale each gene to unit variance. clip values exceeding standard deviation 10.</span></span><br><span class="line">sc.pp.scale(adata, max_value=<span class="number">10</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filtering hvg</span></span><br><span class="line">adata = adata[:, adata.var.highly_variable]</span><br><span class="line"></span><br><span class="line"><span class="comment"># regress out effects of total counts per cell and the percentage of mt genes expressed</span></span><br><span class="line">sc.pp.regress_out(adata, [<span class="string">&#x27;total_counts&#x27;</span>, <span class="string">&#x27;pct_counts_mt&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># cale each gene to unit variance. clip values exceeding standard deviation 10.</span></span><br><span class="line">sc.pp.scale(adata, max_value=<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># store scaled data</span></span><br><span class="line">adata.layers[<span class="string">&#x27;scaled&#x27;</span>] = adata.X.copy()</span><br></pre></td></tr></table></figure>
 
 <pre><code>regressing out [&#39;total_counts&#39;, &#39;pct_counts_mt&#39;]
     sparse input is densified and may lead to high memory use
@@ -791,7 +797,7 @@ e:\miniconda3\envs\pysc\lib\site-packages\scanpy\plotting\_tools\scatterplots.py
 
 
 
-<p>由于后续需要在Geneformer中使用该数据，这里我将行名替换为ensembl id，并在细胞注释<code>.obs</code>中增加一列<code>cell_type</code>指定细胞类型和<code>organ_major</code>指定组织类型。随后，以loom格式存储。</p>
+<p>由于后续需要在Geneformer中使用该数据，这里我将行名替换为ensembl id，并在细胞注释<code>.obs</code>中增加一列<code>cell_type</code>指定细胞类型和<code>organ_major</code>指定组织类型。同时，替换默认表达矩阵为原始counts。随后，以loom格式存储。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># make dataset suitable for Geneformer</span></span><br><span class="line"><span class="comment"># convert row attributes to Ensembl IDs</span></span><br><span class="line">adata.var[<span class="string">&#x27;gene_name&#x27;</span>] = adata.var_names</span><br><span class="line">adata.var_names = adata.var[<span class="string">&#x27;gene_ids&#x27;</span>]</span><br><span class="line">adata.var.rename(columns=&#123;<span class="string">&quot;gene_ids&quot;</span>: <span class="string">&quot;ensembl_id&quot;</span>&#125;, inplace=<span class="literal">True</span>)</span><br><span class="line">adata.var</span><br></pre></td></tr></table></figure>
 
 
@@ -1206,9 +1212,17 @@ e:\miniconda3\envs\pysc\lib\site-packages\scanpy\plotting\_tools\scatterplots.py
 <p>2638 rows × 8 columns</p>
 </div>
 
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># replace count matrix with raw counts</span></span><br><span class="line">adata.X = adata.layers[<span class="string">&#x27;counts&#x27;</span>]</span><br><span class="line">adata.X.toarray()[<span class="number">10</span>:<span class="number">15</span>,<span class="number">0</span>:<span class="number">3</span>]</span><br></pre></td></tr></table></figure>
 
 
 
+
+<pre><code>array([[0., 1., 0.],
+       [0., 0., 0.],
+       [0., 0., 0.],
+       [0., 0., 0.],
+       [0., 0., 0.]], dtype=float32)
+</code></pre>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># save in h5ad</span></span><br><span class="line">adata.write(results_file)</span><br><span class="line"><span class="comment"># save in loom</span></span><br><span class="line">adata.write_loom(<span class="string">&quot;output/pbmc3k.loom&quot;</span>)</span><br></pre></td></tr></table></figure>
 
 <pre><code>The loom file will lack these fields:
