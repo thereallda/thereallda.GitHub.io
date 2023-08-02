@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Geneformer for cell type annotationGeneformer 是一个基于30M scRNA-seq data训练的Transformer模型，该训练数据包括多种人类的组织器官。Geneformer可以用于细胞水平的分类预测和基因水平的分类预测（例如预测是否为耐药基因），这里我们先根据教程演示其在细胞类型预测上的步骤。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="geneformer-cell-class">
+<meta property="og:url" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="Geneformer for cell type annotationGeneformer 是一个基于30M scRNA-seq data训练的Transformer模型，该训练数据包括多种人类的组织器官。Geneformer可以用于细胞水平的分类预测和基因水平的分类预测（例如预测是否为耐药基因），这里我们先根据教程演示其在细胞类型预测上的步骤。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/image-20230802095727656.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/image-20230802095744930.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/image-20230802100024478.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/image-20230802100536752.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/image-20230802100543891.png">
+<meta property="article:published_time" content="2023-08-02T01:53:43.000Z">
+<meta property="article:modified_time" content="2023-08-02T02:13:38.873Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="single-cell">
+<meta property="article:tag" content="scRNA-seq">
+<meta property="article:tag" content="deep-learning">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2023/08/02/geneformer-cell-class/image-20230802095727656.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2023/08/02/geneformer-cell-class/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>geneformer-cell-class | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2023/08/02/geneformer-cell-class/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          geneformer-cell-class
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-08-02 09:53:43 / Modified: 10:13:38" itemprop="dateCreated datePublished" datetime="2023-08-02T09:53:43+08:00">2023-08-02</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>39k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>35 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Geneformer-for-cell-type-annotation"><a href="#Geneformer-for-cell-type-annotation" class="headerlink" title="Geneformer for cell type annotation"></a>Geneformer for cell type annotation</h1><p>Geneformer 是一个基于30M scRNA-seq data训练的Transformer模型，该训练数据包括多种人类的组织器官。Geneformer可以用于细胞水平的分类预测和基因水平的分类预测（例如预测是否为耐药基因），这里我们先根据教程演示其在细胞类型预测上的步骤。</p>
+<p><img src="/2023/08/02/geneformer-cell-class/image-20230802095727656.png"></p>
+<span id="more"></span>
+
+<p>Geneformer首先将细胞的基因表达量转换为rank value encoding作为输入，再传递到transformer架构中进行预训练，后续可以根据下游任务在特定数据集上微调加上最后的输出层。</p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/ctheodoris/Geneformer">Geneformer</a> 和其训练数据集 <a target="_blank" rel="noopener" href="https://huggingface.co/datasets/ctheodoris/Genecorpus-30M">Genecorpus-30M</a> 都可以在hugging face上访问到。</p>
+<h2 id="Geneformer环境配置"><a href="#Geneformer环境配置" class="headerlink" title="Geneformer环境配置"></a>Geneformer环境配置</h2><p>我们首先配置Geneformer分析所需要的环境。</p>
+<p>创建conda环境</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda create --envs geneformer</span><br><span class="line">conda activate geneformer</span><br></pre></td></tr></table></figure>
+
+<p>为了在jupyter notebook使用该环境，我们需要安装<code>ipykernel</code>.</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/mighty13/article/details/119859242">https://blog.csdn.net/mighty13/article/details/119859242</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda install -c anaconda ipykernel</span><br><span class="line">python -m ipykernel install --user --name geneformer</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><img src="/2023/08/02/geneformer-cell-class/image-20230802095744930.png"></p>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>接着，我们下载Geneformer和相关的示例数据集。</p>
+<p>Clone project</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https://huggingface.co/ctheodoris/Geneformer</span><br><span class="line">cd Geneformer</span><br><span class="line">pip install .</span><br><span class="line">git lfs install</span><br><span class="line">git lfs pull</span><br></pre></td></tr></table></figure>
+
+<p>Download associated dataset</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://huggingface.co/datasets/ctheodoris/Genecorpus-30M</span><br></pre></td></tr></table></figure>
+
+<p>由于clone的<code>.dataset</code>相关文件只有1kb，我们需要手动下载相应训练数据</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd Genecorpus-30M/example_input_files/cell_classification/cell_type_annotation/cell_type_train_data.dataset</span><br><span class="line">wget https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/resolve/main/example_input_files/cell_classification/cell_type_annotation/cell_type_train_data.dataset/dataset.arrow</span><br><span class="line">wget https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/resolve/main/example_input_files/cell_classification/cell_type_annotation/cell_type_train_data.dataset/dataset_info.json</span><br><span class="line">wget https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/resolve/main/example_input_files/cell_classification/cell_type_annotation/cell_type_train_data.dataset/state.json</span><br></pre></td></tr></table></figure>
+
+<p>Install related modules</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pip3 install seaborn</span><br><span class="line">pip3 install datasets</span><br><span class="line">pip3 install -U scikit-learn</span><br><span class="line">pip3 install transformers</span><br><span class="line"><span class="meta">#</span><span class="bash"> gpu version of torch</span></span><br><span class="line">pip3 install torch -f https://download.pytorch.org/whl/torch_stable.html</span><br><span class="line">pip3 install statsmodels</span><br><span class="line">pip3 install -U accelerate</span><br></pre></td></tr></table></figure>
+
+<h2 id="Import-modules"><a href="#Import-modules" class="headerlink" title="Import modules"></a>Import modules</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">GPU_NUMBER = [<span class="number">0</span>]</span><br><span class="line">os.environ[<span class="string">&quot;CUDA_VISIBLE_DEVICES&quot;</span>] = <span class="string">&quot;,&quot;</span>.join([<span class="built_in">str</span>(s) <span class="keyword">for</span> s <span class="keyword">in</span> GPU_NUMBER])</span><br><span class="line">os.environ[<span class="string">&quot;NCCL_DEBUG&quot;</span>] = <span class="string">&quot;INFO&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># imports</span></span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns; sns.<span class="built_in">set</span>()</span><br><span class="line"><span class="keyword">from</span> datasets <span class="keyword">import</span> load_from_disk</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score, f1_score</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> BertForSequenceClassification</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> Trainer</span><br><span class="line"><span class="keyword">from</span> transformers.training_args <span class="keyword">import</span> TrainingArguments</span><br><span class="line"><span class="keyword">from</span> geneformer <span class="keyword">import</span> DataCollatorForCellClassification</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="Prepare-training-and-evaluation-datasets"><a href="#Prepare-training-and-evaluation-datasets" class="headerlink" title="Prepare training and evaluation datasets"></a>Prepare training and evaluation datasets</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># load cell type dataset (includes all tissues)</span></span><br><span class="line">train_dataset=load_from_disk(<span class="string">&quot;D:/jupyterNote/Geneformer/Genecorpus-30M/example_input_files/cell_classification/cell_type_annotation/cell_type_train_data.dataset&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>我们读入文章提供的数据集<code>Genecorpus-30M</code>，该数据集以Apache Arrow format提供。</p>
+<p>Data Fields</p>
+<ul>
+<li>cell_type</li>
+<li>organ_major</li>
+<li>input_id: rank value encoding for an example cell</li>
+<li>length: length of rank value encoding for that example cell</li>
+</ul>
+<p>For rank value</p>
+<ol>
+<li>计算各个检测到的基因在所有细胞中的非零中位值（nonzero median）；</li>
+<li>对每个细胞中的基因read counts除以该细胞的总read counts以校正测序深度；</li>
+<li>对每个细胞的每个基因除以其相应的非零中位值以求得normalized expression；</li>
+<li>基于每个细胞的normalized expression进行ranking，获得rank values。</li>
+</ol>
+<blockquote>
+<p>The rank value encodings for each single cell transcriptome were then tokenized based on a total vocabulary of 25,424 protein-coding or miRNA genes detected within Geneformer-30M. The token dictionary mapping each token ID to special tokens (pad and mask) or Ensembl IDs for each gene is included within the repository as a pickle file (token_dictionary.pkl).</p>
+</blockquote>
+<blockquote>
+<p>Why the rank values do not range from 1 to the number of genes in that cell?</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># elements of train_dataset</span></span><br><span class="line"><span class="comment"># Includes 249,556 cells in total</span></span><br><span class="line"><span class="built_in">print</span>(train_dataset)</span><br><span class="line"></span><br><span class="line"><span class="comment"># number of cell for each celltypes</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Celltypes:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(train_dataset[<span class="string">&#x27;cell_type&#x27;</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># number of cells from different organs</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\nOrgans:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(train_dataset[<span class="string">&#x27;organ_major&#x27;</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># rank value encoding for each cell</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(train_dataset[<span class="string">&#x27;input_ids&#x27;</span>][<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># number of genes of each cells</span></span><br><span class="line"><span class="built_in">print</span>(train_dataset[<span class="string">&#x27;length&#x27;</span>][<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+
+<pre><code>Dataset(&#123;
+    features: [&#39;cell_type&#39;, &#39;input_ids&#39;, &#39;length&#39;, &#39;organ_major&#39;],
+    num_rows: 249556
+&#125;)
+Counter(&#123;&#39;B cell (Plasmocyte)&#39;: 20728, &#39;T cell&#39;: 16695, &#39;Enterocyte progenitor&#39;: 15441, &#39;Fetal epithelial progenitor&#39;: 14580, &#39;Fetal neuron&#39;: 12287, &#39;Fetal mesenchymal progenitor&#39;: 11905, &#39;Erythroid progenitor cell (RP high)&#39;: 10819, &#39;Hepatocyte/Endodermal cell&#39;: 9781, &#39;Fetal enterocyte &#39;: 9613, &#39;Erythroid cell&#39;: 9089, &#39;Loop of Henle&#39;: 8439, &#39;Macrophage&#39;: 7854, &#39;Monocyte&#39;: 7541, &#39;Epithelial cell&#39;: 7458, &#39;AT2 cell&#39;: 7333, &#39;Neutrophil&#39;: 7276, &#39;Fibroblast&#39;: 6980, &#39;Dendritic cell&#39;: 5960, &#39;Pancreas exocrine cell&#39;: 5538, &#39;Endothelial cell (APC)&#39;: 5431, &#39;M2 Macrophage&#39;: 5373, &#39;Endothelial cell&#39;: 4738, &#39;Antigen presenting cell (RPS high)&#39;: 4658, &#39;Intercalated cell&#39;: 4414, &#39;Sinusoidal endothelial cell&#39;: 3844, &#39;B cell&#39;: 3783, &#39;Endothelial cell (endothelial to mesenchymal transition)&#39;: 3647, &#39;Fetal acinar cell&#39;: 3214, &#39;Ureteric bud cell&#39;: 2472, &#39;Enterocyte&#39;: 1994, &#39;Proximal tubule progenitor&#39;: 1846, &#39;Smooth muscle cell&#39;: 1794, &#39;Fetal stromal cell&#39;: 1061, &#39;Stromal cell&#39;: 1029, &#39;Mast cell&#39;: 968, &#39;Fetal endocrine cell&#39;: 834, &#39;Neutrophil (RPS high)&#39;: 604, &#39;Intermediated cell&#39;: 529, &#39;Proliferating T cell&#39;: 528, &#39;CB CD34+&#39;: 423, &#39;Basal cell&#39;: 236, &#39;Primordial germ cell&#39;: 230, &#39;Fetal fibroblast&#39;: 125, &#39;Fetal Neuron&#39;: 114, &#39;Stratified epithelial cell&#39;: 113, &#39;Fetal skeletal muscle cell&#39;: 57, &#39;Fetal chondrocyte&#39;: 49, &#39;Mesothelial cell&#39;: 30, &#39;Goblet cell&#39;: 19, &#39;Chondrocyte&#39;: 19, &#39;hESC&#39;: 18, &#39;Fasciculata cell&#39;: 13, &#39;Gastric endocrine cell&#39;: 7, &#39;Myeloid cell&#39;: 7, &#39;Epithelial cell (intermediated)&#39;: 7, &#39;Astrocyte&#39;: 4, &#39;Kidney intercalated cell&#39;: 3, &#39;Ventricle cardiomyocyte&#39;: 2, &#39;Immature sertoli cell (Pre-Sertoli cell)&#39;: 2&#125;)
+Counter(&#123;&#39;large_intestine&#39;: 50363, &#39;kidney&#39;: 45059, &#39;lung&#39;: 33309, &#39;liver&#39;: 28376, &#39;pancreas&#39;: 28116, &#39;immune&#39;: 17110, &#39;spleen&#39;: 15614, &#39;brain&#39;: 13440, &#39;placenta&#39;: 9509, &#39;bone_marrow&#39;: 8660&#125;)
+569
+569
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(train_dataset[<span class="string">&#x27;length&#x27;</span>][<span class="number">2</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">min</span>(train_dataset[<span class="string">&#x27;input_ids&#x27;</span>][<span class="number">2</span>]))</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">max</span>(train_dataset[<span class="string">&#x27;input_ids&#x27;</span>][<span class="number">2</span>]))</span><br></pre></td></tr></table></figure>
+
+<pre><code>625
+9
+25414
+</code></pre>
+<p>接着，我们将每个组织的细胞分为80%的training set和20%的evaluation set以供后续的model fine-tune使用。</p>
+<p>这里的细胞都带有celltype labels，并转换为数值标记，例如”B cell” – <code>1</code>。之后提供给下游fine-tune训练使用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">dataset_list = []</span><br><span class="line">evalset_list = []</span><br><span class="line">organ_list = []</span><br><span class="line">target_dict_list = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> organ <span class="keyword">in</span> Counter(train_dataset[<span class="string">&quot;organ_major&quot;</span>]).keys():</span><br><span class="line">    <span class="comment"># collect list of tissues for fine-tuning (immune and bone marrow are included together)</span></span><br><span class="line">    <span class="comment"># for each organ</span></span><br><span class="line">    <span class="keyword">if</span> organ <span class="keyword">in</span> [<span class="string">&quot;bone_marrow&quot;</span>]:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">elif</span> organ==<span class="string">&quot;immune&quot;</span>:</span><br><span class="line">        organ_ids = [<span class="string">&quot;immune&quot;</span>, <span class="string">&quot;bone_marrow&quot;</span>]</span><br><span class="line">        organ_list += [<span class="string">&quot;immune&quot;</span>]</span><br><span class="line">    <span class="keyword">else</span>: </span><br><span class="line">        organ_ids = [organ]</span><br><span class="line">        organ_list += [organ]</span><br><span class="line">        </span><br><span class="line">    <span class="built_in">print</span>(organ)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># filter datasets for given organ </span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">if_organ</span>(<span class="params">example, organ_ids</span>):</span></span><br><span class="line">        <span class="keyword">return</span> example[<span class="string">&quot;organ_major&quot;</span>] <span class="keyword">in</span> organ_ids</span><br><span class="line">    <span class="comment"># if_organ cannot access the outside variable, pass the organ_ids directly</span></span><br><span class="line">    trainset_organ = train_dataset.<span class="built_in">filter</span>(if_organ, num_proc=<span class="number">4</span>, fn_kwargs=&#123;<span class="string">&quot;organ_ids&quot;</span>: organ_ids&#125;) <span class="comment"># `num_proc` indicates the number of processors</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># per scDeepsort published method, drop cell types representing &lt; 0.5% of cells</span></span><br><span class="line">    celltype_counter = Counter(trainset_organ[<span class="string">&quot;cell_type&quot;</span>])</span><br><span class="line">    total_cells = <span class="built_in">sum</span>(celltype_counter.values())</span><br><span class="line">    <span class="comment"># generates a new list that includes only the keys from the celltype_counter dictionary, but only if the corresponding value is greater than 0.5%</span></span><br><span class="line">    cells_to_keep = [k <span class="keyword">for</span> k,v <span class="keyword">in</span> celltype_counter.items() <span class="keyword">if</span> v &gt; (<span class="number">0.005</span>*total_cells)]</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">if_not_rare_celltype</span>(<span class="params">example, cells_to_keep</span>):</span></span><br><span class="line">        <span class="keyword">return</span> example[<span class="string">&quot;cell_type&quot;</span>] <span class="keyword">in</span> cells_to_keep</span><br><span class="line">    trainset_organ_subset = trainset_organ.<span class="built_in">filter</span>(if_not_rare_celltype, num_proc=<span class="number">6</span>, fn_kwargs=&#123;<span class="string">&quot;cells_to_keep&quot;</span>: cells_to_keep&#125;) <span class="comment"># filter rare cell type (cells &lt; 0.5% )</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># shuffle datasets and rename columns</span></span><br><span class="line">    trainset_organ_shuffled = trainset_organ_subset.shuffle(seed=<span class="number">42</span>)</span><br><span class="line">    trainset_organ_shuffled = trainset_organ_shuffled.rename_column(<span class="string">&quot;cell_type&quot;</span>,<span class="string">&quot;label&quot;</span>)</span><br><span class="line">    trainset_organ_shuffled = trainset_organ_shuffled.remove_columns(<span class="string">&quot;organ_major&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># create dictonary of cell types : label ids</span></span><br><span class="line">    <span class="comment"># Counter returns dictionary with element as key and number of occurences as value </span></span><br><span class="line">    target_names = <span class="built_in">list</span>(Counter(trainset_organ_shuffled[<span class="string">&quot;label&quot;</span>]).keys()) </span><br><span class="line">    target_name_id_dict = <span class="built_in">dict</span>(<span class="built_in">zip</span>(target_names, [i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(target_names))]))</span><br><span class="line">    target_dict_list += [target_name_id_dict]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># change labels to numerical ids</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">classes_to_ids</span>(<span class="params">example, target_name_id_dict</span>):</span></span><br><span class="line">        example[<span class="string">&quot;label&quot;</span>] = target_name_id_dict[example[<span class="string">&quot;label&quot;</span>]]</span><br><span class="line">        <span class="keyword">return</span> example</span><br><span class="line">    labeled_trainset = trainset_organ_shuffled.<span class="built_in">map</span>(classes_to_ids, num_proc=<span class="number">4</span>, fn_kwargs=&#123;<span class="string">&quot;target_name_id_dict&quot;</span>: target_name_id_dict&#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># create 80/20 train/eval splits</span></span><br><span class="line">    labeled_train_split = labeled_trainset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">round</span>(<span class="built_in">len</span>(labeled_trainset)*<span class="number">0.8</span>))])</span><br><span class="line">    labeled_eval_split = labeled_trainset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">round</span>(<span class="built_in">len</span>(labeled_trainset)*<span class="number">0.8</span>),<span class="built_in">len</span>(labeled_trainset))])</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># filter dataset for cell types in corresponding training set</span></span><br><span class="line">    trained_labels = <span class="built_in">list</span>(Counter(labeled_train_split[<span class="string">&quot;label&quot;</span>]).keys())</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">if_trained_label</span>(<span class="params">example, trained_labels</span>):</span></span><br><span class="line">        <span class="keyword">return</span> example[<span class="string">&quot;label&quot;</span>] <span class="keyword">in</span> trained_labels</span><br><span class="line">    labeled_eval_split_subset = labeled_eval_split.<span class="built_in">filter</span>(if_trained_label, num_proc=<span class="number">4</span>, fn_kwargs=&#123;<span class="string">&quot;trained_labels&quot;</span>: trained_labels&#125;)</span><br><span class="line">    </span><br><span class="line">    dataset_list += [labeled_train_split]</span><br><span class="line">    evalset_list += [labeled_eval_split_subset]</span><br></pre></td></tr></table></figure>
+
+<pre><code>Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-d895a8dc1f433c21_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-5f89f392ef5206d4_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-ed12a33637a220d0.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-37f89eeea757d6c5_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-74f78f156da669e5_*_of_00004.arrow
+
+
+spleen
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f6dc5b7fe424bf2d_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-896e8ac5f576851c_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-820cdcb7f7383e21.arrow
+
+
+kidney
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-d4006d9701718093_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-3d777eac360cb136_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-0292fb0af10803a4_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-a996d2bf76adce7c_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-65960d687cc54b82.arrow
+
+
+lung
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-456daf9851000084_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-60719877e54cdb77_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-5304f89297ce82b0_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-5284c824687e6edd_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-01ed43e584533226.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-53c0460a585f1ee6_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-3d719e36692d0047_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f94573c555aec2c1_*_of_00004.arrow
+
+
+brain
+placenta
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-c546b4750f90df75_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f29113e9ecf5a9a6.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-3e7c6c00c9efd043_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f57326d9b39be686_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-d155ab4f91b9b109_*_of_00004.arrow
+
+
+immune
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-7699e47999d0e20a_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-c7fa1566fa301d6f.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-c30b7a2b73e574a5_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-b2e2f437bfe2e62b_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f30bce417351df8c_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f040851bda405e47_*_of_00006.arrow
+
+
+large_intestine
+
+
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-fc4569333911ef13.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-791285ddf886e3a6_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-06ee2b3139e1b0a8_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-2ae398bc8c532f07_*_of_00004.arrow
+
+
+pancreas
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-a47c5e32577914f3_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-0bc8012540760dc1.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-d4dcf029b0b1437a_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-f2a3bf8b55c9560b_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-8434ffd865a76d79_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-dbd87150b1b95134_*_of_00006.arrow
+Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-b56b8ddf9ca9920d.arrow
+
+
+liver
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-a31834f681c29f0f_*_of_00004.arrow
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\cell_type_annotation\cell_type_train_data.dataset\cache-c65ae92f453eb94b_*_of_00004.arrow
+</code></pre>
+<p>每个组织的celltype和label id的映射关系存储在<code>target_dict_list</code>这个list中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># number of cells for each organ</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(organ_list)):</span><br><span class="line">    <span class="built_in">print</span>(organ_list[i])</span><br><span class="line">    <span class="built_in">print</span>(Counter(target_dict_list[i]))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<pre><code>spleen
+Counter(&#123;&#39;Endothelial cell (APC)&#39;: 5, &#39;Macrophage&#39;: 4, &#39;Neutrophil&#39;: 3, &#39;T cell&#39;: 2, &#39;B cell&#39;: 1, &#39;B cell (Plasmocyte)&#39;: 0&#125;)
+
+kidney
+Counter(&#123;&#39;T cell&#39;: 14, &#39;Dendritic cell&#39;: 13, &#39;Fetal stromal cell&#39;: 12, &#39;Smooth muscle cell&#39;: 11, &#39;Endothelial cell&#39;: 10, &#39;Macrophage&#39;: 9, &#39;Proximal tubule progenitor&#39;: 8, &#39;Intermediated cell&#39;: 7, &#39;Fetal mesenchymal progenitor&#39;: 6, &#39;Intercalated cell&#39;: 5, &#39;Ureteric bud cell&#39;: 4, &#39;Loop of Henle&#39;: 3, &#39;Fetal epithelial progenitor&#39;: 2, &#39;Epithelial cell&#39;: 1, &#39;Endothelial cell (APC)&#39;: 0&#125;)
+
+lung
+Counter(&#123;&#39;Basal cell&#39;: 15, &#39;Monocyte&#39;: 14, &#39;Endothelial cell&#39;: 13, &#39;Proliferating T cell&#39;: 12, &#39;Dendritic cell&#39;: 11, &#39;Fetal epithelial progenitor&#39;: 10, &#39;B cell (Plasmocyte)&#39;: 9, &#39;Mast cell&#39;: 8, &#39;Endothelial cell (APC)&#39;: 7, &#39;T cell&#39;: 6, &#39;Endothelial cell (endothelial to mesenchymal transition)&#39;: 5, &#39;M2 Macrophage&#39;: 4, &#39;Macrophage&#39;: 3, &#39;Fetal mesenchymal progenitor&#39;: 2, &#39;AT2 cell&#39;: 1, &#39;Smooth muscle cell&#39;: 0&#125;)
+
+brain
+Counter(&#123;&#39;Fetal epithelial progenitor&#39;: 5, &#39;Fetal endocrine cell&#39;: 4, &#39;Erythroid cell&#39;: 3, &#39;Macrophage&#39;: 2, &#39;Fetal mesenchymal progenitor&#39;: 1, &#39;Fetal neuron&#39;: 0&#125;)
+
+placenta
+Counter(&#123;&#39;Macrophage&#39;: 2, &#39;Epithelial cell&#39;: 1, &#39;Fibroblast&#39;: 0&#125;)
+
+immune
+Counter(&#123;&#39;B cell&#39;: 9, &#39;Neutrophil (RPS high)&#39;: 8, &#39;B cell (Plasmocyte)&#39;: 7, &#39;Dendritic cell&#39;: 6, &#39;Erythroid progenitor cell (RP high)&#39;: 5, &#39;Erythroid cell&#39;: 4, &#39;Neutrophil&#39;: 3, &#39;T cell&#39;: 2, &#39;Monocyte&#39;: 1, &#39;Antigen presenting cell (RPS high)&#39;: 0&#125;)
+
+large_intestine
+Counter(&#123;&#39;Endothelial cell&#39;: 15, &#39;Smooth muscle cell&#39;: 14, &#39;Fetal stromal cell&#39;: 13, &#39;B cell&#39;: 12, &#39;Stromal cell&#39;: 11, &#39;Enterocyte&#39;: 10, &#39;T cell&#39;: 9, &#39;Macrophage&#39;: 8, &#39;Dendritic cell&#39;: 7, &#39;Epithelial cell&#39;: 6, &#39;Fetal neuron&#39;: 5, &#39;Fetal mesenchymal progenitor&#39;: 4, &#39;B cell (Plasmocyte)&#39;: 3, &#39;Fetal enterocyte &#39;: 2, &#39;Hepatocyte/Endodermal cell&#39;: 1, &#39;Enterocyte progenitor&#39;: 0&#125;)
+
+pancreas
+Counter(&#123;&#39;Endothelial cell (APC)&#39;: 14, &#39;Smooth muscle cell&#39;: 13, &#39;Dendritic cell&#39;: 12, &#39;Fetal epithelial progenitor&#39;: 11, &#39;Erythroid cell&#39;: 10, &#39;Fetal endocrine cell&#39;: 9, &#39;Endothelial cell&#39;: 8, &#39;Enterocyte progenitor&#39;: 7, &#39;Fetal neuron&#39;: 6, &#39;Macrophage&#39;: 5, &#39;Fetal mesenchymal progenitor&#39;: 4, &#39;Pancreas exocrine cell&#39;: 3, &#39;Fetal acinar cell&#39;: 2, &#39;T cell&#39;: 1, &#39;B cell&#39;: 0&#125;)
+
+liver
+Counter(&#123;&#39;CB CD34+&#39;: 11, &#39;B cell&#39;: 10, &#39;Neutrophil (RPS high)&#39;: 9, &#39;B cell (Plasmocyte)&#39;: 8, &#39;T cell&#39;: 7, &#39;Neutrophil&#39;: 6, &#39;Monocyte&#39;: 5, &#39;Dendritic cell&#39;: 4, &#39;Macrophage&#39;: 3, &#39;Sinusoidal endothelial cell&#39;: 2, &#39;Erythroid cell&#39;: 1, &#39;Erythroid progenitor cell (RP high)&#39;: 0&#125;)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trainset_dict = <span class="built_in">dict</span>(<span class="built_in">zip</span>(organ_list, dataset_list))</span><br><span class="line">traintargetdict_dict = <span class="built_in">dict</span>(<span class="built_in">zip</span>(organ_list, target_dict_list))</span><br><span class="line">evalset_dict = <span class="built_in">dict</span>(<span class="built_in">zip</span>(organ_list, evalset_list))</span><br></pre></td></tr></table></figure>
+
+<h2 id="Fine-Tune-With-Cell-Classification-Learning-Objective-and-Quantify-Predictive-Performance"><a href="#Fine-Tune-With-Cell-Classification-Learning-Objective-and-Quantify-Predictive-Performance" class="headerlink" title="Fine-Tune With Cell Classification Learning Objective and Quantify Predictive Performance"></a>Fine-Tune With Cell Classification Learning Objective and Quantify Predictive Performance</h2><p>接下来，使用预设的hyperparameters进行训练，作者建议根据下游任务调整hyperparameters。</p>
+<p>另外，我们定义一个评估模型预测性能的函数<code>compute_metrics</code>.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compute_metrics</span>(<span class="params">pred</span>):</span></span><br><span class="line">    labels = pred.label_ids</span><br><span class="line">    preds = pred.predictions.argmax(-<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># calculate accuracy and macro f1 using sklearn&#x27;s function</span></span><br><span class="line">    acc = accuracy_score(labels, preds)</span><br><span class="line">    macro_f1 = f1_score(labels, preds, average=<span class="string">&#x27;macro&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="string">&#x27;accuracy&#x27;</span>: acc,</span><br><span class="line">      <span class="string">&#x27;macro_f1&#x27;</span>: macro_f1</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># set model parameters</span></span><br><span class="line"><span class="comment"># max inpiut size</span></span><br><span class="line">max_input_size = <span class="number">2</span> ** <span class="number">11</span> <span class="comment"># 2048</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># set training hyperparameters</span></span><br><span class="line"><span class="comment"># max learning rate</span></span><br><span class="line">max_lr = <span class="number">5e-5</span></span><br><span class="line"><span class="comment"># how many pretrained layers to freeze</span></span><br><span class="line">freeze_layers = <span class="number">0</span></span><br><span class="line"><span class="comment"># number gpus</span></span><br><span class="line">num_gpus = <span class="number">1</span></span><br><span class="line"><span class="comment"># number cpu cores</span></span><br><span class="line">num_proc = <span class="number">6</span></span><br><span class="line"><span class="comment"># batch size for training and eval</span></span><br><span class="line"><span class="comment"># reducing batch size for limited gpu memeory </span></span><br><span class="line">geneformer_batch_size = <span class="number">4</span></span><br><span class="line"><span class="comment"># learning schedule</span></span><br><span class="line">lr_schedule_fn = <span class="string">&quot;linear&quot;</span></span><br><span class="line"><span class="comment"># warmup steps</span></span><br><span class="line">warmup_steps = <span class="number">500</span></span><br><span class="line"><span class="comment"># number of epochs </span></span><br><span class="line">epochs = <span class="number">10</span></span><br><span class="line"><span class="comment"># optimizer </span></span><br><span class="line">optimizer = <span class="string">&quot;adamw&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>接着，我们对每个组织都微调一个细胞分类的预测器，其中包括, brain, immune, kidney, large intestine, liver, lung, pancreas, placenta, and spleen. </p>
+<blockquote>
+<p><strong>这一步耗时很久</strong></p>
+</blockquote>
+<p>模型通过<code>BertForSequenceClassification.from_pretrained</code>读入。<code>num_labels</code>为模型输出的class数目，这里设置成每个组织对应的细胞类型数量即可。</p>
+<p>随后，创建<code>trainer</code>并进行训练，<code>.predict()</code>进行预测。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> organ <span class="keyword">in</span> organ_list:</span><br><span class="line">    <span class="built_in">print</span>(organ)</span><br><span class="line">    organ_trainset = trainset_dict[organ]</span><br><span class="line">    organ_evalset = evalset_dict[organ]</span><br><span class="line">    organ_label_dict = traintargetdict_dict[organ]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># set logging steps</span></span><br><span class="line">    logging_steps = <span class="built_in">round</span>(<span class="built_in">len</span>(organ_trainset)/geneformer_batch_size/<span class="number">10</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># reload pretrained model</span></span><br><span class="line">    model = BertForSequenceClassification.from_pretrained(<span class="string">&quot;D:\\jupyterNote\\Geneformer&quot;</span>,</span><br><span class="line">                                                         num_labels = <span class="built_in">len</span>(organ_label_dict.keys()),</span><br><span class="line">                                                         output_attentions = <span class="literal">False</span>, </span><br><span class="line">                                                         output_hidden_states = <span class="literal">False</span>).to(<span class="string">&quot;cuda&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># define output directory path</span></span><br><span class="line">    current_date = datetime.datetime.now()</span><br><span class="line">    datestamp = <span class="string">f&quot;<span class="subst">&#123;<span class="built_in">str</span>(current_date.year)[-<span class="number">2</span>:]&#125;</span><span class="subst">&#123;current_date.month:02d&#125;</span><span class="subst">&#123;current_date.day:02d&#125;</span>&quot;</span></span><br><span class="line">    output_dir = <span class="string">f&quot;D:\\jupyterNote\\Geneformer\\examples\\cell_class_test\\<span class="subst">&#123;datestamp&#125;</span>_geneformer_CellClassifier_<span class="subst">&#123;organ&#125;</span>_L<span class="subst">&#123;max_input_size&#125;</span>_B<span class="subst">&#123;geneformer_batch_size&#125;</span>_LR<span class="subst">&#123;max_lr&#125;</span>_LS<span class="subst">&#123;lr_schedule_fn&#125;</span>_WU<span class="subst">&#123;warmup_steps&#125;</span>_E<span class="subst">&#123;epochs&#125;</span>_O<span class="subst">&#123;optimizer&#125;</span>_F<span class="subst">&#123;freeze_layers&#125;</span>\\&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># ensure not overwriting previously saved model</span></span><br><span class="line">    saved_model_test = os.path.join(output_dir, <span class="string">f&quot;pytorch_model.bin&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> os.path.isfile(saved_model_test) == <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">&quot;Model already saved to this directory.&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># make output directory</span></span><br><span class="line">    subprocess.call(<span class="string">f&#x27;mkdir <span class="subst">&#123;output_dir&#125;</span>&#x27;</span>, shell=<span class="literal">True</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># set training arguments</span></span><br><span class="line">    training_args = &#123;</span><br><span class="line">        <span class="string">&quot;learning_rate&quot;</span>: max_lr,</span><br><span class="line">        <span class="string">&quot;do_train&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">&quot;do_eval&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">&quot;evaluation_strategy&quot;</span>: <span class="string">&quot;epoch&quot;</span>,</span><br><span class="line">        <span class="string">&quot;save_strategy&quot;</span>: <span class="string">&quot;epoch&quot;</span>,</span><br><span class="line">        <span class="string">&quot;logging_steps&quot;</span>: logging_steps,</span><br><span class="line">        <span class="string">&quot;group_by_length&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">&quot;length_column_name&quot;</span>: <span class="string">&quot;length&quot;</span>,</span><br><span class="line">        <span class="string">&quot;disable_tqdm&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">        <span class="string">&quot;lr_scheduler_type&quot;</span>: lr_schedule_fn,</span><br><span class="line">        <span class="string">&quot;warmup_steps&quot;</span>: warmup_steps,</span><br><span class="line">        <span class="string">&quot;weight_decay&quot;</span>: <span class="number">0.001</span>,</span><br><span class="line">        <span class="string">&quot;per_device_train_batch_size&quot;</span>: geneformer_batch_size,</span><br><span class="line">        <span class="string">&quot;per_device_eval_batch_size&quot;</span>: geneformer_batch_size,</span><br><span class="line">        <span class="string">&quot;num_train_epochs&quot;</span>: epochs,</span><br><span class="line">        <span class="string">&quot;load_best_model_at_end&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">&quot;output_dir&quot;</span>: output_dir,</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    training_args_init = TrainingArguments(**training_args)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># create the trainer</span></span><br><span class="line">    trainer = Trainer(</span><br><span class="line">        model=model,</span><br><span class="line">        args=training_args_init,</span><br><span class="line">        data_collator=DataCollatorForCellClassification(),</span><br><span class="line">        train_dataset=organ_trainset,</span><br><span class="line">        eval_dataset=organ_evalset,</span><br><span class="line">        compute_metrics=compute_metrics</span><br><span class="line">    )</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># train the cell type classifier</span></span><br><span class="line">    trainer.train()</span><br><span class="line">    predictions = trainer.predict(organ_evalset)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&quot;<span class="subst">&#123;output_dir&#125;</span>predictions.pickle&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">        pickle.dump(predictions, fp)</span><br><span class="line">    trainer.save_metrics(<span class="string">&quot;eval&quot;</span>,predictions.metrics)</span><br><span class="line">    trainer.save_model(output_dir)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">    Some weights of the model checkpoint at D:\jupyterNote\Geneformer were <span class="keyword">not</span> used when initializing BertForSequenceClassification: [<span class="string">&#x27;cls.predictions.transform.dense.weight&#x27;</span>, <span class="string">&#x27;cls.predictions.transform.LayerNorm.weight&#x27;</span>, <span class="string">&#x27;cls.predictions.decoder.bias&#x27;</span>, <span class="string">&#x27;cls.predictions.transform.LayerNorm.bias&#x27;</span>, <span class="string">&#x27;cls.predictions.bias&#x27;</span>, <span class="string">&#x27;cls.predictions.decoder.weight&#x27;</span>, <span class="string">&#x27;cls.predictions.transform.dense.bias&#x27;</span>]</span><br><span class="line">    - This IS expected <span class="keyword">if</span> you are initializing BertForSequenceClassification <span class="keyword">from</span> the checkpoint of a model trained on another task <span class="keyword">or</span> <span class="keyword">with</span> another architecture (e.g. initializing a BertForSequenceClassification model <span class="keyword">from</span> a BertForPreTraining model).</span><br><span class="line">    - This IS NOT expected <span class="keyword">if</span> you are initializing BertForSequenceClassification <span class="keyword">from</span> the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model <span class="keyword">from</span> a BertForSequenceClassification model).</span><br><span class="line">    Some weights of BertForSequenceClassification were <span class="keyword">not</span> initialized <span class="keyword">from</span> the model checkpoint at D:\jupyterNote\Geneformer <span class="keyword">and</span> are newly initialized: [<span class="string">&#x27;bert.pooler.dense.weight&#x27;</span>, <span class="string">&#x27;classifier.bias&#x27;</span>, <span class="string">&#x27;classifier.weight&#x27;</span>, <span class="string">&#x27;bert.pooler.dense.bias&#x27;</span>]</span><br><span class="line">    You should probably TRAIN this model on a down-stream task to be able to use it <span class="keyword">for</span> predictions <span class="keyword">and</span> inference.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;...training message...&gt;</span><br></pre></td></tr></table></figure>
+
+<p>训练结束后，训练的模型，及其预测结果都输出到设置的<code>output_dir</code>下。</p>
+<p><img src="/2023/08/02/geneformer-cell-class/image-20230802100024478.png"></p>
+<p>每个文件夹中都包含了fine-tuned model相关文件（<code>training_args.bin</code>, <code>config.json</code>, <code>pytorch_model.bin</code>），以及预测结果相关文件（<code>predictions.pickle</code>）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ls 230719_geneformer_CellClassifier_brain_L2048_B4_LR5e-05_LSlinear_WU500_E10_Oadamw_F0/</span><br><span class="line"></span><br><span class="line">all_results.json  checkpoint-15984  checkpoint-23976  checkpoint-5328  eval_results.json   training_args.bin</span><br><span class="line">checkpoint-10656  checkpoint-18648  checkpoint-2664   checkpoint-7992  predictions.pickle</span><br><span class="line">checkpoint-13320  checkpoint-21312  checkpoint-26640  config.json      pytorch_model.bin</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># clear GPU memory after pytorch training </span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line">torch.cuda.empty_cache()</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The pretrained model</span></span><br><span class="line">model</span><br></pre></td></tr></table></figure>
+
+
+<pre><code>BertForSequenceClassification(
+  (bert): BertModel(
+    (embeddings): BertEmbeddings(
+      (word_embeddings): Embedding(25426, 256, padding_idx=0)
+      (position_embeddings): Embedding(2048, 256)
+      (token_type_embeddings): Embedding(2, 256)
+      (LayerNorm): LayerNorm((256,), eps=1e-12, elementwise_affine=True)
+      (dropout): Dropout(p=0.02, inplace=False)
+    )
+    (encoder): BertEncoder(
+      (layer): ModuleList(
+        (0-5): 6 x BertLayer(
+          (attention): BertAttention(
+            (self): BertSelfAttention(
+              (query): Linear(in_features=256, out_features=256, bias=True)
+              (key): Linear(in_features=256, out_features=256, bias=True)
+              (value): Linear(in_features=256, out_features=256, bias=True)
+              (dropout): Dropout(p=0.02, inplace=False)
+            )
+            (output): BertSelfOutput(
+              (dense): Linear(in_features=256, out_features=256, bias=True)
+              (LayerNorm): LayerNorm((256,), eps=1e-12, elementwise_affine=True)
+              (dropout): Dropout(p=0.02, inplace=False)
+            )
+          )
+          (intermediate): BertIntermediate(
+            (dense): Linear(in_features=256, out_features=512, bias=True)
+            (intermediate_act_fn): ReLU()
+          )
+          (output): BertOutput(
+            (dense): Linear(in_features=512, out_features=256, bias=True)
+            (LayerNorm): LayerNorm((256,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.02, inplace=False)
+          )
+        )
+      )
+    )
+    (pooler): BertPooler(
+      (dense): Linear(in_features=256, out_features=256, bias=True)
+      (activation): Tanh()
+    )
+  )
+  (dropout): Dropout(p=0.02, inplace=False)
+  (classifier): Linear(in_features=256, out_features=12, bias=True)
+)
+</code></pre>
+<p>接下来，我们将基于immune数据的微调模型应用到3k PBMCs scRNA-seq data上进行celltype prediction. </p>
+<p>首先，我们需要将<strong>原始的测序counts</strong>转换为rank values encoding （<code>tk.tokenize_data</code>）.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># applying fine-tuned model on new datasets</span></span><br><span class="line"><span class="comment"># using the 3k PBMCs dataset</span></span><br><span class="line"><span class="comment"># 1. transform scRNA-seq expression data to rank value .dataset format</span></span><br><span class="line"><span class="keyword">from</span> geneformer <span class="keyword">import</span> TranscriptomeTokenizer</span><br><span class="line"></span><br><span class="line">tk = TranscriptomeTokenizer(&#123;<span class="string">&quot;cell_type&quot;</span>: <span class="string">&quot;cell_type&quot;</span>, <span class="string">&quot;organ_major&quot;</span>: <span class="string">&quot;organ_major&quot;</span>&#125;, nproc=<span class="number">4</span>)</span><br><span class="line">tk.tokenize_data(<span class="string">&quot;D:/jupyterNote/pySC/output/&quot;</span>, output_directory=<span class="string">&quot;token_data/&quot;</span>, output_prefix=<span class="string">&quot;tk_pbmc3k&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Tokenizing D:\jupyterNote\pySC\output\pbmc3k.loom
+D:\jupyterNote\pySC\output\pbmc3k.loom has no column attribute &#39;filter_pass&#39;; tokenizing all cells.
+</code></pre>
+<p>  读入tokenized dataset                                                                                                                                 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 2. load new dataset</span></span><br><span class="line">new_dataset = load_from_disk(<span class="string">&quot;D:/jupyterNote/Geneformer/examples/token_data/tk_pbmc3k.dataset/&quot;</span>)</span><br><span class="line">new_dataset</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>Dataset(&#123;
+    features: [&#39;input_ids&#39;, &#39;cell_type&#39;, &#39;organ_major&#39;, &#39;length&#39;],
+    num_rows: 2638
+&#125;)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment"># input_ids represent rank encodings</span></span><br><span class="line">pd.DataFrame(new_dataset)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>input_ids</th>
+      <th>cell_type</th>
+      <th>organ_major</th>
+      <th>length</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>[19693, 10551, 2362, 1869, 4658, 18585, 9039, ...</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+      <td>139</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>[5307, 10632, 8073, 3539, 19629, 516, 18552, 1...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>247</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>[6729, 226, 9004, 11666, 4621, 1433, 8198, 327...</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>[3057, 12015, 17654, 6179, 2522, 2770, 417, 62...</td>
+      <td>FCGR3A Monocytes</td>
+      <td>immune</td>
+      <td>185</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>[12623, 18649, 10321, 2313, 7245, 13219, 242, ...</td>
+      <td>NK</td>
+      <td>immune</td>
+      <td>91</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2633</th>
+      <td>[2522, 13139, 3539, 449, 19629, 488, 2770, 695...</td>
+      <td>CD14 Monocytes</td>
+      <td>immune</td>
+      <td>241</td>
+    </tr>
+    <tr>
+      <th>2634</th>
+      <td>[13492, 6556, 12734, 3078, 3539, 643, 695, 195...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>189</td>
+    </tr>
+    <tr>
+      <th>2635</th>
+      <td>[14848, 16634, 19629, 2987, 5214, 11314, 17576...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>108</td>
+    </tr>
+    <tr>
+      <th>2636</th>
+      <td>[19629, 19899, 14408, 3078, 7380, 1868, 4472, ...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>93</td>
+    </tr>
+    <tr>
+      <th>2637</th>
+      <td>[4658, 18585, 18828, 14377, 10632, 13116, 1481...</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+      <td>118</td>
+    </tr>
+  </tbody>
+</table>
+<p>2638 rows × 4 columns</p>
+</div>
+
+
+
+<p>由于模型要求input tensors（每个细胞的rank encoding）长度一致，这里将其padding到统一长度（所有细胞中最多的基因数）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> geneformer.pretrainer <span class="keyword">import</span> token_dictionary</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">preprocess_classifier_batch</span>(<span class="params">cell_batch, max_len</span>):</span></span><br><span class="line">    <span class="keyword">if</span> max_len == <span class="literal">None</span>:</span><br><span class="line">        max_len = <span class="built_in">max</span>([<span class="built_in">len</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> cell_batch[<span class="string">&quot;input_ids&quot;</span>]])</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pad_label_example</span>(<span class="params">example</span>):</span></span><br><span class="line">        <span class="comment">#example[&quot;labels&quot;] = np.pad(example[&quot;labels&quot;], </span></span><br><span class="line">        <span class="comment">#                           (0, max_len-len(example[&quot;input_ids&quot;])), </span></span><br><span class="line">        <span class="comment">#                           mode=&#x27;constant&#x27;, constant_values=-100)</span></span><br><span class="line">        example[<span class="string">&quot;input_ids&quot;</span>] = np.pad(example[<span class="string">&quot;input_ids&quot;</span>], </span><br><span class="line">                                      (<span class="number">0</span>, max_len-<span class="built_in">len</span>(example[<span class="string">&quot;input_ids&quot;</span>])), </span><br><span class="line">                                      mode=<span class="string">&#x27;constant&#x27;</span>, constant_values=token_dictionary.get(<span class="string">&quot;&lt;pad&gt;&quot;</span>))</span><br><span class="line">        example[<span class="string">&quot;attention_mask&quot;</span>] = (example[<span class="string">&quot;input_ids&quot;</span>] != token_dictionary.get(<span class="string">&quot;&lt;pad&gt;&quot;</span>)).astype(<span class="built_in">int</span>)</span><br><span class="line">        <span class="keyword">return</span> example</span><br><span class="line">    padded_batch = cell_batch.<span class="built_in">map</span>(pad_label_example)</span><br><span class="line">    <span class="keyword">return</span> padded_batch</span><br><span class="line"></span><br><span class="line"><span class="comment"># Function to find the largest number smaller</span></span><br><span class="line"><span class="comment"># than or equal to N that is divisible by k</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_largest_div</span>(<span class="params">N, K</span>):</span></span><br><span class="line">    rem = N % K</span><br><span class="line">    <span class="keyword">if</span>(rem == <span class="number">0</span>):</span><br><span class="line">        <span class="keyword">return</span> N</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> N - rem</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># padded to be the same length.</span></span><br><span class="line">set_len=<span class="built_in">len</span>(new_dataset)</span><br><span class="line">max_set_len = <span class="built_in">max</span>(new_dataset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(set_len)])[<span class="string">&quot;length&quot;</span>])</span><br><span class="line">padded_dataset = preprocess_classifier_batch(new_dataset, max_set_len)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Loading cached processed dataset at D:\jupyterNote\Geneformer\examples\token_data\tk_pbmc3k.dataset\cache-4214517ba3d677b2.arrow
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pd.DataFrame(padded_dataset)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>input_ids</th>
+      <th>cell_type</th>
+      <th>organ_major</th>
+      <th>length</th>
+      <th>attention_mask</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>[19693, 10551, 2362, 1869, 4658, 18585, 9039, ...</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+      <td>139</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>[5307, 10632, 8073, 3539, 19629, 516, 18552, 1...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>247</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>[6729, 226, 9004, 11666, 4621, 1433, 8198, 327...</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+      <td>200</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>[3057, 12015, 17654, 6179, 2522, 2770, 417, 62...</td>
+      <td>FCGR3A Monocytes</td>
+      <td>immune</td>
+      <td>185</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>[12623, 18649, 10321, 2313, 7245, 13219, 242, ...</td>
+      <td>NK</td>
+      <td>immune</td>
+      <td>91</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2633</th>
+      <td>[2522, 13139, 3539, 449, 19629, 488, 2770, 695...</td>
+      <td>CD14 Monocytes</td>
+      <td>immune</td>
+      <td>241</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>2634</th>
+      <td>[13492, 6556, 12734, 3078, 3539, 643, 695, 195...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>189</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>2635</th>
+      <td>[14848, 16634, 19629, 2987, 5214, 11314, 17576...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>108</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>2636</th>
+      <td>[19629, 19899, 14408, 3078, 7380, 1868, 4472, ...</td>
+      <td>B</td>
+      <td>immune</td>
+      <td>93</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+    <tr>
+      <th>2637</th>
+      <td>[4658, 18585, 18828, 14377, 10632, 13116, 1481...</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+      <td>118</td>
+      <td>[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...</td>
+    </tr>
+  </tbody>
+</table>
+<p>2638 rows × 5 columns</p>
+</div>
+
+<p>接下来，读入微调模型进行预测</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 3. load the fine-tuned model</span></span><br><span class="line"><span class="comment"># reload fine-tuned model</span></span><br><span class="line">ft_model = BertForSequenceClassification.from_pretrained(<span class="string">&quot;cell_class_test/230719_geneformer_CellClassifier_immune_L2048_B4_LR5e-05_LSlinear_WU500_E10_Oadamw_F0/&quot;</span>)</span><br><span class="line"><span class="comment"># since immune organ only include 10 celltypes in the training set, the out_features=10 in the final output layer</span></span><br><span class="line"><span class="built_in">print</span>(ft_model)</span><br><span class="line"></span><br><span class="line">ft_trainer = Trainer(model=ft_model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. perform prediction </span></span><br><span class="line">ct_predictions = ft_trainer.predict(padded_dataset)</span><br><span class="line">ct_pred = ct_predictions.predictions</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">BertForSequenceClassification(</span><br><span class="line">  (bert): BertModel(</span><br><span class="line">    (embeddings): BertEmbeddings(</span><br><span class="line">      (word_embeddings): Embedding(<span class="number">25426</span>, <span class="number">256</span>, padding_idx=<span class="number">0</span>)</span><br><span class="line">      (position_embeddings): Embedding(<span class="number">2048</span>, <span class="number">256</span>)</span><br><span class="line">      (token_type_embeddings): Embedding(<span class="number">2</span>, <span class="number">256</span>)</span><br><span class="line">      (LayerNorm): LayerNorm((<span class="number">256</span>,), eps=<span class="number">1e-12</span>, elementwise_affine=<span class="literal">True</span>)</span><br><span class="line">      (dropout): Dropout(p=<span class="number">0.02</span>, inplace=<span class="literal">False</span>)</span><br><span class="line">    )</span><br><span class="line">    (encoder): BertEncoder(</span><br><span class="line">      (layer): ModuleList(</span><br><span class="line">        (<span class="number">0</span>-<span class="number">5</span>): <span class="number">6</span> x BertLayer(</span><br><span class="line">          (attention): BertAttention(</span><br><span class="line">            (self): BertSelfAttention(</span><br><span class="line">              (query): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">256</span>, bias=<span class="literal">True</span>)</span><br><span class="line">              (key): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">256</span>, bias=<span class="literal">True</span>)</span><br><span class="line">              (value): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">256</span>, bias=<span class="literal">True</span>)</span><br><span class="line">              (dropout): Dropout(p=<span class="number">0.02</span>, inplace=<span class="literal">False</span>)</span><br><span class="line">            )</span><br><span class="line">            (output): BertSelfOutput(</span><br><span class="line">              (dense): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">256</span>, bias=<span class="literal">True</span>)</span><br><span class="line">              (LayerNorm): LayerNorm((<span class="number">256</span>,), eps=<span class="number">1e-12</span>, elementwise_affine=<span class="literal">True</span>)</span><br><span class="line">              (dropout): Dropout(p=<span class="number">0.02</span>, inplace=<span class="literal">False</span>)</span><br><span class="line">            )</span><br><span class="line">          )</span><br><span class="line">          (intermediate): BertIntermediate(</span><br><span class="line">            (dense): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">512</span>, bias=<span class="literal">True</span>)</span><br><span class="line">            (intermediate_act_fn): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (output): BertOutput(</span><br><span class="line">            (dense): Linear(in_features=<span class="number">512</span>, out_features=<span class="number">256</span>, bias=<span class="literal">True</span>)</span><br><span class="line">            (LayerNorm): LayerNorm((<span class="number">256</span>,), eps=<span class="number">1e-12</span>, elementwise_affine=<span class="literal">True</span>)</span><br><span class="line">            (dropout): Dropout(p=<span class="number">0.02</span>, inplace=<span class="literal">False</span>)</span><br><span class="line">          )</span><br><span class="line">        )</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">    (pooler): BertPooler(</span><br><span class="line">      (dense): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">256</span>, bias=<span class="literal">True</span>)</span><br><span class="line">      (activation): Tanh()</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (dropout): Dropout(p=<span class="number">0.02</span>, inplace=<span class="literal">False</span>)</span><br><span class="line">  (classifier): Linear(in_features=<span class="number">256</span>, out_features=<span class="number">10</span>, bias=<span class="literal">True</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>使用fine-tuned model进行分类预测，这里根据最大预测值判断cell type。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># celltype : index </span></span><br><span class="line">immune_label_idx_dict = target_dict_list[<span class="number">5</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># get the predicted cell type by max value of prediction </span></span><br><span class="line">ct_pred_id = ct_pred.argmax(-<span class="number">1</span>) <span class="comment"># list </span></span><br><span class="line">ct_pred_label = [k <span class="keyword">for</span> idx <span class="keyword">in</span> ct_pred_id <span class="keyword">for</span> k, v <span class="keyword">in</span> immune_label_idx_dict.items() <span class="keyword">if</span> v == idx]</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(ct_pred_label))</span><br></pre></td></tr></table></figure>
+
+<pre><code>2638
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(ct_pred_id[<span class="number">0</span>:<span class="number">10</span>])</span><br><span class="line"><span class="built_in">print</span>(ct_pred_label[<span class="number">0</span>:<span class="number">10</span>])</span><br><span class="line"><span class="built_in">print</span>(immune_label_idx_dict)</span><br></pre></td></tr></table></figure>
+
+<pre><code>[2 9 2 1 2 9 2 2 2 1]
+[&#39;T cell&#39;, &#39;B cell&#39;, &#39;T cell&#39;, &#39;Monocyte&#39;, &#39;T cell&#39;, &#39;B cell&#39;, &#39;T cell&#39;, &#39;T cell&#39;, &#39;T cell&#39;, &#39;Monocyte&#39;]
+&#123;&#39;Antigen presenting cell (RPS high)&#39;: 0, &#39;Monocyte&#39;: 1, &#39;T cell&#39;: 2, &#39;Neutrophil&#39;: 3, &#39;Erythroid cell&#39;: 4, &#39;Erythroid progenitor cell (RP high)&#39;: 5, &#39;Dendritic cell&#39;: 6, &#39;B cell (Plasmocyte)&#39;: 7, &#39;Neutrophil (RPS high)&#39;: 8, &#39;B cell&#39;: 9&#125;
+</code></pre>
+<p>这里用UMAP可视化细胞分类的结果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> scanpy <span class="keyword">as</span> sc</span><br><span class="line"><span class="keyword">import</span> anndata</span><br><span class="line"></span><br><span class="line">adata = anndata.read_h5ad(<span class="string">&quot;D:/jupyterNote/pySC/output/pbmc3k.h5ad&quot;</span>)</span><br><span class="line">adata</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>AnnData object with n_obs × n_vars = 2638 × 1838
+    obs: &#39;n_genes&#39;, &#39;n_genes_by_counts&#39;, &#39;n_counts&#39;, &#39;total_counts_mt&#39;, &#39;pct_counts_mt&#39;, &#39;leiden&#39;, &#39;cell_type&#39;, &#39;organ_major&#39;
+    var: &#39;ensembl_id&#39;, &#39;n_cells&#39;, &#39;mt&#39;, &#39;n_cells_by_counts&#39;, &#39;mean_counts&#39;, &#39;pct_dropout_by_counts&#39;, &#39;total_counts&#39;, &#39;highly_variable&#39;, &#39;means&#39;, &#39;dispersions&#39;, &#39;dispersions_norm&#39;, &#39;mean&#39;, &#39;std&#39;, &#39;gene_name&#39;
+    uns: &#39;hvg&#39;, &#39;leiden&#39;, &#39;leiden_colors&#39;, &#39;log1p&#39;, &#39;neighbors&#39;, &#39;pca&#39;, &#39;rank_genes_groups&#39;, &#39;umap&#39;
+    obsm: &#39;X_pca&#39;, &#39;X_umap&#39;
+    varm: &#39;PCs&#39;
+    layers: &#39;counts&#39;, &#39;data&#39;, &#39;scaled&#39;
+    obsp: &#39;connectivities&#39;, &#39;distances&#39;
+</code></pre>
+<p>尽管Geneformer对细胞的名称和原数据不太一样，我们可以看到Geneformer注释的结果大体上和原本注释是一致的。总的来说，Geneformer可以作为一种细胞类型预测的工具使用，但其虽然先对预训练模型微调，这要求我们要有一定相关的单细胞数据集。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adata.obs[<span class="string">&#x27;geneformer_pred&#x27;</span>] = ct_pred_label</span><br><span class="line">sc.pl.umap(adata, color=<span class="string">&#x27;geneformer_pred&#x27;</span>)</span><br><span class="line">sc.pl.umap(adata, color=<span class="string">&#x27;cell_type&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>E:\miniconda3\envs\geneformer\lib\site-packages\scanpy\plotting\_tools\scatterplots.py:392: UserWarning: No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39; will be ignored
+  cax = scatter(
+</code></pre>
+<p><img src="/2023/08/02/geneformer-cell-class/image-20230802100536752.png" alt="image-20230802100536752"></p>
+<pre><code>E:\miniconda3\envs\geneformer\lib\site-packages\scanpy\plotting\_tools\scatterplots.py:392: UserWarning: No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39; will be ignored
+  cax = scatter(
+</code></pre>
+<p><img src="/2023/08/02/geneformer-cell-class/image-20230802100543891.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adata.obs</span><br></pre></td></tr></table></figure>
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+<pre><code>.dataframe tbody tr th &#123;
+    vertical-align: top;
+&#125;
+
+.dataframe thead th &#123;
+    text-align: right;
+&#125;
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n_genes</th>
+      <th>n_genes_by_counts</th>
+      <th>n_counts</th>
+      <th>total_counts_mt</th>
+      <th>pct_counts_mt</th>
+      <th>leiden</th>
+      <th>cell_type</th>
+      <th>organ_major</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>AAACATACAACCAC-1</th>
+      <td>781</td>
+      <td>779</td>
+      <td>2419.0</td>
+      <td>73.0</td>
+      <td>3.017776</td>
+      <td>CD4 T</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACATTGAGCTAC-1</th>
+      <td>1352</td>
+      <td>1352</td>
+      <td>4903.0</td>
+      <td>186.0</td>
+      <td>3.793596</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACATTGATCAGC-1</th>
+      <td>1131</td>
+      <td>1129</td>
+      <td>3147.0</td>
+      <td>28.0</td>
+      <td>0.889736</td>
+      <td>CD4 T</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACCGTGCTTCCG-1</th>
+      <td>960</td>
+      <td>960</td>
+      <td>2639.0</td>
+      <td>46.0</td>
+      <td>1.743085</td>
+      <td>FCGR3A Monocytes</td>
+      <td>FCGR3A Monocytes</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>AAACCGTGTATGCG-1</th>
+      <td>522</td>
+      <td>521</td>
+      <td>980.0</td>
+      <td>12.0</td>
+      <td>1.224490</td>
+      <td>NK</td>
+      <td>NK</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>TTTCGAACTCTCAT-1</th>
+      <td>1155</td>
+      <td>1153</td>
+      <td>3459.0</td>
+      <td>73.0</td>
+      <td>2.110436</td>
+      <td>CD14 Monocytes</td>
+      <td>CD14 Monocytes</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTCTACTGAGGCA-1</th>
+      <td>1227</td>
+      <td>1224</td>
+      <td>3443.0</td>
+      <td>32.0</td>
+      <td>0.929422</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTCTACTTCCTCG-1</th>
+      <td>622</td>
+      <td>622</td>
+      <td>1684.0</td>
+      <td>37.0</td>
+      <td>2.197150</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTGCATGAGAGGC-1</th>
+      <td>454</td>
+      <td>452</td>
+      <td>1022.0</td>
+      <td>21.0</td>
+      <td>2.054795</td>
+      <td>B</td>
+      <td>B</td>
+      <td>immune</td>
+    </tr>
+    <tr>
+      <th>TTTGCATGCCTCAC-1</th>
+      <td>724</td>
+      <td>723</td>
+      <td>1984.0</td>
+      <td>16.0</td>
+      <td>0.806452</td>
+      <td>CD4 T</td>
+      <td>CD4 T</td>
+      <td>immune</td>
+    </tr>
+  </tbody>
+</table>
+<p>2638 rows × 8 columns</p>
+</div>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于细胞分类的微调，我们需要：</p>
+<ol>
+<li>获取组织对应的微调数据集，并且有细胞的label信息，例如各个细胞类型；<blockquote>
+<p>关于数据集大小，从作者提供的<a target="_blank" rel="noopener" href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41586-023-06139-9/MediaObjects/41586_2023_6139_MOESM5_ESM.docx">例子</a>来看，最少的情况是884个细胞，但其余下游任务都超过10k细胞</p>
+</blockquote>
+</li>
+<li>以<code>BertForSequenceClassification</code>的方式读入预训练模型，并设置<code>num_labels</code>为分类数目；</li>
+<li>根据微调的数据集训练，加上最后的输出层（task-specific transformer layer），并对微调模型预测性能进行评估；</li>
+<li>在新的数据集上应用微调模型进行预测。</li>
+</ol>
+<blockquote>
+<p>Ref:</p>
+<p>Transfer learning enables predictions in network biology: <a target="_blank" rel="noopener" href="https://doi.org/10.1038/s41586-023-06139-9">https://doi.org/10.1038/s41586-023-06139-9</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2023/08/02/geneformer-cell-class/" title="geneformer-cell-class">https://thereallda.github.io/2023/08/02/geneformer-cell-class/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/single-cell/" rel="tag"># single-cell</a>
+              <a href="/tags/scRNA-seq/" rel="tag"># scRNA-seq</a>
+              <a href="/tags/deep-learning/" rel="tag"># deep-learning</a>
+              <a href="/tags/python/" rel="tag"># python</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/22/python-scanpy/" rel="prev" title="python-scanpy">
+      <i class="fa fa-chevron-left"></i> python-scanpy
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Geneformer-for-cell-type-annotation"><span class="nav-number">1.</span> <span class="nav-text">Geneformer for cell type annotation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Geneformer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">Geneformer环境配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Installation"><span class="nav-number">1.2.</span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Import-modules"><span class="nav-number">1.3.</span> <span class="nav-text">Import modules</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prepare-training-and-evaluation-datasets"><span class="nav-number">1.4.</span> <span class="nav-text">Prepare training and evaluation datasets</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fine-Tune-With-Cell-Classification-Learning-Objective-and-Quantify-Predictive-Performance"><span class="nav-number">1.5.</span> <span class="nav-text">Fine-Tune With Cell Classification Learning Objective and Quantify Predictive Performance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'ab73187d618a8680117b9e163a61dcfa',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
