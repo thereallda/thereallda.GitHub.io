@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Gene Classification上一篇文章写了用Geneformer如何做细胞分类，这一次记录用Genefomer做基因分类的过程，例如预测基因是否为药物敏感性TF。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="geneformer-gene-class">
+<meta property="og:url" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="Gene Classification上一篇文章写了用Geneformer如何做细胞分类，这一次记录用Genefomer做基因分类的过程，例如预测基因是否为药物敏感性TF。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822200906467.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822200925242.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822200942481.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822200951566.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822200959348.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822201009512.png">
+<meta property="og:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822201022230.png">
+<meta property="article:published_time" content="2023-08-22T12:05:47.000Z">
+<meta property="article:modified_time" content="2023-08-22T12:12:19.126Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="single-cell">
+<meta property="article:tag" content="scRNA-seq">
+<meta property="article:tag" content="deep-learning">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2023/08/22/geneformer-gene-class/image-20230822200906467.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2023/08/22/geneformer-gene-class/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>geneformer-gene-class | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2023/08/22/geneformer-gene-class/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          geneformer-gene-class
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-08-22 20:05:47 / Modified: 20:12:19" itemprop="dateCreated datePublished" datetime="2023-08-22T20:05:47+08:00">2023-08-22</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>33k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>30 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Gene-Classification"><a href="#Gene-Classification" class="headerlink" title="Gene Classification"></a>Gene Classification</h1><p>上一篇文章写了用Geneformer如何做<a href="https://thereallda.github.io/2023/08/02/geneformer-cell-class/">细胞分类</a>，这一次记录用Genefomer做基因分类的过程，例如预测基因是否为药物敏感性TF。</p>
+<span id="more"></span>
+
+
+
+<p>首先，下载基因分类相关数据</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd Genecorpus-30M/example_input_files/cell_classification/disease_classifiction/human_dcm_hcm_nf.dataset</span><br><span class="line">wget https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/resolve/main/example_input_files/cell_classification/disease_classification/human_dcm_hcm_nf.dataset/dataset.arrow</span><br><span class="line"> </span><br><span class="line">wget https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/resolve/main/example_input_files/cell_classification/disease_classification/human_dcm_hcm_nf.dataset/dataset_info.json</span><br><span class="line"></span><br><span class="line">wget https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/resolve/main/example_input_files/cell_classification/disease_classification/human_dcm_hcm_nf.dataset/state.json</span><br></pre></td></tr></table></figure>
+
+<p>作者提供一组心肌炎相关的scRNA-seq数据，其中包含来自non-failing (nf), hypertrophic, and dilated样本的数据，以及是否为对药物敏感的转录因子的gene list。根据这些数据进行微调，随后判断基因是否为对药物敏感的转录因子。</p>
+<blockquote>
+<p>微调数据：sc-RNA-seq data and gene labels;</p>
+<p>下游任务：判断TFs的药物敏感性。</p>
+</blockquote>
+<h2 id="Modules-import"><a href="#Modules-import" class="headerlink" title="Modules import"></a>Modules import</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">GPU_NUMBER = [<span class="number">0</span>]</span><br><span class="line">os.environ[<span class="string">&quot;CUDA_VISIBLE_DEVICES&quot;</span>] = <span class="string">&quot;,&quot;</span>.join([<span class="built_in">str</span>(s) <span class="keyword">for</span> s <span class="keyword">in</span> GPU_NUMBER])</span><br><span class="line">os.environ[<span class="string">&quot;NCCL_DEBUG&quot;</span>] = <span class="string">&quot;INFO&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># imports</span></span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> datasets <span class="keyword">import</span> load_from_disk</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score, auc, confusion_matrix, ConfusionMatrixDisplay, roc_curve</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> StratifiedKFold</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> BertForTokenClassification</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> Trainer</span><br><span class="line"><span class="keyword">from</span> transformers.training_args <span class="keyword">import</span> TrainingArguments</span><br><span class="line"><span class="keyword">from</span> tqdm.notebook <span class="keyword">import</span> tqdm</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> geneformer <span class="keyword">import</span> DataCollatorForGeneClassification</span><br><span class="line"><span class="keyword">from</span> geneformer.pretrainer <span class="keyword">import</span> token_dictionary</span><br></pre></td></tr></table></figure>
+
+<pre><code>e:\miniconda3\envs\geneformer\lib\site-packages\loompy\bus_file.py:68: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  def twobit_to_dna(twobit: int, size: int) -&gt; str:
+e:\miniconda3\envs\geneformer\lib\site-packages\loompy\bus_file.py:85: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  def dna_to_twobit(dna: str) -&gt; int:
+e:\miniconda3\envs\geneformer\lib\site-packages\loompy\bus_file.py:102: NumbaDeprecationWarning: [1mThe &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.[0m
+  def twobit_1hamming(twobit: int, size: int) -&gt; List[int]:
+</code></pre>
+<h2 id="Load-Gene-Attribute-Information"><a href="#Load-Gene-Attribute-Information" class="headerlink" title="Load Gene Attribute Information"></a>Load Gene Attribute Information</h2><p>读入作者提供的基因信息表格，包括了ensembl id, gene name和gene type信息。再将这些信息分别封装到三个字典中（gene_id_type_dict, gene_name_id_dict, gene_id_name_dict）.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># table of corresponding Ensembl IDs, gene names, and gene types (e.g. coding, miRNA, etc.)</span></span><br><span class="line">gene_info = pd.read_csv(<span class="string">&quot;D:/jupyterNote/Geneformer/Genecorpus-30M/example_input_files/gene_info_table.csv&quot;</span>, index_col=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create dictionaries for corresponding attributes</span></span><br><span class="line">gene_id_type_dict = <span class="built_in">dict</span>(<span class="built_in">zip</span>(gene_info[<span class="string">&quot;ensembl_id&quot;</span>],gene_info[<span class="string">&quot;gene_type&quot;</span>]))</span><br><span class="line">gene_name_id_dict = <span class="built_in">dict</span>(<span class="built_in">zip</span>(gene_info[<span class="string">&quot;gene_name&quot;</span>],gene_info[<span class="string">&quot;ensembl_id&quot;</span>]))</span><br><span class="line">gene_id_name_dict = &#123;v: k <span class="keyword">for</span> k,v <span class="keyword">in</span> gene_name_id_dict.items()&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># first 5 key:value pairs</span></span><br><span class="line">&#123;k: gene_id_name_dict[k] <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">list</span>(gene_id_name_dict)[:<span class="number">5</span>]&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>&#123;&#39;ENSG00000000003&#39;: &#39;TSPAN6&#39;,
+ &#39;ENSG00000000005&#39;: &#39;TNMD&#39;,
+ &#39;ENSG00000000419&#39;: &#39;DPM1&#39;,
+ &#39;ENSG00000000457&#39;: &#39;SCYL3&#39;,
+ &#39;ENSG00000000460&#39;: &#39;C1orf112&#39;&#125;
+</code></pre>
+<h2 id="Load-Training-Data-and-Class-Labels"><a href="#Load-Training-Data-and-Class-Labels" class="headerlink" title="Load Training Data and Class Labels"></a>Load Training Data and Class Labels</h2><p>接下来，读入微调训练相关数据集，包括心肌炎相关的scRNA-seq数据 (“human_dcm_hcm_nf.dataset”)和是否为对药物敏感的转录因子的gene list (“dosage_sens_tf_labels.csv”)</p>
+<p>为了处理读入的<code>dosage_sens_tf_labels</code>，这里定义函数<code>prep_inputs</code>将输入的基因id转换为token id，并生成<code>genegroup1</code>和<code>genegroup2</code>相应长度的labels（group1记为0, group2记为1）. </p>
+<p><code>token_dictionary</code>中定义了ensembl id和token的对应关系。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># function for preparing targets and labels</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">prep_inputs</span>(<span class="params">genegroup1, genegroup2, id_type</span>):</span></span><br><span class="line">    <span class="keyword">if</span> id_type == <span class="string">&quot;gene_name&quot;</span>:</span><br><span class="line">        targets1 = [gene_name_id_dict[gene] <span class="keyword">for</span> gene <span class="keyword">in</span> genegroup1 <span class="keyword">if</span> gene_name_id_dict.get(gene) <span class="keyword">in</span> token_dictionary]</span><br><span class="line">        targets2 = [gene_name_id_dict[gene] <span class="keyword">for</span> gene <span class="keyword">in</span> genegroup2 <span class="keyword">if</span> gene_name_id_dict.get(gene) <span class="keyword">in</span> token_dictionary]</span><br><span class="line">    <span class="keyword">elif</span> id_type == <span class="string">&quot;ensembl_id&quot;</span>:</span><br><span class="line">        targets1 = [gene <span class="keyword">for</span> gene <span class="keyword">in</span> genegroup1 <span class="keyword">if</span> gene <span class="keyword">in</span> token_dictionary]</span><br><span class="line">        targets2 = [gene <span class="keyword">for</span> gene <span class="keyword">in</span> genegroup2 <span class="keyword">if</span> gene <span class="keyword">in</span> token_dictionary]</span><br><span class="line">            </span><br><span class="line">    targets1_id = [token_dictionary[gene] <span class="keyword">for</span> gene <span class="keyword">in</span> targets1]</span><br><span class="line">    targets2_id = [token_dictionary[gene] <span class="keyword">for</span> gene <span class="keyword">in</span> targets2]</span><br><span class="line">    </span><br><span class="line">    targets = np.array(targets1_id + targets2_id)</span><br><span class="line">    labels = np.array([<span class="number">0</span>]*<span class="built_in">len</span>(targets1_id) + [<span class="number">1</span>]*<span class="built_in">len</span>(targets2_id))</span><br><span class="line">    nsplits = <span class="built_in">min</span>(<span class="number">5</span>, <span class="built_in">min</span>(<span class="built_in">len</span>(targets1_id), <span class="built_in">len</span>(targets2_id))-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">assert</span> nsplits &gt; <span class="number">2</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;# targets1: <span class="subst">&#123;<span class="built_in">len</span>(targets1_id)&#125;</span>\n# targets2: <span class="subst">&#123;<span class="built_in">len</span>(targets2_id)&#125;</span>\n# splits: <span class="subst">&#123;nsplits&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> targets, labels, nsplits</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;k: token_dictionary[k] <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">list</span>(token_dictionary)[:<span class="number">5</span>]&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>&#123;&#39;&lt;pad&gt;&#39;: 0,
+ &#39;&lt;mask&gt;&#39;: 1,
+ &#39;ENSG00000000003&#39;: 2,
+ &#39;ENSG00000000005&#39;: 3,
+ &#39;ENSG00000000419&#39;: 4&#125;
+</code></pre>
+<p>读入作者提供的dosage sensitive tfs list，其中包含122 dosage sensitive tfs (0)，和368个insensitive tfs (1). 使用<code>prep_inputs</code>将tfs的基因id转换为token，并划分为5个splits，做后续的5-fold cross-validation</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"></span><br><span class="line"><span class="comment"># preparing targets and labels for dosage sensitive vs insensitive TFs</span></span><br><span class="line">dosage_tfs = pd.read_csv(<span class="string">&quot;D:/jupyterNote/Geneformer/Genecorpus-30M/example_input_files/gene_classification/dosage_sensitive_tfs/dosage_sens_tf_labels.csv&quot;</span>, header=<span class="number">0</span>)</span><br><span class="line">sensitive = dosage_tfs[<span class="string">&quot;dosage_sensitive&quot;</span>].dropna()</span><br><span class="line">insensitive = dosage_tfs[<span class="string">&quot;dosage_insensitive&quot;</span>].dropna()</span><br><span class="line">targets, labels, nsplits = prep_inputs(sensitive, insensitive, <span class="string">&quot;ensembl_id&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(targets[<span class="number">0</span>:<span class="number">5</span>])</span><br><span class="line"><span class="built_in">print</span>(Counter(labels))</span><br></pre></td></tr></table></figure>
+
+<pre><code># targets1: 122
+# targets2: 368
+# splits: 5
+[208 223 275 295 487]
+Counter(&#123;1: 368, 0: 122&#125;)
+</code></pre>
+<p>读入作者提供的心肌炎scRNA-seq进行微调（fine-tune），其中包含579,159个细胞，21种celltypes；</p>
+<p>3种亚型分组：1. NF (Non-failing), 2. HCM (hypertrophic cardiomyopathy), and 3. DCM (dilated cardiomyopathy).</p>
+<p>在打乱细胞标签后，随机抽取了50,000个细胞作为training set.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># load training dataset</span></span><br><span class="line">train_dataset=load_from_disk(<span class="string">&quot;D:/jupyterNote/Geneformer/Genecorpus-30M/example_input_files/cell_classification/disease_classification/human_dcm_hcm_nf.dataset&quot;</span>)</span><br><span class="line">shuffled_train_dataset = train_dataset.shuffle(seed=<span class="number">42</span>)</span><br><span class="line">subsampled_train_dataset = shuffled_train_dataset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">50_000</span>)])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<pre><code>Loading cached shuffled indices for dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\disease_classification\human_dcm_hcm_nf.dataset\cache-54b519f110fa07f1.arrow
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#import pandas as pd</span></span><br><span class="line"><span class="built_in">print</span>(train_dataset)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\nCelltype: &quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(train_dataset[<span class="string">&#x27;cell_type&#x27;</span>]))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\nSubgroups: &quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(train_dataset[<span class="string">&#x27;disease&#x27;</span>]))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(subsampled_train_dataset)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Dataset(&#123;
+    features: [&#39;input_ids&#39;, &#39;length&#39;, &#39;cell_type&#39;, &#39;individual&#39;, &#39;age&#39;, &#39;sex&#39;, &#39;disease&#39;, &#39;lvef&#39;],
+    num_rows: 579159
+&#125;)
+
+Celltype: 
+Counter(&#123;&#39;Fibroblast1&#39;: 141725, &#39;Cardiomyocyte1&#39;: 136167, &#39;Endothelial1&#39;: 78375, &#39;Pericyte1&#39;: 67600, &#39;Macrophage&#39;: 54714, &#39;Endothelial2&#39;: 18394, &#39;VSMC&#39;: 18137, &#39;Lymphocyte&#39;: 16246, &#39;Endocardial&#39;: 6489, &#39;Cardiomyocyte2&#39;: 5445, &#39;Adipocyte&#39;: 5298, &#39;ActivatedFibroblast&#39;: 5210, &#39;LymphaticEndothelial&#39;: 5181, &#39;Endothelial3&#39;: 4538, &#39;MastCell&#39;: 4465, &#39;Neuronal&#39;: 4292, &#39;Cardiomyocyte3&#39;: 3350, &#39;Pericyte2&#39;: 1704, &#39;ProliferatingMacrophage&#39;: 1276, &#39;Fibroblast2&#39;: 284, &#39;Epicardial&#39;: 269&#125;)
+
+Subgroups: 
+Counter(&#123;&#39;hcm&#39;: 230652, &#39;nf&#39;: 182317, &#39;dcm&#39;: 166190&#125;)
+</code></pre>
+<h2 id="Define-Functions-for-Training-and-Cross-Validating-Classifier"><a href="#Define-Functions-for-Training-and-Cross-Validating-Classifier" class="headerlink" title="Define Functions for Training and Cross-Validating Classifier"></a>Define Functions for Training and Cross-Validating Classifier</h2><p>Geneformer将细胞基因表达量转为rank value encoding，且每个细胞的rank encoding长度不一样，而后续模型要求input tensors的长度一致。因此，这里定义函数<code>preprocess_classifier_batch</code>将不同长度的input都添加<code>&lt;pad&gt;</code> token到统一长度。</p>
+<p><code>classifier_predict</code>将input dataset 划分为<code>forward_batch_size</code>大小的batch利用fine-tuned的模型进行prediction，预测基因属于dosage sensitive or insensitive. 同时，根据预测labels与真实labels计算相应evaluation metrics (e.g., FPR, TPR)。</p>
+<blockquote>
+<p>注意，如果使用GPU训练，且GPU内存太小，需要相应降低<code>forward_batch_size</code>，这里我调整至<code>forward_batch_size=20</code></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">preprocess_classifier_batch</span>(<span class="params">cell_batch, max_len</span>):</span></span><br><span class="line">    <span class="keyword">if</span> max_len == <span class="literal">None</span>:</span><br><span class="line">        max_len = <span class="built_in">max</span>([<span class="built_in">len</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> cell_batch[<span class="string">&quot;input_ids&quot;</span>]])</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pad_label_example</span>(<span class="params">example</span>):</span></span><br><span class="line">        example[<span class="string">&quot;labels&quot;</span>] = np.pad(example[<span class="string">&quot;labels&quot;</span>], </span><br><span class="line">                                   (<span class="number">0</span>, max_len-<span class="built_in">len</span>(example[<span class="string">&quot;input_ids&quot;</span>])), </span><br><span class="line">                                   mode=<span class="string">&#x27;constant&#x27;</span>, constant_values=-<span class="number">100</span>)</span><br><span class="line">        example[<span class="string">&quot;input_ids&quot;</span>] = np.pad(example[<span class="string">&quot;input_ids&quot;</span>], </span><br><span class="line">                                      (<span class="number">0</span>, max_len-<span class="built_in">len</span>(example[<span class="string">&quot;input_ids&quot;</span>])), </span><br><span class="line">                                      mode=<span class="string">&#x27;constant&#x27;</span>, constant_values=token_dictionary.get(<span class="string">&quot;&lt;pad&gt;&quot;</span>))</span><br><span class="line">        example[<span class="string">&quot;attention_mask&quot;</span>] = (example[<span class="string">&quot;input_ids&quot;</span>] != token_dictionary.get(<span class="string">&quot;&lt;pad&gt;&quot;</span>)).astype(<span class="built_in">int</span>)</span><br><span class="line">        <span class="keyword">return</span> example</span><br><span class="line">    padded_batch = cell_batch.<span class="built_in">map</span>(pad_label_example)</span><br><span class="line">    <span class="keyword">return</span> padded_batch</span><br><span class="line"></span><br><span class="line"><span class="comment"># forward batch size is batch size for model inference (e.g. 200)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">classifier_predict</span>(<span class="params">model, evalset, forward_batch_size, mean_fpr</span>):</span></span><br><span class="line">    predict_logits = []</span><br><span class="line">    predict_labels = []</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># ensure there is at least 2 examples in each batch to avoid incorrect tensor dims</span></span><br><span class="line">    evalset_len = <span class="built_in">len</span>(evalset)</span><br><span class="line">    max_divisible = find_largest_div(evalset_len, forward_batch_size)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(evalset) - max_divisible == <span class="number">1</span>:</span><br><span class="line">        evalset_len = max_divisible</span><br><span class="line">    </span><br><span class="line">    max_evalset_len = <span class="built_in">max</span>(evalset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(evalset_len)])[<span class="string">&quot;length&quot;</span>])</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, evalset_len, forward_batch_size):</span><br><span class="line">        max_range = <span class="built_in">min</span>(i+forward_batch_size, evalset_len)</span><br><span class="line">        batch_evalset = evalset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(i, max_range)])</span><br><span class="line">        padded_batch = preprocess_classifier_batch(batch_evalset, max_evalset_len)</span><br><span class="line">        padded_batch.set_format(<span class="built_in">type</span>=<span class="string">&quot;torch&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        input_data_batch = padded_batch[<span class="string">&quot;input_ids&quot;</span>]</span><br><span class="line">        attn_msk_batch = padded_batch[<span class="string">&quot;attention_mask&quot;</span>]</span><br><span class="line">        label_batch = padded_batch[<span class="string">&quot;labels&quot;</span>]</span><br><span class="line">        <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">            outputs = model(</span><br><span class="line">                input_ids = input_data_batch.to(<span class="string">&quot;cuda&quot;</span>), </span><br><span class="line">                attention_mask = attn_msk_batch.to(<span class="string">&quot;cuda&quot;</span>), </span><br><span class="line">                labels = label_batch.to(<span class="string">&quot;cuda&quot;</span>), </span><br><span class="line">            )</span><br><span class="line">            predict_logits += [torch.squeeze(outputs.logits.to(<span class="string">&quot;cpu&quot;</span>))]</span><br><span class="line">            predict_labels += [torch.squeeze(label_batch.to(<span class="string">&quot;cpu&quot;</span>))]</span><br><span class="line">            </span><br><span class="line">    logits_by_cell = torch.cat(predict_logits)</span><br><span class="line">    all_logits = logits_by_cell.reshape(-<span class="number">1</span>, logits_by_cell.shape[<span class="number">2</span>])</span><br><span class="line">    labels_by_cell = torch.cat(predict_labels)</span><br><span class="line">    all_labels = torch.flatten(labels_by_cell)</span><br><span class="line">    logit_label_paired = [item <span class="keyword">for</span> item <span class="keyword">in</span> <span class="built_in">list</span>(<span class="built_in">zip</span>(all_logits.tolist(), all_labels.tolist())) <span class="keyword">if</span> item[<span class="number">1</span>]!=-<span class="number">100</span>]</span><br><span class="line">    y_pred = [vote(item[<span class="number">0</span>]) <span class="keyword">for</span> item <span class="keyword">in</span> logit_label_paired]</span><br><span class="line">    y_true = [item[<span class="number">1</span>] <span class="keyword">for</span> item <span class="keyword">in</span> logit_label_paired]</span><br><span class="line">    logits_list = [item[<span class="number">0</span>] <span class="keyword">for</span> item <span class="keyword">in</span> logit_label_paired]</span><br><span class="line">    <span class="comment"># probability of class 1</span></span><br><span class="line">    y_score = [py_softmax(item)[<span class="number">1</span>] <span class="keyword">for</span> item <span class="keyword">in</span> logits_list]</span><br><span class="line">    conf_mat = confusion_matrix(y_true, y_pred)</span><br><span class="line">    fpr, tpr, _ = roc_curve(y_true, y_score)</span><br><span class="line">    <span class="comment"># plot roc_curve for this split</span></span><br><span class="line">    plt.plot(fpr, tpr)</span><br><span class="line">    plt.xlim([<span class="number">0.0</span>, <span class="number">1.0</span>])</span><br><span class="line">    plt.ylim([<span class="number">0.0</span>, <span class="number">1.05</span>])</span><br><span class="line">    plt.xlabel(<span class="string">&#x27;False Positive Rate&#x27;</span>)</span><br><span class="line">    plt.ylabel(<span class="string">&#x27;True Positive Rate&#x27;</span>)</span><br><span class="line">    plt.title(<span class="string">&#x27;ROC&#x27;</span>)</span><br><span class="line">    plt.show()</span><br><span class="line">    <span class="comment"># interpolate to graph</span></span><br><span class="line">    interp_tpr = np.interp(mean_fpr, fpr, tpr)</span><br><span class="line">    interp_tpr[<span class="number">0</span>] = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">return</span> fpr, tpr, interp_tpr, conf_mat </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">vote</span>(<span class="params">logit_pair</span>):</span></span><br><span class="line">    a, b = logit_pair</span><br><span class="line">    <span class="keyword">if</span> a &gt; b:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">elif</span> b &gt; a:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">elif</span> a == b:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;tie&quot;</span></span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">py_softmax</span>(<span class="params">vector</span>):</span></span><br><span class="line">	e = np.exp(vector)</span><br><span class="line">	<span class="keyword">return</span> e / e.<span class="built_in">sum</span>()</span><br><span class="line">    </span><br><span class="line"><span class="comment"># get cross-validated mean and sd metrics</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_cross_valid_metrics</span>(<span class="params">all_tpr, all_roc_auc, all_tpr_wt</span>):</span></span><br><span class="line">    wts = [count/<span class="built_in">sum</span>(all_tpr_wt) <span class="keyword">for</span> count <span class="keyword">in</span> all_tpr_wt]</span><br><span class="line">    <span class="built_in">print</span>(wts)</span><br><span class="line">    all_weighted_tpr = [a*b <span class="keyword">for</span> a,b <span class="keyword">in</span> <span class="built_in">zip</span>(all_tpr, wts)]</span><br><span class="line">    mean_tpr = np.<span class="built_in">sum</span>(all_weighted_tpr, axis=<span class="number">0</span>)</span><br><span class="line">    mean_tpr[-<span class="number">1</span>] = <span class="number">1.0</span></span><br><span class="line">    all_weighted_roc_auc = [a*b <span class="keyword">for</span> a,b <span class="keyword">in</span> <span class="built_in">zip</span>(all_roc_auc, wts)]</span><br><span class="line">    roc_auc = np.<span class="built_in">sum</span>(all_weighted_roc_auc)</span><br><span class="line">    roc_auc_sd = math.sqrt(np.average((all_roc_auc-roc_auc)**<span class="number">2</span>, weights=wts))</span><br><span class="line">    <span class="keyword">return</span> mean_tpr, roc_auc, roc_auc_sd</span><br><span class="line"></span><br><span class="line"><span class="comment"># Function to find the largest number smaller</span></span><br><span class="line"><span class="comment"># than or equal to N that is divisible by k</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_largest_div</span>(<span class="params">N, K</span>):</span></span><br><span class="line">    rem = N % K</span><br><span class="line">    <span class="keyword">if</span>(rem == <span class="number">0</span>):</span><br><span class="line">        <span class="keyword">return</span> N</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> N - rem</span><br></pre></td></tr></table></figure>
+
+<p>定义函数<code>cross_validate</code>封装模型数据切分（80% training set, 10% evaluation set, 10% hold-out evaluation set）、训练和预测过程。</p>
+<p>其中，读入预训练模型这部分需要改为本地Geneformer或是hugging face上库的名字 (“ctheodoris/Geneformer”)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># load model</span></span><br><span class="line">model = BertForTokenClassification.from_pretrained(</span><br><span class="line">    <span class="string">&quot;D:/jupyterNote/Geneformer&quot;</span>, <span class="comment"># change to local path to the model</span></span><br><span class="line">    num_labels=<span class="number">2</span>,</span><br><span class="line">    output_attentions = <span class="literal">False</span>,</span><br><span class="line">    output_hidden_states = <span class="literal">False</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>接下来，这部分代码根据定义的参数微调模型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># add output directory to training args and initiate</span></span><br><span class="line">training_args[<span class="string">&quot;output_dir&quot;</span>] = ksplit_output_dir</span><br><span class="line">training_args_init = TrainingArguments(**training_args)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create the trainer</span></span><br><span class="line">trainer = Trainer(</span><br><span class="line">    model=model,</span><br><span class="line">    args=training_args_init,</span><br><span class="line">    data_collator=DataCollatorForGeneClassification(),</span><br><span class="line">    train_dataset=trainset_labeled,</span><br><span class="line">    eval_dataset=evalset_train_labeled</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># train the gene classifier</span></span><br><span class="line">trainer.train()</span><br></pre></td></tr></table></figure>
+
+<p>这部分代码使用微调模型在 out-of-sample dataset (<code>evalset_oos_labeled</code>) 进行预测及评估。</p>
+<p><strong>注意调整这里<code>forward_batch_size</code>以适应电脑配置。</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># evaluate model</span></span><br><span class="line">fpr, tpr, interp_tpr, conf_mat = classifier_predict(trainer.model, evalset_oos_labeled, <span class="number">20</span>, mean_fpr) <span class="comment"># forward_batch_size: 20</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># append to tpr and roc lists</span></span><br><span class="line">confusion = confusion + conf_mat</span><br><span class="line">all_tpr.append(interp_tpr)</span><br><span class="line">all_roc_auc.append(auc(fpr, tpr))</span><br><span class="line"><span class="comment"># append number of eval examples by which to weight tpr in averaged graphs</span></span><br><span class="line">all_tpr_wt.append(<span class="built_in">len</span>(tpr))</span><br><span class="line">  </span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cross-validate gene classifier</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cross_validate</span>(<span class="params">data, targets, labels, nsplits, subsample_size, training_args, freeze_layers, output_dir, num_proc</span>):</span></span><br><span class="line">    <span class="comment"># check if output directory already written to</span></span><br><span class="line">    <span class="comment"># ensure not overwriting previously saved model</span></span><br><span class="line">    model_dir_test = os.path.join(output_dir, <span class="string">&quot;ksplit0/models/pytorch_model.bin&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> os.path.isfile(model_dir_test) == <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">&quot;Model already saved to this directory.&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># initiate eval metrics to return</span></span><br><span class="line">    num_classes = <span class="built_in">len</span>(<span class="built_in">set</span>(labels))</span><br><span class="line">    mean_fpr = np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="number">100</span>)</span><br><span class="line">    all_tpr = []</span><br><span class="line">    all_roc_auc = []</span><br><span class="line">    all_tpr_wt = []</span><br><span class="line">    label_dicts = []</span><br><span class="line">    confusion = np.zeros((num_classes,num_classes))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># set up cross-validation splits</span></span><br><span class="line">    skf = StratifiedKFold(n_splits=nsplits, random_state=<span class="number">0</span>, shuffle=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># train and evaluate</span></span><br><span class="line">    iteration_num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> train_index, eval_index <span class="keyword">in</span> tqdm(skf.split(targets, labels)):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(labels) &gt; <span class="number">500</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;early stopping activated due to large # of training examples&quot;</span>)</span><br><span class="line">            nsplits = <span class="number">3</span></span><br><span class="line">            <span class="keyword">if</span> iteration_num == <span class="number">3</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;****** Crossval split: <span class="subst">&#123;iteration_num&#125;</span>/<span class="subst">&#123;nsplits-<span class="number">1</span>&#125;</span> ******\n&quot;</span>)</span><br><span class="line">        <span class="comment"># generate cross-validation splits</span></span><br><span class="line">        targets_train, targets_eval = targets[train_index], targets[eval_index]</span><br><span class="line">        labels_train, labels_eval = labels[train_index], labels[eval_index]</span><br><span class="line">        label_dict_train = <span class="built_in">dict</span>(<span class="built_in">zip</span>(targets_train, labels_train))</span><br><span class="line">        label_dict_eval = <span class="built_in">dict</span>(<span class="built_in">zip</span>(targets_eval, labels_eval))</span><br><span class="line">        label_dicts += (iteration_num, targets_train, targets_eval, labels_train, labels_eval)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># function to filter by whether contains train or eval labels</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">if_contains_train_label</span>(<span class="params">example</span>):</span></span><br><span class="line">            a = label_dict_train.keys()</span><br><span class="line">            b = example[<span class="string">&#x27;input_ids&#x27;</span>]</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">not</span> <span class="built_in">set</span>(a).isdisjoint(b)</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">if_contains_eval_label</span>(<span class="params">example</span>):</span></span><br><span class="line">            a = label_dict_eval.keys()</span><br><span class="line">            b = example[<span class="string">&#x27;input_ids&#x27;</span>]</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">not</span> <span class="built_in">set</span>(a).isdisjoint(b)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># filter dataset for examples containing classes for this split</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Filtering training data&quot;</span>)</span><br><span class="line">        trainset = data.<span class="built_in">filter</span>(if_contains_train_label, num_proc=num_proc)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Filtered <span class="subst">&#123;<span class="built_in">round</span>((<span class="number">1</span>-<span class="built_in">len</span>(trainset)/<span class="built_in">len</span>(data))*<span class="number">100</span>)&#125;</span>%; <span class="subst">&#123;<span class="built_in">len</span>(trainset)&#125;</span> remain\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Filtering evalation data&quot;</span>)</span><br><span class="line">        evalset = data.<span class="built_in">filter</span>(if_contains_eval_label, num_proc=num_proc)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Filtered <span class="subst">&#123;<span class="built_in">round</span>((<span class="number">1</span>-<span class="built_in">len</span>(evalset)/<span class="built_in">len</span>(data))*<span class="number">100</span>)&#125;</span>%; <span class="subst">&#123;<span class="built_in">len</span>(evalset)&#125;</span> remain\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># minimize to smaller training sample</span></span><br><span class="line">        training_size = <span class="built_in">min</span>(subsample_size, <span class="built_in">len</span>(trainset))</span><br><span class="line">        trainset_min = trainset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(training_size)])</span><br><span class="line">        eval_size = <span class="built_in">min</span>(training_size, <span class="built_in">len</span>(evalset))</span><br><span class="line">        half_training_size = <span class="built_in">round</span>(eval_size/<span class="number">2</span>)</span><br><span class="line">        evalset_train_min = evalset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(half_training_size)])</span><br><span class="line">        evalset_oos_min = evalset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(half_training_size, eval_size)])</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># label conversion functions</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">generate_train_labels</span>(<span class="params">example</span>):</span></span><br><span class="line">            example[<span class="string">&quot;labels&quot;</span>] = [label_dict_train.get(token_id, -<span class="number">100</span>) <span class="keyword">for</span> token_id <span class="keyword">in</span> example[<span class="string">&quot;input_ids&quot;</span>]]</span><br><span class="line">            <span class="keyword">return</span> example</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">generate_eval_labels</span>(<span class="params">example</span>):</span></span><br><span class="line">            example[<span class="string">&quot;labels&quot;</span>] = [label_dict_eval.get(token_id, -<span class="number">100</span>) <span class="keyword">for</span> token_id <span class="keyword">in</span> example[<span class="string">&quot;input_ids&quot;</span>]]</span><br><span class="line">            <span class="keyword">return</span> example</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># label datasets </span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Labeling training data&quot;</span>)</span><br><span class="line">        trainset_labeled = trainset_min.<span class="built_in">map</span>(generate_train_labels)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Labeling evaluation data&quot;</span>)</span><br><span class="line">        evalset_train_labeled = evalset_train_min.<span class="built_in">map</span>(generate_eval_labels)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Labeling evaluation OOS data&quot;</span>)</span><br><span class="line">        evalset_oos_labeled = evalset_oos_min.<span class="built_in">map</span>(generate_eval_labels)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># create output directories</span></span><br><span class="line">        ksplit_output_dir = os.path.join(output_dir, <span class="string">f&quot;ksplit<span class="subst">&#123;iteration_num&#125;</span>&quot;</span>)</span><br><span class="line">        ksplit_model_dir = os.path.join(ksplit_output_dir, <span class="string">&quot;models/&quot;</span>) </span><br><span class="line">        </span><br><span class="line">        <span class="comment"># ensure not overwriting previously saved model</span></span><br><span class="line">        model_output_file = os.path.join(ksplit_model_dir, <span class="string">&quot;pytorch_model.bin&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> os.path.isfile(model_output_file) == <span class="literal">True</span>:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">&quot;Model already saved to this directory.&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># make training and model output directories</span></span><br><span class="line">        subprocess.call(<span class="string">f&#x27;mkdir <span class="subst">&#123;ksplit_output_dir&#125;</span>&#x27;</span>, shell=<span class="literal">True</span>)</span><br><span class="line">        subprocess.call(<span class="string">f&#x27;mkdir <span class="subst">&#123;ksplit_model_dir&#125;</span>&#x27;</span>, shell=<span class="literal">True</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># load model</span></span><br><span class="line">        model = BertForTokenClassification.from_pretrained(</span><br><span class="line">            <span class="string">&quot;D:/jupyterNote/Geneformer&quot;</span>, <span class="comment"># change as the path to the model</span></span><br><span class="line">            num_labels=<span class="number">2</span>,</span><br><span class="line">            output_attentions = <span class="literal">False</span>,</span><br><span class="line">            output_hidden_states = <span class="literal">False</span></span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">if</span> freeze_layers <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            modules_to_freeze = model.bert.encoder.layer[:freeze_layers]</span><br><span class="line">            <span class="keyword">for</span> module <span class="keyword">in</span> modules_to_freeze:</span><br><span class="line">                <span class="keyword">for</span> param <span class="keyword">in</span> module.parameters():</span><br><span class="line">                    param.requires_grad = <span class="literal">False</span></span><br><span class="line">                </span><br><span class="line">        model = model.to(<span class="string">&quot;cuda:0&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># add output directory to training args and initiate</span></span><br><span class="line">        training_args[<span class="string">&quot;output_dir&quot;</span>] = ksplit_output_dir</span><br><span class="line">        training_args_init = TrainingArguments(**training_args)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># create the trainer</span></span><br><span class="line">        trainer = Trainer(</span><br><span class="line">            model=model,</span><br><span class="line">            args=training_args_init,</span><br><span class="line">            data_collator=DataCollatorForGeneClassification(),</span><br><span class="line">            train_dataset=trainset_labeled,</span><br><span class="line">            eval_dataset=evalset_train_labeled</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment"># train the gene classifier</span></span><br><span class="line">        trainer.train()</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># save model</span></span><br><span class="line">        trainer.save_model(ksplit_model_dir)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># evaluate model</span></span><br><span class="line">        fpr, tpr, interp_tpr, conf_mat = classifier_predict(trainer.model, evalset_oos_labeled, <span class="number">20</span>, mean_fpr) <span class="comment"># forward_batch_size: 20</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># append to tpr and roc lists</span></span><br><span class="line">        confusion = confusion + conf_mat</span><br><span class="line">        all_tpr.append(interp_tpr)</span><br><span class="line">        all_roc_auc.append(auc(fpr, tpr))</span><br><span class="line">        <span class="comment"># append number of eval examples by which to weight tpr in averaged graphs</span></span><br><span class="line">        all_tpr_wt.append(<span class="built_in">len</span>(tpr))</span><br><span class="line">        </span><br><span class="line">        iteration_num = iteration_num + <span class="number">1</span></span><br><span class="line">        </span><br><span class="line">    <span class="comment"># get overall metrics for cross-validation</span></span><br><span class="line">    mean_tpr, roc_auc, roc_auc_sd = get_cross_valid_metrics(all_tpr, all_roc_auc, all_tpr_wt)</span><br><span class="line">    <span class="keyword">return</span> all_roc_auc, roc_auc, roc_auc_sd, mean_fpr, mean_tpr, confusion, label_dicts</span><br></pre></td></tr></table></figure>
+
+<h2 id="Define-Functions-for-Plotting-Results"><a href="#Define-Functions-for-Plotting-Results" class="headerlink" title="Define Functions for Plotting Results"></a>Define Functions for Plotting Results</h2><p>定义一个画ROC曲线的函数<code>plot_ROC</code>和画混淆矩阵的函数<code>plot_confusion_matrix</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plot ROC curve</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot_ROC</span>(<span class="params">bundled_data, title</span>):</span></span><br><span class="line">    plt.figure()</span><br><span class="line">    lw = <span class="number">2</span></span><br><span class="line">    <span class="keyword">for</span> roc_auc, roc_auc_sd, mean_fpr, mean_tpr, sample, color <span class="keyword">in</span> bundled_data:</span><br><span class="line">        plt.plot(mean_fpr, mean_tpr, color=color,</span><br><span class="line">                 lw=lw, label=<span class="string">&quot;&#123;0&#125; (AUC &#123;1:0.2f&#125; $\pm$ &#123;2:0.2f&#125;)&quot;</span>.<span class="built_in">format</span>(sample, roc_auc, roc_auc_sd))</span><br><span class="line">    plt.plot([<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], color=<span class="string">&#x27;black&#x27;</span>, lw=lw, linestyle=<span class="string">&#x27;--&#x27;</span>)</span><br><span class="line">    plt.xlim([<span class="number">0.0</span>, <span class="number">1.0</span>])</span><br><span class="line">    plt.ylim([<span class="number">0.0</span>, <span class="number">1.05</span>])</span><br><span class="line">    plt.xlabel(<span class="string">&#x27;False Positive Rate&#x27;</span>)</span><br><span class="line">    plt.ylabel(<span class="string">&#x27;True Positive Rate&#x27;</span>)</span><br><span class="line">    plt.title(title)</span><br><span class="line">    plt.legend(loc=<span class="string">&quot;lower right&quot;</span>)</span><br><span class="line">    plt.show()</span><br><span class="line">    </span><br><span class="line"><span class="comment"># plot confusion matrix</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot_confusion_matrix</span>(<span class="params">classes_list, conf_mat, title</span>):</span></span><br><span class="line">    display_labels = []</span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> label <span class="keyword">in</span> classes_list:</span><br><span class="line">        display_labels += [<span class="string">&quot;&#123;0&#125;\nn=&#123;1:.0f&#125;&quot;</span>.<span class="built_in">format</span>(label, <span class="built_in">sum</span>(conf_mat[:,i]))]</span><br><span class="line">        i = i + <span class="number">1</span></span><br><span class="line">    display = ConfusionMatrixDisplay(confusion_matrix=preprocessing.normalize(conf_mat, norm=<span class="string">&quot;l1&quot;</span>), </span><br><span class="line">                                     display_labels=display_labels)</span><br><span class="line">    display.plot(cmap=<span class="string">&quot;Blues&quot;</span>,values_format=<span class="string">&quot;.2g&quot;</span>)</span><br><span class="line">    plt.title(title)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Fine-Tune-With-Gene-Classification-Learning-Objective-and-Quantify-Predictive-Performance"><a href="#Fine-Tune-With-Gene-Classification-Learning-Objective-and-Quantify-Predictive-Performance" class="headerlink" title="Fine-Tune With Gene Classification Learning Objective and Quantify Predictive Performance"></a>Fine-Tune With Gene Classification Learning Objective and Quantify Predictive Performance</h2><p>定义模型微调的参数，同样的根据电脑配置调整<code>num_gpus</code>, <code>num_proc</code>, <code>geneformer_batch_size</code>.其余的超参延用预设的值，理论上超参也可以继续优化。</p>
+<p>关于<code>freeze_layers</code>的选择，作者说下游任务和pretrain越相似的时候<code>freeze_layers</code>可以越大，即“记住”更多pretrain的weights (?). </p>
+<blockquote>
+<p>Generally, in our experience, applications that are more relevant to the pretraining objective benefit from more layers being frozen to prevent overfitting to the limited task-specific data, whereas applications that are more distant from the pretraining objective benefit from fine-tuning of more layers to optimize performance on the new task.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># set model parameters</span></span><br><span class="line"><span class="comment"># max input size</span></span><br><span class="line">max_input_size = <span class="number">2</span> ** <span class="number">11</span>  <span class="comment"># 2048</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># set training hyperparameters</span></span><br><span class="line"><span class="comment"># max learning rate</span></span><br><span class="line">max_lr = <span class="number">5e-5</span></span><br><span class="line"><span class="comment"># how many pretrained layers to freeze</span></span><br><span class="line">freeze_layers = <span class="number">4</span></span><br><span class="line"><span class="comment"># number gpus</span></span><br><span class="line">num_gpus = <span class="number">1</span></span><br><span class="line"><span class="comment"># number cpu cores</span></span><br><span class="line">num_proc = <span class="number">6</span></span><br><span class="line"><span class="comment"># batch size for training and eval</span></span><br><span class="line">geneformer_batch_size = <span class="number">2</span></span><br><span class="line"><span class="comment"># learning schedule</span></span><br><span class="line">lr_schedule_fn = <span class="string">&quot;linear&quot;</span></span><br><span class="line"><span class="comment"># warmup steps</span></span><br><span class="line">warmup_steps = <span class="number">500</span></span><br><span class="line"><span class="comment"># number of epochs</span></span><br><span class="line">epochs = <span class="number">1</span></span><br><span class="line"><span class="comment"># optimizer</span></span><br><span class="line">optimizer = <span class="string">&quot;adamw&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># set training arguments</span></span><br><span class="line">subsample_size = <span class="number">10_000</span></span><br><span class="line">training_args = &#123;</span><br><span class="line">    <span class="string">&quot;learning_rate&quot;</span>: max_lr,</span><br><span class="line">    <span class="string">&quot;do_train&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">    <span class="string">&quot;evaluation_strategy&quot;</span>: <span class="string">&quot;no&quot;</span>,</span><br><span class="line">    <span class="string">&quot;save_strategy&quot;</span>: <span class="string">&quot;epoch&quot;</span>,</span><br><span class="line">    <span class="string">&quot;logging_steps&quot;</span>: <span class="number">100</span>,</span><br><span class="line">    <span class="string">&quot;group_by_length&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">    <span class="string">&quot;length_column_name&quot;</span>: <span class="string">&quot;length&quot;</span>,</span><br><span class="line">    <span class="string">&quot;disable_tqdm&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">    <span class="string">&quot;lr_scheduler_type&quot;</span>: lr_schedule_fn,</span><br><span class="line">    <span class="string">&quot;warmup_steps&quot;</span>: warmup_steps,</span><br><span class="line">    <span class="string">&quot;weight_decay&quot;</span>: <span class="number">0.001</span>,</span><br><span class="line">    <span class="string">&quot;per_device_train_batch_size&quot;</span>: geneformer_batch_size,</span><br><span class="line">    <span class="string">&quot;per_device_eval_batch_size&quot;</span>: geneformer_batch_size,</span><br><span class="line">    <span class="string">&quot;num_train_epochs&quot;</span>: epochs,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define output directory path</span></span><br><span class="line">current_date = datetime.datetime.now()</span><br><span class="line">datestamp = <span class="string">f&quot;<span class="subst">&#123;<span class="built_in">str</span>(current_date.year)[-<span class="number">2</span>:]&#125;</span><span class="subst">&#123;current_date.month:02d&#125;</span><span class="subst">&#123;current_date.day:02d&#125;</span>&quot;</span></span><br><span class="line">training_output_dir = <span class="string">f&quot;D:\\jupyterNote\\Geneformer\\examples\\gene_class_test\\<span class="subst">&#123;datestamp&#125;</span>_geneformer_GeneClassifier_dosageTF_L<span class="subst">&#123;max_input_size&#125;</span>_B<span class="subst">&#123;geneformer_batch_size&#125;</span>_LR<span class="subst">&#123;max_lr&#125;</span>_LS<span class="subst">&#123;lr_schedule_fn&#125;</span>_WU<span class="subst">&#123;warmup_steps&#125;</span>_E<span class="subst">&#123;epochs&#125;</span>_O<span class="subst">&#123;optimizer&#125;</span>_n<span class="subst">&#123;subsample_size&#125;</span>_F<span class="subst">&#123;freeze_layers&#125;</span>\\&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ensure not overwriting previously saved model</span></span><br><span class="line">ksplit_model_test = os.path.join(training_output_dir, <span class="string">&quot;ksplit0/models/pytorch_model.bin&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> os.path.isfile(ksplit_model_test) == <span class="literal">True</span>:</span><br><span class="line">    <span class="keyword">raise</span> Exception(<span class="string">&quot;Model already saved to this directory.&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make output directory</span></span><br><span class="line">subprocess.call(<span class="string">f&#x27;mkdir <span class="subst">&#123;training_output_dir&#125;</span>&#x27;</span>, shell=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>0
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># clear GPU memory after pytorch training </span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line">torch.cuda.empty_cache()</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># not work</span></span><br><span class="line"><span class="comment">#!set &#x27;PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512&#x27; # Limit each allocation split to 500 MB</span></span><br></pre></td></tr></table></figure>
+
+<p>我们使用<code>subsampled_train_dataset</code>进行微调，其中包含50,000个细胞，每次抽取10,000个细胞做CV，一共做5次（<code>nsplits=5</code>）.同样，将输入的targets和labels划分为80% training set (n = 392), 和 20% evaluation set (n = 98)，这里采取的是stratified split，即不同split之间会有同样的数据。</p>
+<p>这些划分的target和label存储在<code>label_dicts</code>中，其中每五个元素为一组，包括<code>iteration_num, targets_train, targets_eval, labels_train, labels_eval</code>.</p>
+<p><code>cross_validate</code>会打印每个split training相关的信息，包括training loss, learning_rate, epoch, ROC curve. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cross-validate gene classifier</span></span><br><span class="line">all_roc_auc, roc_auc, roc_auc_sd, mean_fpr, mean_tpr, confusion, label_dicts \</span><br><span class="line">    = cross_validate(subsampled_train_dataset, targets, labels, nsplits, subsample_size, training_args, freeze_layers, training_output_dir, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+
+<pre><code>0it [00:00, ?it/s]
+
+
+Loading cached processed dataset at D:\jupyterNote\Geneformer\Genecorpus-30M\example_input_files\cell_classification\disease_classification\human_dcm_hcm_nf.dataset\cache-509acb05b140c462.arrow
+
+
+****** Crossval split: 0/4 ******
+
+Filtering training data
+Filtered 0%; 49994 remain
+
+Filtering evalation data
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Split 0 training info...</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="/2023/08/22/geneformer-gene-class/image-20230822200906467.png" alt="image-20230822200906467"></p>
+<pre><code>****** Crossval split: 1/4 ******
+
+Filtering training data
+Filtered 0%; 49992 remain
+
+Filtering evalation data
+Filtered 4%; 47913 remain
+
+Labeling training data
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Split 1 training info...</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="/2023/08/22/geneformer-gene-class/image-20230822200925242.png" alt="image-20230822200925242">,l    </p>
+<pre><code>****** Crossval split: 2/4 ******
+
+Filtering training data
+Filtered 0%; 49993 remain
+
+Filtering evalation data
+Filtered 4%; 47886 remain
+
+Labeling training data
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Split 2 training info...</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/08/22/geneformer-gene-class/image-20230822200942481.png" alt="image-20230822200942481"></p>
+<pre><code>****** Crossval split: 3/4 ******
+
+Filtering training data
+Filtered 0%; 49991 remain
+
+Filtering evalation data
+Filtered 4%; 48025 remain
+
+Labeling training data
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Split 3 training info...</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/08/22/geneformer-gene-class/image-20230822200951566.png" alt="image-20230822200951566"></p>
+<pre><code>****** Crossval split: 4/4 ******
+
+Filtering training data
+Filtered 0%; 49977 remain
+
+Filtering evalation data
+Filtered 2%; 48951 remain
+
+Labeling training data
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Split 4 training info...</span><br></pre></td></tr></table></figure>
+<p><img src="/2023/08/22/geneformer-gene-class/image-20230822200959348.png"></p>
+<pre><code>[0.25172310458495656, 0.18719408650484468, 0.1628708420737189, 0.2369393666966337, 0.16127260013984618]
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># bundle data for plotting</span></span><br><span class="line">bundled_data = []</span><br><span class="line">bundled_data += [(roc_auc, roc_auc_sd, mean_fpr, mean_tpr, <span class="string">&quot;Geneformer&quot;</span>, <span class="string">&quot;red&quot;</span>)]</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plot ROC curve</span></span><br><span class="line">plot_ROC(bundled_data, <span class="string">&#x27;Dosage Sensitive vs Insensitive TFs&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="/2023/08/22/geneformer-gene-class/image-20230822201009512.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plot confusion matrix</span></span><br><span class="line">classes_list = [<span class="string">&quot;Dosage Sensitive&quot;</span>, <span class="string">&quot;Dosage Insensitive&quot;</span>]</span><br><span class="line">plot_confusion_matrix(classes_list, confusion, <span class="string">&quot;Geneformer&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>​    <img src="/2023/08/22/geneformer-gene-class/image-20230822201022230.png"><br>​    </p>
+<p>以上是5-fold CV的结果，我们接下来尝试用其中10,000个细胞微调的模型在其相应的out-of-sample evaluation set上进行gene classification. </p>
+<p>我们首先读入第一个split的fine-tuned model，并将其转换到GPU上。该模型<code>out_features=2</code>即进行二分类预测。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># reload fine-tuned model</span></span><br><span class="line">ft_model = BertForTokenClassification.from_pretrained(<span class="string">&quot;gene_class_test/230724_geneformer_GeneClassifier_dosageTF_L2048_B2_LR5e-05_LSlinear_WU500_E1_Oadamw_n10000_F4/ksplit0/models/&quot;</span>)</span><br><span class="line"></span><br><span class="line">ft_model.to(<span class="string">&#x27;cuda:0&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(ft_model)</span><br></pre></td></tr></table></figure>
+
+<pre><code>BertForTokenClassification(
+  (bert): BertModel(
+    (embeddings): BertEmbeddings(
+      (word_embeddings): Embedding(25426, 256, padding_idx=0)
+      (position_embeddings): Embedding(2048, 256)
+      (token_type_embeddings): Embedding(2, 256)
+      (LayerNorm): LayerNorm((256,), eps=1e-12, elementwise_affine=True)
+      (dropout): Dropout(p=0.02, inplace=False)
+    )
+    (encoder): BertEncoder(
+      (layer): ModuleList(
+        (0-5): 6 x BertLayer(
+          (attention): BertAttention(
+            (self): BertSelfAttention(
+              (query): Linear(in_features=256, out_features=256, bias=True)
+              (key): Linear(in_features=256, out_features=256, bias=True)
+              (value): Linear(in_features=256, out_features=256, bias=True)
+              (dropout): Dropout(p=0.02, inplace=False)
+            )
+            (output): BertSelfOutput(
+              (dense): Linear(in_features=256, out_features=256, bias=True)
+              (LayerNorm): LayerNorm((256,), eps=1e-12, elementwise_affine=True)
+              (dropout): Dropout(p=0.02, inplace=False)
+            )
+          )
+          (intermediate): BertIntermediate(
+            (dense): Linear(in_features=256, out_features=512, bias=True)
+            (intermediate_act_fn): ReLU()
+          )
+          (output): BertOutput(
+            (dense): Linear(in_features=512, out_features=256, bias=True)
+            (LayerNorm): LayerNorm((256,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.02, inplace=False)
+          )
+        )
+      )
+    )
+  )
+  (dropout): Dropout(p=0.02, inplace=False)
+  (classifier): Linear(in_features=256, out_features=2, bias=True)
+)
+</code></pre>
+<p>我们取出第一个split对应的evaluation targets and labels，并抽取出相应的evaluation set (<code>evalset_oos_labeled</code>)。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># out-of-sample evaluation set</span></span><br><span class="line"><span class="comment"># for set 0</span></span><br><span class="line">label_dict_eval = <span class="built_in">dict</span>(<span class="built_in">zip</span>(label_dicts[<span class="number">2</span>], label_dicts[<span class="number">4</span>]))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">if_contains_eval_label</span>(<span class="params">example, label_dict</span>):</span></span><br><span class="line">    a = label_dict.keys()</span><br><span class="line">    b = example[<span class="string">&#x27;input_ids&#x27;</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">not</span> <span class="built_in">set</span>(a).isdisjoint(b)</span><br><span class="line"></span><br><span class="line">evalset0 = subsampled_train_dataset.<span class="built_in">filter</span>(if_contains_eval_label, num_proc=<span class="number">2</span>, fn_kwargs=&#123;<span class="string">&quot;label_dict&quot;</span>: label_dict_eval&#125;)</span><br><span class="line">eval_size0 = <span class="built_in">min</span>(<span class="number">10000</span>, <span class="built_in">len</span>(evalset0))</span><br><span class="line">half_training_size = <span class="built_in">round</span>(eval_size0/<span class="number">2</span>)</span><br><span class="line">evalset_oos_min = evalset0.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(half_training_size, eval_size0)])</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_eval_labels</span>(<span class="params">example, label_dict</span>):</span></span><br><span class="line">    example[<span class="string">&quot;labels&quot;</span>] = [label_dict.get(token_id, -<span class="number">100</span>) <span class="keyword">for</span> token_id <span class="keyword">in</span> example[<span class="string">&quot;input_ids&quot;</span>]]</span><br><span class="line">    <span class="keyword">return</span> example</span><br><span class="line"></span><br><span class="line">evalset_oos_labeled = evalset_oos_min.<span class="built_in">map</span>(generate_eval_labels, fn_kwargs=&#123;<span class="string">&quot;label_dict&quot;</span>: label_dict_eval&#125;)</span><br><span class="line">evalset_oos_labeled</span><br></pre></td></tr></table></figure>
+
+<pre><code>Dataset(&#123;
+    features: [&#39;input_ids&#39;, &#39;length&#39;, &#39;cell_type&#39;, &#39;individual&#39;, &#39;age&#39;, &#39;sex&#39;, &#39;disease&#39;, &#39;lvef&#39;, &#39;labels&#39;],
+    num_rows: 5000
+&#125;)
+</code></pre>
+<p>这里我们修改一下原本的<code>classifier_predict</code>让其输出微调模型预测的label (<code>y_pred</code>), 真实label (<code>y_true</code>), 模型的预测值 (<code>logits_list</code>), 细胞ID (<code>cell_id</code>)和转录因子的token (<code>token_id_dict</code>).</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># return prediction results</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_classifier_predict</span>(<span class="params">model, evalset, forward_batch_size</span>):</span></span><br><span class="line">    predict_logits = []<span class="comment"># return prediction results</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_classifier_predict</span>(<span class="params">model, evalset, forward_batch_size</span>):</span></span><br><span class="line">    predict_logits = []</span><br><span class="line">    predict_labels = []</span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    cell_id = []</span><br><span class="line">    token_id_dict = &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># ensure there is at least 2 examples in each batch to avoid incorrect tensor dims</span></span><br><span class="line">    evalset_len = <span class="built_in">len</span>(evalset)</span><br><span class="line">    max_divisible = find_largest_div(evalset_len, forward_batch_size)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(evalset) - max_divisible == <span class="number">1</span>:</span><br><span class="line">        evalset_len = max_divisible</span><br><span class="line">    </span><br><span class="line">    max_evalset_len = <span class="built_in">max</span>(evalset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(evalset_len)])[<span class="string">&quot;length&quot;</span>])</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, evalset_len, forward_batch_size):</span><br><span class="line">        max_range = <span class="built_in">min</span>(i+forward_batch_size, evalset_len)</span><br><span class="line">        batch_evalset = evalset.select([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(i, max_range)])</span><br><span class="line">        padded_batch = preprocess_classifier_batch(batch_evalset, max_evalset_len)</span><br><span class="line">        padded_batch.set_format(<span class="built_in">type</span>=<span class="string">&quot;torch&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># cell id</span></span><br><span class="line">        cell_id += [i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(i, max_range)]</span><br><span class="line">        <span class="comment"># store token id by cell j</span></span><br><span class="line">        <span class="keyword">for</span> j, tokens <span class="keyword">in</span> <span class="built_in">enumerate</span>(batch_evalset[<span class="string">&#x27;input_ids&#x27;</span>]):</span><br><span class="line">            cell_idx = <span class="built_in">range</span>(i, max_range)[j]</span><br><span class="line">            token_id_dict[cell_idx] = [tki <span class="keyword">for</span> k, tki <span class="keyword">in</span> <span class="built_in">enumerate</span>(tokens) <span class="keyword">if</span> batch_evalset[<span class="string">&#x27;labels&#x27;</span>][j][k] &gt; -<span class="number">1</span>]</span><br><span class="line">        </span><br><span class="line">        input_data_batch = padded_batch[<span class="string">&quot;input_ids&quot;</span>]</span><br><span class="line">        attn_msk_batch = padded_batch[<span class="string">&quot;attention_mask&quot;</span>]</span><br><span class="line">        label_batch = padded_batch[<span class="string">&quot;labels&quot;</span>]</span><br><span class="line">        <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">            outputs = model(</span><br><span class="line">                input_ids = input_data_batch.to(<span class="string">&quot;cuda&quot;</span>), </span><br><span class="line">                attention_mask = attn_msk_batch.to(<span class="string">&quot;cuda&quot;</span>), </span><br><span class="line">                labels = label_batch.to(<span class="string">&quot;cuda&quot;</span>), </span><br><span class="line">            )</span><br><span class="line">            predict_logits += [torch.squeeze(outputs.logits.to(<span class="string">&quot;cpu&quot;</span>))]</span><br><span class="line">            predict_labels += [torch.squeeze(label_batch.to(<span class="string">&quot;cpu&quot;</span>))]</span><br><span class="line">            </span><br><span class="line">    logits_by_cell = torch.cat(predict_logits)</span><br><span class="line">    all_logits = logits_by_cell.reshape(-<span class="number">1</span>, logits_by_cell.shape[<span class="number">2</span>])</span><br><span class="line">    labels_by_cell = torch.cat(predict_labels)</span><br><span class="line">    all_labels = torch.flatten(labels_by_cell)</span><br><span class="line">    logit_label_paired = [item <span class="keyword">for</span> item <span class="keyword">in</span> <span class="built_in">list</span>(<span class="built_in">zip</span>(all_logits.tolist(), all_labels.tolist())) <span class="keyword">if</span> item[<span class="number">1</span>]!=-<span class="number">100</span>]</span><br><span class="line">    y_pred = [vote(item[<span class="number">0</span>]) <span class="keyword">for</span> item <span class="keyword">in</span> logit_label_paired]</span><br><span class="line">    y_true = [item[<span class="number">1</span>] <span class="keyword">for</span> item <span class="keyword">in</span> logit_label_paired]</span><br><span class="line">    logits_list = [item[<span class="number">0</span>] <span class="keyword">for</span> item <span class="keyword">in</span> logit_label_paired]</span><br><span class="line">    <span class="keyword">return</span> y_pred, y_true, logits_list, cell_id, token_id_dict </span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eval_pred, eval_label, eval_logits, cell_id, token_id = get_classifier_predict(model=ft_model, evalset=evalset_oos_labeled, forward_batch_size=<span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Model prediction info...</span><br></pre></td></tr></table></figure>
+
+<p>该模型输出两个分类的预测值，根据最大值来判断该基因的label。这里对每个细胞中的tf都进行了预测 (n = 27,939) .</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(Counter(eval_pred))</span><br><span class="line"><span class="built_in">print</span>(Counter(eval_label))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(eval_logits[<span class="number">0</span>:<span class="number">3</span>])</span><br><span class="line"><span class="built_in">print</span>(eval_pred[<span class="number">0</span>:<span class="number">3</span>])</span><br></pre></td></tr></table></figure>
+
+<pre><code>Counter(&#123;1: 16492, 0: 11447&#125;)
+Counter(&#123;0: 14673, 1: 13266&#125;)
+[[4.6540117263793945, -4.643155574798584], [5.055752277374268, -4.894111156463623], [0.701909065246582, -0.6132677793502808]]
+[0, 0, 0]
+</code></pre>
+<p>接下来，我们统计各个转录因子出现的频率。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># # numbers of tfs (genes with 0/1 label) in out-of-sample evaluation set</span></span><br><span class="line"><span class="comment"># tf_num = [len([v for v in i if v &gt;= 0]) for i in evalset_oos_labeled[&#x27;labels&#x27;]]</span></span><br><span class="line"><span class="comment"># sum(tf_num)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># frequencies of tokens</span></span><br><span class="line">token_freq = Counter()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> tks <span class="keyword">in</span> token_id.values():</span><br><span class="line">    token_freq.update(tks)</span><br><span class="line"></span><br><span class="line">token_freq</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">Counter(&#123;<span class="number">1636</span>: <span class="number">2636</span>,</span><br><span class="line">         <span class="number">9061</span>: <span class="number">2755</span>,</span><br><span class="line">         <span class="number">6754</span>: <span class="number">475</span>,</span><br><span class="line">         <span class="number">16718</span>: <span class="number">204</span>,</span><br><span class="line">         <span class="number">275</span>: <span class="number">1445</span>,</span><br><span class="line">         <span class="number">15866</span>: <span class="number">600</span>,</span><br><span class="line">         <span class="number">5084</span>: <span class="number">805</span>,</span><br><span class="line">         <span class="number">3361</span>: <span class="number">272</span>,</span><br><span class="line">         <span class="number">2410</span>: <span class="number">108</span>,</span><br><span class="line">         <span class="number">1757</span>: <span class="number">550</span>,</span><br><span class="line">         <span class="number">18597</span>: <span class="number">82</span>,</span><br><span class="line">         <span class="number">10422</span>: <span class="number">305</span>,</span><br><span class="line">         <span class="number">14481</span>: <span class="number">197</span>,</span><br><span class="line">         <span class="number">8218</span>: <span class="number">766</span>,</span><br><span class="line">         <span class="number">16619</span>: <span class="number">138</span>,</span><br><span class="line">         <span class="number">4071</span>: <span class="number">434</span>,</span><br><span class="line">         <span class="number">6931</span>: <span class="number">1052</span>,</span><br><span class="line">         <span class="number">14023</span>: <span class="number">468</span>,</span><br><span class="line">         <span class="number">7445</span>: <span class="number">699</span>,</span><br><span class="line">         <span class="number">4445</span>: <span class="number">157</span>,</span><br><span class="line">         <span class="number">17672</span>: <span class="number">983</span>,</span><br><span class="line">         <span class="number">3982</span>: <span class="number">547</span>,</span><br><span class="line">         <span class="number">5944</span>: <span class="number">552</span>,</span><br><span class="line">         <span class="number">5357</span>: <span class="number">359</span>,</span><br><span class="line">         <span class="number">20144</span>: <span class="number">237</span>,</span><br><span class="line">         <span class="number">6257</span>: <span class="number">137</span>,</span><br><span class="line">         <span class="number">6456</span>: <span class="number">185</span>,</span><br><span class="line">         <span class="number">16597</span>: <span class="number">437</span>,</span><br><span class="line">         <span class="number">2774</span>: <span class="number">216</span>,</span><br><span class="line">         <span class="number">15781</span>: <span class="number">553</span>,</span><br><span class="line">         <span class="number">20018</span>: <span class="number">386</span>,</span><br><span class="line">         <span class="number">23967</span>: <span class="number">427</span>,</span><br><span class="line">         <span class="number">21561</span>: <span class="number">218</span>,</span><br><span class="line">         <span class="number">12006</span>: <span class="number">116</span>,</span><br><span class="line">         <span class="number">20989</span>: <span class="number">339</span>,</span><br><span class="line">         <span class="number">15753</span>: <span class="number">199</span>,</span><br><span class="line">         <span class="number">487</span>: <span class="number">387</span>,</span><br><span class="line">         <span class="number">16016</span>: <span class="number">530</span>,</span><br><span class="line">         <span class="number">998</span>: <span class="number">496</span>,</span><br><span class="line">         <span class="number">8972</span>: <span class="number">382</span>,</span><br><span class="line">         <span class="number">6492</span>: <span class="number">269</span>,</span><br><span class="line">         <span class="number">14410</span>: <span class="number">180</span>,</span><br><span class="line">         <span class="number">14286</span>: <span class="number">228</span>,</span><br><span class="line">         <span class="number">12961</span>: <span class="number">228</span>,</span><br><span class="line">         <span class="number">8725</span>: <span class="number">26</span>,</span><br><span class="line">         <span class="number">2707</span>: <span class="number">82</span>,</span><br><span class="line">         <span class="number">17085</span>: <span class="number">262</span>,</span><br><span class="line">         <span class="number">15375</span>: <span class="number">72</span>,</span><br><span class="line">         <span class="number">13606</span>: <span class="number">313</span>,</span><br><span class="line">         <span class="number">10804</span>: <span class="number">317</span>,</span><br><span class="line">         <span class="number">12959</span>: <span class="number">527</span>,</span><br><span class="line">         <span class="number">12435</span>: <span class="number">202</span>,</span><br><span class="line">         <span class="number">16713</span>: <span class="number">359</span>,</span><br><span class="line">         <span class="number">12674</span>: <span class="number">184</span>,</span><br><span class="line">         <span class="number">20959</span>: <span class="number">88</span>,</span><br><span class="line">         <span class="number">16535</span>: <span class="number">348</span>,</span><br><span class="line">         <span class="number">21035</span>: <span class="number">131</span>,</span><br><span class="line">         <span class="number">11880</span>: <span class="number">34</span>,</span><br><span class="line">         <span class="number">23100</span>: <span class="number">347</span>,</span><br><span class="line">         <span class="number">21079</span>: <span class="number">114</span>,</span><br><span class="line">         <span class="number">20581</span>: <span class="number">284</span>,</span><br><span class="line">         <span class="number">15553</span>: <span class="number">249</span>,</span><br><span class="line">         <span class="number">14677</span>: <span class="number">63</span>,</span><br><span class="line">         <span class="number">954</span>: <span class="number">171</span>,</span><br><span class="line">         <span class="number">17147</span>: <span class="number">47</span>,</span><br><span class="line">         <span class="number">12995</span>: <span class="number">51</span>,</span><br><span class="line">         <span class="number">20962</span>: <span class="number">74</span>,</span><br><span class="line">         <span class="number">12165</span>: <span class="number">46</span>,</span><br><span class="line">         <span class="number">17092</span>: <span class="number">66</span>,</span><br><span class="line">         <span class="number">15717</span>: <span class="number">54</span>,</span><br><span class="line">         <span class="number">9024</span>: <span class="number">118</span>,</span><br><span class="line">         <span class="number">16555</span>: <span class="number">67</span>,</span><br><span class="line">         <span class="number">7705</span>: <span class="number">78</span>,</span><br><span class="line">         <span class="number">13722</span>: <span class="number">44</span>,</span><br><span class="line">         <span class="number">18778</span>: <span class="number">100</span>,</span><br><span class="line">         <span class="number">9831</span>: <span class="number">41</span>,</span><br><span class="line">         <span class="number">5789</span>: <span class="number">40</span>,</span><br><span class="line">         <span class="number">14124</span>: <span class="number">59</span>,</span><br><span class="line">         <span class="number">13954</span>: <span class="number">31</span>,</span><br><span class="line">         <span class="number">10534</span>: <span class="number">50</span>,</span><br><span class="line">         <span class="number">16425</span>: <span class="number">6</span>,</span><br><span class="line">         <span class="number">20787</span>: <span class="number">3</span>,</span><br><span class="line">         <span class="number">9367</span>: <span class="number">44</span>,</span><br><span class="line">         <span class="number">14578</span>: <span class="number">1</span>,</span><br><span class="line">         <span class="number">15180</span>: <span class="number">1</span>,</span><br><span class="line">         <span class="number">12243</span>: <span class="number">4</span>,</span><br><span class="line">         <span class="number">11443</span>: <span class="number">1</span>,</span><br><span class="line">         <span class="number">13066</span>: <span class="number">1</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这里我们随机看两个基因预测分类是否正确，其中gene 9061被预测准确，为药物敏感基因。而gene 16425预测值与标签值不匹配。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># append all tokens into one list</span></span><br><span class="line">token_id_list = [tk <span class="keyword">for</span> tks <span class="keyword">in</span> token_id.values() <span class="keyword">for</span> tk <span class="keyword">in</span> tks]</span><br><span class="line"></span><br><span class="line"><span class="comment"># successed prediction</span></span><br><span class="line"><span class="comment"># get prediction of gene (token = 9061)</span></span><br><span class="line">target_pred1 = [eval_pred[i] <span class="keyword">for</span> i <span class="keyword">in</span> token_id_list <span class="keyword">if</span> i == <span class="number">9061</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Predicted label of gene 9061: &quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(target_pred1))</span><br><span class="line">target_label1 = [eval_label[i] <span class="keyword">for</span> i <span class="keyword">in</span> token_id_list <span class="keyword">if</span> i == <span class="number">9061</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;True label of gene 9061: &quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(target_label1))</span><br><span class="line"></span><br><span class="line"><span class="comment"># failed prediction</span></span><br><span class="line"><span class="comment"># get prediction of gene (token = 16425)</span></span><br><span class="line">target_pred2 = [eval_pred[i] <span class="keyword">for</span> i <span class="keyword">in</span> token_id_list <span class="keyword">if</span> i == <span class="number">16425</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Predicted label of gene 16425: &quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(target_pred2))</span><br><span class="line">target_label2 = [eval_label[i] <span class="keyword">for</span> i <span class="keyword">in</span> token_id_list <span class="keyword">if</span> i == <span class="number">16425</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;True label of gene 16425: &quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(Counter(target_label2))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Predicted label of gene <span class="number">9061</span>: </span><br><span class="line">Counter(&#123;<span class="number">1</span>: <span class="number">2755</span>&#125;)</span><br><span class="line"><span class="literal">True</span> label of gene <span class="number">9061</span>: </span><br><span class="line">Counter(&#123;<span class="number">1</span>: <span class="number">2755</span>&#125;)</span><br><span class="line">Predicted label of gene <span class="number">16425</span>: </span><br><span class="line">Counter(&#123;<span class="number">0</span>: <span class="number">6</span>&#125;)</span><br><span class="line"><span class="literal">True</span> label of gene <span class="number">16425</span>: </span><br><span class="line">Counter(&#123;<span class="number">1</span>: <span class="number">6</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于基因分类的微调，我们需要：</p>
+<ol>
+<li>获取相应微调的数据集，并且有基因的label信息，例如某个TF是否为药物靶点之类的；<blockquote>
+<p>关于数据集大小，从作者提供的<a target="_blank" rel="noopener" href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41586-023-06139-9/MediaObjects/41586_2023_6139_MOESM5_ESM.docx">例子</a>来看，最少的情况是884个细胞，但其余下游任务都超过10k细胞</p>
+</blockquote>
+</li>
+<li>以<code>BertForTokenClassification</code>的方式读入预训练模型，并设置<code>num_labels</code>为分类数目；</li>
+<li>根据微调的数据集训练，加上最后的输出层（task-specific transformer layer），并对微调模型预测性能进行评估；</li>
+<li>在新的数据集上应用微调模型进行预测。</li>
+</ol>
+<p>另外，作者最近更新上传了心肌炎单细胞数据微调的模型 (<a target="_blank" rel="noopener" href="https://huggingface.co/ctheodoris/Geneformer/tree/main/fine_tuned_models/geneformer-6L-30M_CellClassifier_cardiomyopathies_220224)%E3%80%82%E5%A4%A7%E5%AE%B6%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E4%B8%8B%E8%BD%BD%E8%AF%A5%E6%A8%A1%E5%9E%8B%E4%BD%BF%E7%94%A8%E3%80%82">https://huggingface.co/ctheodoris/Geneformer/tree/main/fine_tuned_models/geneformer-6L-30M_CellClassifier_cardiomyopathies_220224)。大家也可以直接下载该模型使用。</a></p>
+<blockquote>
+<p>Ref:</p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/tree/main/example_input_files/cell_classification/disease_classification/human_dcm_hcm_nf.dataset">https://huggingface.co/datasets/ctheodoris/Genecorpus-30M/tree/main/example_input_files/cell_classification/disease_classification/human_dcm_hcm_nf.dataset</a></p>
+<p>Transfer learning enables predictions in network biology: <a target="_blank" rel="noopener" href="https://doi.org/10.1038/s41586-023-06139-9">https://doi.org/10.1038/s41586-023-06139-9</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2023/08/22/geneformer-gene-class/" title="geneformer-gene-class">https://thereallda.github.io/2023/08/22/geneformer-gene-class/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/single-cell/" rel="tag"># single-cell</a>
+              <a href="/tags/scRNA-seq/" rel="tag"># scRNA-seq</a>
+              <a href="/tags/deep-learning/" rel="tag"># deep-learning</a>
+              <a href="/tags/python/" rel="tag"># python</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/02/geneformer-cell-class/" rel="prev" title="geneformer-cell-class">
+      <i class="fa fa-chevron-left"></i> geneformer-cell-class
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Gene-Classification"><span class="nav-number">1.</span> <span class="nav-text">Gene Classification</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Modules-import"><span class="nav-number">1.1.</span> <span class="nav-text">Modules import</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Load-Gene-Attribute-Information"><span class="nav-number">1.2.</span> <span class="nav-text">Load Gene Attribute Information</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Load-Training-Data-and-Class-Labels"><span class="nav-number">1.3.</span> <span class="nav-text">Load Training Data and Class Labels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Define-Functions-for-Training-and-Cross-Validating-Classifier"><span class="nav-number">1.4.</span> <span class="nav-text">Define Functions for Training and Cross-Validating Classifier</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Define-Functions-for-Plotting-Results"><span class="nav-number">1.5.</span> <span class="nav-text">Define Functions for Plotting Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fine-Tune-With-Gene-Classification-Learning-Objective-and-Quantify-Predictive-Performance"><span class="nav-number">1.6.</span> <span class="nav-text">Fine-Tune With Gene Classification Learning Objective and Quantify Predictive Performance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'b6f08ff023374b6576f1209ec5460398',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
