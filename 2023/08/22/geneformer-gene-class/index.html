@@ -590,7 +590,10 @@ Counter(&#123;0: 14673, 1: 13266&#125;)
     <a href="/2023/08/02/geneformer-cell-class/" rel="prev" title="geneformer-cell-class">
       <i class="fa fa-chevron-left"></i> geneformer-cell-class
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/05/10/enONE/" rel="next" title="enONE">
+      enONE <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -666,7 +669,7 @@ Counter(&#123;0: 14673, 1: 13266&#125;)
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-count">62</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -711,7 +714,7 @@ Counter(&#123;0: 14673, 1: 13266&#125;)
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -785,6 +788,26 @@ Counter(&#123;0: 14673, 1: 13266&#125;)
 
 
 
+<script>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
 
 
 

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近开发了一个R包，enONE（https:&#x2F;&#x2F;github.com&#x2F;thereallda&#x2F;enONE），可以用于NAD-RNA-seq或者其他代谢物修饰RNA的数据分析中。相关工作也发表了，欢迎大家使用并提出意见 :)   Epitranscriptome analysis of NAD-capped RNA by spike-in-basednormalization and predicti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="enONE">
+<meta property="og:url" content="https://thereallda.github.io/2024/05/10/enONE/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="最近开发了一个R包，enONE（https:&#x2F;&#x2F;github.com&#x2F;thereallda&#x2F;enONE），可以用于NAD-RNA-seq或者其他代谢物修饰RNA的数据分析中。相关工作也发表了，欢迎大家使用并提出意见 :)   Epitranscriptome analysis of NAD-capped RNA by spike-in-basednormalization and predicti">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2024/05/10/enONE/image-20240510141621459.png">
+<meta property="og:image" content="https://thereallda.github.io/2024/05/10/enONE/Figure1.jpeg">
+<meta property="og:image" content="https://thereallda.github.io/2024/05/10/enONE/unnamed-chunk-12-1.jpeg">
+<meta property="og:image" content="https://thereallda.github.io/2024/05/10/enONE/unnamed-chunk-15-1.jpeg">
+<meta property="og:image" content="https://thereallda.github.io/2024/05/10/enONE/unnamed-chunk-18-1.jpeg">
+<meta property="og:image" content="https://thereallda.github.io/2024/05/10/enONE/unnamed-chunk-19-1.jpeg">
+<meta property="article:published_time" content="2024-05-10T06:02:59.000Z">
+<meta property="article:modified_time" content="2024-05-10T07:42:24.462Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2024/05/10/enONE/image-20240510141621459.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2024/05/10/enONE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>enONE | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2024/05/10/enONE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          enONE
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-05-10 14:02:59 / Modified: 15:42:24" itemprop="dateCreated datePublished" datetime="2024-05-10T14:02:59+08:00">2024-05-10</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>16 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近开发了一个R包，enONE（<a target="_blank" rel="noopener" href="https://github.com/thereallda/enONE">https://github.com/thereallda/enONE</a>），可以用于NAD-RNA-seq或者其他代谢物修饰RNA的数据分析中。相关工作也发表了，欢迎大家使用并提出意见 :)</p>
+<p><img src="/2024/05/10/enONE/image-20240510141621459.png" alt="image-20240510141621459"></p>
+<blockquote>
+<p><strong>Epitranscriptome analysis of NAD-capped RNA by spike-in-based<br>normalization and prediction of chronological age</strong><br>(<a target="_blank" rel="noopener" href="https://doi.org/10.1016/j.isci.2023.108558">https://doi.org/10.1016/j.isci.2023.108558</a>)</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="enONE-Tutorial-zh"><a href="#enONE-Tutorial-zh" class="headerlink" title="enONE Tutorial-zh"></a>enONE Tutorial-zh</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>细胞内的核苷类代谢物，如烟酰胺腺嘌呤二核苷酸（NAD），能够被添加到mRNA<br>5’末端，形成NAD帽修饰的RNA（NAD-RNA）；这类非经典起始核苷酸（NCIN）修饰的RNA被统称为NCIN帽修饰的RNA（NCIN-RNA）。NCIN-RNA天然地将代谢物与基因表达紧密地联系起来，定义了一种新颖但功能未知的表观转录修饰。NCIN-RNA的表征是功能研究的前提。当前NCIN-RNA的表征方法，如ONE-seq和DO-seq，实现了代谢物帽修饰RNA在细胞和组织中的鉴定。然而，这些方法产出的数据会受到源于化学酶促标记及亲和富集反应等实验操作误差的影响。因此，这里提出了<code>enONE</code>这种NAD-RNA表观转录组的计算分析方法，实现NAD-RNA数据的定量和比较分析。</p>
+<p><code>enONE</code> 的R包可以在GitHub中找到（<a target="_blank" rel="noopener" href="https://github.com/thereallda/enONE">https://github.com/thereallda/enONE</a>）</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><p>在这个教程中，我们会使用人类外周血单核细胞（PBMCs）的NAD-RNA-seq数据来展示<br><code>enONE</code> 的工作流程。</p>
+<p>要注意的是，这里混入了三种spike-in RNAs： </p>
+<ol>
+<li>来自模式生物黑腹果蝇的总RNA，用于 <code>enONE</code> 的normalization；</li>
+<li>Synthetic RNA，其中含有5％的NAD修饰形式（相对于m7G-RNA），用于确定富集灵敏度； </li>
+<li>Synthetic RNA，其为100％ m7G加帽的形式，用于确定富集特异性。</li>
+</ol>
+<img src="Figure1.jpeg" alt="img" style="zoom:50%;" />
+
+<p><em>Figure: Schematic workflow for total RNAs from PBMCs and three sets of<br>spike-ins.</em></p>
+<p>我们首先读取数据，包括基因表达量的count matrix和样本信息的metadata。matrix和样本信息的。metadata至少包括两列，即用于样本生物分组的”condition”列和用于样本富集分组的”enrich”列。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">library(enONE)</span><br><span class="line">library(tidyverse)</span><br><span class="line">library(patchwork)</span><br><span class="line"></span><br><span class="line"><span class="comment"># read in metadata and counts matrix</span></span><br><span class="line">counts_mat &lt;- read.csv(<span class="string">&quot;D:/Academic/data/Counts.csv&quot;</span>, row.names = <span class="number">1</span>)</span><br><span class="line">meta &lt;- read.csv(<span class="string">&quot;D:/Academic/data/metadata.csv&quot;</span>, comment.char = <span class="string">&quot;#&quot;</span>)</span><br><span class="line">head(meta)</span><br><span class="line"><span class="comment">#&gt;   id sample.id condition batch enrich</span></span><br><span class="line"><span class="comment">#&gt; 1 D1        Y2   Y.Input     D  Input</span></span><br><span class="line"><span class="comment">#&gt; 2 D2       Y10   Y.Input     D  Input</span></span><br><span class="line"><span class="comment">#&gt; 3 D3       Y14   Y.Input     D  Input</span></span><br><span class="line"><span class="comment">#&gt; 4 D4       Y16   Y.Input     D  Input</span></span><br><span class="line"><span class="comment">#&gt; 5 D5       M13   M.Input     D  Input</span></span><br><span class="line"><span class="comment">#&gt; 6 D6       M14   M.Input     D  Input</span></span><br><span class="line"><span class="comment"># rownames of metadata should be consistent with the colnames of counts_mat</span></span><br><span class="line">rownames(meta) &lt;- meta$id</span><br></pre></td></tr></table></figure>
+
+<p>另外，metadata也可以包括其他信息，例如样本的批次信息。</p>
+<p>接下来，我们使用count matrix和metadata创建一个 <code>Enone</code> 对象。</p>
+<p><code>Enone</code> 对象，包含了NAD-RNA-seq数据集的数据（raw and normalized counts data）和结果信息（例如，数据标准化性能的打分和NAD-RNA富集结果）。</p>
+<p>在构建 Enone 对象时，我们可以提供以下参数：</p>
+<ul>
+<li>spike-in 基因的前缀，例如果蝇Flybase基因id前缀为FB (<code>spike.in.prefix = &quot;^FB&quot;</code>)；</li>
+<li>synthetic spike-in的id (<code>synthetic.id = c(&quot;Syn1&quot;, &quot;Syn2&quot;</code>))，这需要与 <code>counts_mat</code> 中的行名相同；</li>
+<li>Input样本分组的id (<code>input.id = &quot;Input&quot;</code>) 和Enrichment样本分组的id (<code>enrich.id = &quot;Enrich&quot;</code>)，与<code>enrich</code>列相同。</li>
+</ul>
+<blockquote>
+<p>其中, “Syn1”代表5% NAD-RNA spike-in and “Syn2”代表100% m7G-RNA spike-in.</p>
+<p><strong><code>synthetic.id</code> 是可选的参数.</strong></p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># prefix of Drosophila spike-in genes</span></span><br><span class="line">spikeInPrefix &lt;- <span class="string">&quot;^FB&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create Enone</span></span><br><span class="line">Enone &lt;- createEnone(data = counts_mat,</span><br><span class="line">                     col.data = meta,</span><br><span class="line">                     spike.in.prefix = spikeInPrefix,</span><br><span class="line">                     synthetic.id = <span class="built_in">c</span>(<span class="string">&quot;Syn1&quot;</span>, <span class="string">&quot;Syn2&quot;</span>), </span><br><span class="line">                     input.id = <span class="string">&quot;Input&quot;</span>,</span><br><span class="line">                     enrich.id = <span class="string">&quot;Enrich&quot;</span></span><br><span class="line">                     )</span><br><span class="line">Enone</span><br><span class="line"><span class="comment">#&gt; class: Enone </span></span><br><span class="line"><span class="comment">#&gt; dim: 76290 62 </span></span><br><span class="line"><span class="comment">#&gt; metadata(0):</span></span><br><span class="line"><span class="comment">#&gt; assays(1): &#x27;&#x27;</span></span><br><span class="line"><span class="comment">#&gt; rownames(76290): ENSG00000223972 ENSG00000227232 ... Syn1 Syn2</span></span><br><span class="line"><span class="comment">#&gt; rowData names(3): GeneID SpikeIn Synthetic</span></span><br><span class="line"><span class="comment">#&gt; colnames(62): D1 D2 ... F22 F24</span></span><br><span class="line"><span class="comment">#&gt; colData names(7): id id.1 ... enrich replicate</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="标准流程"><a href="#标准流程" class="headerlink" title="标准流程"></a>标准流程</h2><p><code>enONE</code> 流程包括以下四步:</p>
+<ol>
+<li> 质量控制（Quality control）;</li>
+<li> 基因集选取（Gene set selection）;</li>
+<li> 数据校正（Normalization procedures）;</li>
+<li> 数据校正效果评估（Normalization performance assessment）.</li>
+</ol>
+<h3 id="质量控制（Quality-control）"><a href="#质量控制（Quality-control）" class="headerlink" title="质量控制（Quality control）"></a>质量控制（Quality control）</h3><p><code>enONE</code> 首先进行质量控制步骤，通过 <code>FilterLowExprGene</code> 保留至少在 <code>n</code> 个样本中至少具有 <code>min.count</code> 的基因来完成此步骤。<code>n</code> 由 <code>group</code> 中指定的最小样本组的大小确定。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Enone &lt;- FilterLowExprGene(Enone, group = Enone$condition, min.count = <span class="number">20</span>)</span><br><span class="line">Enone</span><br><span class="line"><span class="comment">#&gt; class: Enone </span></span><br><span class="line"><span class="comment">#&gt; dim: 27661 62 </span></span><br><span class="line"><span class="comment">#&gt; metadata(0):</span></span><br><span class="line"><span class="comment">#&gt; assays(1): &#x27;&#x27;</span></span><br><span class="line"><span class="comment">#&gt; rownames(27661): ENSG00000227232 ENSG00000268903 ... Syn1 Syn2</span></span><br><span class="line"><span class="comment">#&gt; rowData names(3): GeneID SpikeIn Synthetic</span></span><br><span class="line"><span class="comment">#&gt; colnames(62): D1 D2 ... F22 F24</span></span><br><span class="line"><span class="comment">#&gt; colData names(7): id id.1 ... enrich replicate</span></span><br></pre></td></tr></table></figure>
+
+<p>此外，可以通过<code>OutlierTest</code>对异常样本进行评估并进一步移除（<code>return=TRUE</code>）。由于没有样本被标记为异常值，因此我们将在后续分析中使用所有样本。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## ronser&quot;s test for outlier assessment</span></span><br><span class="line">OutlierTest(Enone, <span class="built_in">return</span>=<span class="literal">FALSE</span>)</span><br><span class="line"><span class="comment">#&gt; Rosner&#x27;s outlier test</span></span><br><span class="line"><span class="comment">#&gt;   i        Mean.i     SD.i    Value Obs.Num    R.i+1 lambda.i+1 Outlier</span></span><br><span class="line"><span class="comment">#&gt; 1 0 -1.953993e-14 51.77231 80.37523      15 1.552475   3.212165   FALSE</span></span><br><span class="line"><span class="comment">#&gt; 2 1 -1.317627e+00 51.14304 78.20437      19 1.554894   3.205977   FALSE</span></span><br><span class="line"><span class="comment">#&gt; 3 2 -2.642993e+00 50.50717 70.38990      41 1.445991   3.199662   FALSE</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运行enONE"><a href="#运行enONE" class="headerlink" title="运行enONE"></a>运行enONE</h3><p><code>enONE</code> 函数可以进行基因选择、数据标准化和标准化效果评估。该函数在 <code>rowData</code> 中存储选择的基因集，在 counts slot中返回标准化计数矩阵（当<code>return.norm=TRUE</code> 时），在 <code>enone_factor</code> slot中返回标准化因子，在 <code>enone_metrics</code> 和 <code>enone_scores</code> slots中返回评估指标和得分。以下是这些步骤的详细描述。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Enone &lt;- enONE(Enone, </span><br><span class="line">               scaling.method = <span class="built_in">c</span>(<span class="string">&quot;TC&quot;</span>, <span class="string">&quot;UQ&quot;</span>, <span class="string">&quot;TMM&quot;</span>, <span class="string">&quot;DESeq&quot;</span>, <span class="string">&quot;PossionSeq&quot;</span>),</span><br><span class="line">               ruv.norm = <span class="literal">TRUE</span>, ruv.k = <span class="number">3</span>,</span><br><span class="line">               eval.pam.k = <span class="number">2</span>:<span class="number">6</span>, eval.pc.n = <span class="number">3</span>, </span><br><span class="line">               return.norm = <span class="literal">TRUE</span></span><br><span class="line">               )</span><br><span class="line"><span class="comment">#&gt; Gene set selection for normalization and assessment...</span></span><br><span class="line"><span class="comment">#&gt; - The number of negative control genes for normalization: 1000 </span></span><br><span class="line"><span class="comment">#&gt; - Estimate dispersion &amp; Fit GLM... </span></span><br><span class="line"><span class="comment">#&gt; - Testing differential genes... </span></span><br><span class="line"><span class="comment">#&gt; - The number of positive evaluation genes: 500 </span></span><br><span class="line"><span class="comment">#&gt; - Estimate dispersion &amp; Fit GLM... </span></span><br><span class="line"><span class="comment">#&gt; - Testing differential genes... </span></span><br><span class="line"><span class="comment">#&gt; - The number of negative evaluation genes: 500 </span></span><br><span class="line"><span class="comment">#&gt; - Estimate dispersion &amp; Fit GLM... </span></span><br><span class="line"><span class="comment">#&gt; - Testing differential genes... </span></span><br><span class="line"><span class="comment">#&gt; Apply normalization...</span></span><br><span class="line"><span class="comment">#&gt; - Scaling... </span></span><br><span class="line"><span class="comment">#&gt; - Regression-based normalization... </span></span><br><span class="line"><span class="comment">#&gt; Perform assessment...</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="基因集选取（Gene-set-selection）"><a href="#基因集选取（Gene-set-selection）" class="headerlink" title="基因集选取（Gene set selection）"></a>基因集选取（Gene set selection）</h4><p><code>enONE</code> 定义了三组基因，包括：</p>
+<ul>
+<li>负对照（<code>NegControl</code>）：默认情况下，<code>enONE</code> 将 果蝇 spike-ins（或其他外源生物的RNA spike-in）中 FDR 排名最低的 1,000 个基因作为负对照（不富集的基因），用于校正无关误差。</li>
+<li>负评估（<code>NegEvaluation</code>）：默认情况下，<code>enONE</code> 将样本中 FDR 排名最低的500 个基因作为负评估基因，用于评估无关误差。</li>
+<li>正评估（<code>PosEvaluation</code>）：默认情况下，<code>enONE</code> 将样本中 FDR 排名最高的500 个基因作为正评估基因，用于评估研究感兴趣的差异。</li>
+</ul>
+<p>基因集的选择可以在 <code>enONE</code> 函数中使用 <code>auto=TRUE</code>参数（默认值）自动定义，也可以在 <code>neg.control</code>, <code>pos.eval</code>, <code>neg.eval</code> 参数中分别提供。</p>
+<p>可以通过<code>getGeneSet</code>函数和基因集的名称（即<code>&quot;NegControl&quot;</code>、<code>&quot;NegEvaluation&quot;</code>、<code>&quot;PosEvaluation&quot;</code>）来获取相应的基因集。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">getGeneSet(Enone, name = <span class="string">&quot;NegControl&quot;</span>)[<span class="number">1</span>:<span class="number">5</span>]</span><br><span class="line"><span class="comment">#&gt; [1] &quot;FBgn0031247&quot; &quot;FBgn0031255&quot; &quot;FBgn0004583&quot; &quot;FBgn0031324&quot; &quot;FBgn0026397&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="数据校正（Normalization）"><a href="#数据校正（Normalization）" class="headerlink" title="数据校正（Normalization）"></a>数据校正（Normalization）</h4><p><code>enONE</code> 整合了全局缩放（global scaling）和基于回归的校正方法（regression-based normalization）来产生normalization方法。</p>
+<p>对于全局缩放方法，<code>enONE</code> 整合了五种方法，包括：</p>
+<ol>
+<li><p> Total Count (TC);</p>
+</li>
+<li><p> Upper-Quartile (UQ);</p>
+</li>
+<li><p> Trimmed Mean of M Values (TMM);</p>
+</li>
+<li><p> DESeq;</p>
+</li>
+<li><p> PossionSeq.</p>
+</li>
+</ol>
+<p>默认情况下，<code>enONE</code> 使用所有缩放方法，但用户可以在 <code>scaling.method</code> 参数中选择要使用的缩放程序。</p>
+<p>对于regression-based方法，<code>enONE</code> 利用了三种RUV的方法，包括：</p>
+<ol>
+<li><p> RUVg;</p>
+</li>
+<li><p> RUVs;</p>
+</li>
+<li><p> RUVse.</p>
+</li>
+</ol>
+<p>例如，您可以通过选择 <code>ruv.norm=TRUE, ruv.k=2</code> 来执行使用前两个无关误差因子的 RUV。</p>
+<blockquote>
+<p>RUVse 是类似于 RUVs 的方法。它基于每个富集样本或背景样本组的重复样本中的负对照基因来估计无关误差因子，其假设富集效应在重复之间是相对稳定的。</p>
+</blockquote>
+<p>所有使用的normalization方法都可以使用 <code>listNormalization</code> 来提取。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">listNormalization(Enone)</span><br><span class="line"><span class="comment">#&gt;  [1] &quot;TC&quot;                  &quot;UQ&quot;                  &quot;TMM&quot;                </span></span><br><span class="line"><span class="comment">#&gt;  [4] &quot;DESeq&quot;               &quot;PossionSeq&quot;          &quot;Raw&quot;                </span></span><br><span class="line"><span class="comment">#&gt;  [7] &quot;Raw_RUVg_k1&quot;         &quot;Raw_RUVg_k2&quot;         &quot;Raw_RUVg_k3&quot;        </span></span><br><span class="line"><span class="comment">#&gt; [10] &quot;Raw_RUVs_k1&quot;         &quot;Raw_RUVs_k2&quot;         &quot;Raw_RUVs_k3&quot;        </span></span><br><span class="line"><span class="comment">#&gt; [13] &quot;Raw_RUVse_k1&quot;        &quot;Raw_RUVse_k2&quot;        &quot;Raw_RUVse_k3&quot;       </span></span><br><span class="line"><span class="comment">#&gt; [16] &quot;TC_RUVg_k1&quot;          &quot;TC_RUVg_k2&quot;          &quot;TC_RUVg_k3&quot;         </span></span><br><span class="line"><span class="comment">#&gt; [19] &quot;TC_RUVs_k1&quot;          &quot;TC_RUVs_k2&quot;          &quot;TC_RUVs_k3&quot;         </span></span><br><span class="line"><span class="comment">#&gt; [22] &quot;TC_RUVse_k1&quot;         &quot;TC_RUVse_k2&quot;         &quot;TC_RUVse_k3&quot;        </span></span><br><span class="line"><span class="comment">#&gt; [25] &quot;UQ_RUVg_k1&quot;          &quot;UQ_RUVg_k2&quot;          &quot;UQ_RUVg_k3&quot;         </span></span><br><span class="line"><span class="comment">#&gt; [28] &quot;UQ_RUVs_k1&quot;          &quot;UQ_RUVs_k2&quot;          &quot;UQ_RUVs_k3&quot;         </span></span><br><span class="line"><span class="comment">#&gt; [31] &quot;UQ_RUVse_k1&quot;         &quot;UQ_RUVse_k2&quot;         &quot;UQ_RUVse_k3&quot;        </span></span><br><span class="line"><span class="comment">#&gt; [34] &quot;TMM_RUVg_k1&quot;         &quot;TMM_RUVg_k2&quot;         &quot;TMM_RUVg_k3&quot;        </span></span><br><span class="line"><span class="comment">#&gt; [37] &quot;TMM_RUVs_k1&quot;         &quot;TMM_RUVs_k2&quot;         &quot;TMM_RUVs_k3&quot;        </span></span><br><span class="line"><span class="comment">#&gt; [40] &quot;TMM_RUVse_k1&quot;        &quot;TMM_RUVse_k2&quot;        &quot;TMM_RUVse_k3&quot;       </span></span><br><span class="line"><span class="comment">#&gt; [43] &quot;DESeq_RUVg_k1&quot;       &quot;DESeq_RUVg_k2&quot;       &quot;DESeq_RUVg_k3&quot;      </span></span><br><span class="line"><span class="comment">#&gt; [46] &quot;DESeq_RUVs_k1&quot;       &quot;DESeq_RUVs_k2&quot;       &quot;DESeq_RUVs_k3&quot;      </span></span><br><span class="line"><span class="comment">#&gt; [49] &quot;DESeq_RUVse_k1&quot;      &quot;DESeq_RUVse_k2&quot;      &quot;DESeq_RUVse_k3&quot;     </span></span><br><span class="line"><span class="comment">#&gt; [52] &quot;PossionSeq_RUVg_k1&quot;  &quot;PossionSeq_RUVg_k2&quot;  &quot;PossionSeq_RUVg_k3&quot; </span></span><br><span class="line"><span class="comment">#&gt; [55] &quot;PossionSeq_RUVs_k1&quot;  &quot;PossionSeq_RUVs_k2&quot;  &quot;PossionSeq_RUVs_k3&quot; </span></span><br><span class="line"><span class="comment">#&gt; [58] &quot;PossionSeq_RUVse_k1&quot; &quot;PossionSeq_RUVse_k2&quot; &quot;PossionSeq_RUVse_k3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>校正后的数据可以通过 <code>Counts</code> 函数获取。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">head(enONE::Counts(Enone, slot=<span class="string">&quot;sample&quot;</span>, method=<span class="string">&quot;DESeq_RUVg_k2&quot;</span>))[,<span class="number">1</span>:<span class="number">5</span>]</span><br><span class="line"><span class="comment">#&gt;                        D1        D2        D3        D4        D5</span></span><br><span class="line"><span class="comment">#&gt; ENSG00000227232  8.513936 11.645203 12.431441  7.453572 11.104087</span></span><br><span class="line"><span class="comment">#&gt; ENSG00000268903  3.305409  8.100305  5.277670 26.325845  7.088225</span></span><br><span class="line"><span class="comment">#&gt; ENSG00000269981  2.270299  4.876642  2.402698 18.118129  6.068101</span></span><br><span class="line"><span class="comment">#&gt; ENSG00000279457 11.895695  9.998730  8.760526 11.204313 16.375896</span></span><br><span class="line"><span class="comment">#&gt; ENSG00000225630 13.767575 16.292915 15.365490 10.140265 17.834578</span></span><br><span class="line"><span class="comment">#&gt; ENSG00000237973 28.042040 37.277287 39.847772 34.078301 33.952026</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="数据校正效果评估"><a href="#数据校正效果评估" class="headerlink" title="数据校正效果评估"></a>数据校正效果评估</h4><p><code>enONE</code> 利用了八个与基因表达分布的不同方面相关的标准化性能指标来评估数据标准化的性能。这八个指标分别为：</p>
+<ul>
+<li><code>BIO_SIM</code>：生物组的相似性。通过计算前三个表达PCs（默认情况下）上的欧氏距离度量，由 <code>condition</code> 列定义的聚类的平均轮廓宽度。<code>BIO_SIM</code>越大越好。</li>
+<li><code>EN_SIM</code>：富集组的相似性。通过计算前三个表达PCs（默认情况下）上的欧氏距离度量，由 <code>enrich</code> 列定义的聚类的平均轮廓宽度。<code>EN_SIM</code> 越大越好。</li>
+<li><code>BAT_SIM</code>：批次组的相似性。通过计算前三个表达PCs（默认情况下）上的欧氏距离度量，由 <code>batch</code> 列定义的聚类的平均轮廓宽度。<code>BAT_SIM</code> 越小越好。</li>
+<li><code>PAM_SIM</code>：PAM聚类组的相似性。通过计算前三个表达PCs（默认情况下）上的欧氏距离度量，由PAM 聚类（根据 <code>eval.pam.k</code>进行聚类）定义的聚类的最大平均轮廓宽度。<code>PAM_SIM</code> 越大越好。</li>
+<li><code>WV_COR</code>：研究相关变量的保留程度。对原始计数的正评估基因（<code>PosEvaluation</code>）子矩阵的前<code>eval.pc.n</code> 个PCs 进行回归的 R<sup>2</sup> 测量。<code>WV_COR</code> 越大越好。</li>
+<li><code>UV_COR</code>：无关误差移除的程度。对原始计数的负评估基因（<code>NegEvaluation</code>）子矩阵的前<code>eval.pc.n</code> 个PCs 进行回归的 R<sup>2</sup> 测量。<code>UV_COR</code> 越小越好。</li>
+<li><code>RLE_MED</code>：平均平方中位数相对对数表达（RLE）。<code>RLE_MED</code> 越小越好。</li>
+<li><code>RLE_IQR</code>：相对于四分位距（IQR）的方差。<code>RLE_IQR</code> 越小越好。</li>
+</ul>
+<p>评估指标可以通过 <code>getMetrics</code> 进行获取。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">getMetrics(Enone)[<span class="number">1</span>:<span class="number">5</span>,]</span><br><span class="line"><span class="comment">#&gt;                        BIO_SIM    EN_SIM   BATCH_SIM   PAM_SIM      RLE_MED</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k2      -0.02467593 0.3576650 -0.03483061 0.5713398 9.319387e-06</span></span><br><span class="line"><span class="comment">#&gt; PossionSeq_RUVs_k3  0.10240479 0.3374029 -0.03965069 0.5556398 9.971803e-05</span></span><br><span class="line"><span class="comment">#&gt; TMM_RUVg_k2        -0.02664678 0.3518415 -0.03524885 0.5595637 8.500478e-05</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k3      -0.04651463 0.3485155 -0.04427468 0.5708689 1.370353e-05</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVs_k1       0.03352455 0.3391415 -0.04444996 0.5224180 7.861089e-06</span></span><br><span class="line"><span class="comment">#&gt;                        RLE_IQR    WV_COR    UV_COR</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k2      0.011996148 0.7401496 0.3258051</span></span><br><span class="line"><span class="comment">#&gt; PossionSeq_RUVs_k3 0.012314397 0.7709943 0.3154878</span></span><br><span class="line"><span class="comment">#&gt; TMM_RUVg_k2        0.012089861 0.7404610 0.3288269</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k3      0.011133971 0.6688187 0.4166522</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVs_k1      0.009145155 0.6495402 0.3680677</span></span><br></pre></td></tr></table></figure>
+
+<p>评估指标通过转换为秩值，并通过平均各指标的秩值来获得特定方法的打分（score）。数据标准化效果的打分可以通过<code>getScore</code> 获取。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">getScore(Enone)[<span class="number">1</span>:<span class="number">5</span>,]</span><br><span class="line"><span class="comment">#&gt;                    BIO_SIM EN_SIM BATCH_SIM PAM_SIM RLE_MED RLE_IQR WV_COR</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k2           32     59        40      59      56      25     20</span></span><br><span class="line"><span class="comment">#&gt; PossionSeq_RUVs_k3      60     23        47      50      33      23     23</span></span><br><span class="line"><span class="comment">#&gt; TMM_RUVg_k2             30     50        42      54      39      24     21</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k3           20     48        53      58      54      29     12</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVs_k1           55     32        54      25      57      32      5</span></span><br><span class="line"><span class="comment">#&gt;                    UV_COR  SCORE</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k2          59 43.750</span></span><br><span class="line"><span class="comment">#&gt; PossionSeq_RUVs_k3     60 39.875</span></span><br><span class="line"><span class="comment">#&gt; TMM_RUVg_k2            58 39.750</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVg_k3          39 39.125</span></span><br><span class="line"><span class="comment">#&gt; DESeq_RUVs_k1          52 39.000</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="选择数据标准化方法"><a href="#选择数据标准化方法" class="headerlink" title="选择数据标准化方法"></a>选择数据标准化方法</h2><p><code>enONE</code> 提供了biplot来探索数据校正方法的全空间，可以通过<code>interactive=TRUE</code> 来开启交互模式。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># get performance score</span></span><br><span class="line">enScore &lt;- getScore(Enone)</span><br><span class="line"><span class="comment"># perform PCA based on evaluation score, excluding BAT_SIM column (3) if no batch information provided, and SCORE column (9).</span></span><br><span class="line"><span class="comment"># pca.eval &lt;- prcomp(enScore[,-c(3, 9)], scale = TRUE)</span></span><br><span class="line">pca.eval &lt;- prcomp(enScore[,-<span class="built_in">c</span>(<span class="number">9</span>)], scale = <span class="literal">TRUE</span>)</span><br><span class="line"><span class="comment"># pca biplot</span></span><br><span class="line">PCA_Biplot(pca.eval, score = enScore$SCORE, <span class="built_in">interactive</span> = <span class="literal">FALSE</span>)</span><br></pre></td></tr></table></figure>
+
+<img src="unnamed-chunk-12-1.jpeg" alt="img" style="zoom:33%;" />
+
+<p>在这个图中，每个点对应一个标准化程序，并颜色代表性能得分（八个性能指标rank的均值）。蓝色箭头对应于性能指标的PCA载荷。蓝色箭头的方向和长度可以解释为每个指标对前两个主成分的贡献程度。</p>
+<p>这里使用打分最高的标准化程序 <code>DESeq_RUVg_k2</code> 进行下游分析。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># select normalization</span></span><br><span class="line">norm.method &lt;- rownames(enScore[<span class="number">1</span>,])</span><br><span class="line"></span><br><span class="line"><span class="comment"># get normalized counts</span></span><br><span class="line">norm.data &lt;- enONE::Counts(Enone, slot = <span class="string">&quot;sample&quot;</span>, method = norm.method)</span><br><span class="line"></span><br><span class="line"><span class="comment"># get normalization factors</span></span><br><span class="line">norm.factors &lt;- getFactor(Enone, slot = <span class="string">&quot;sample&quot;</span>, method = norm.method)</span><br><span class="line"></span><br><span class="line">norm.method</span><br><span class="line"><span class="comment">#&gt; [1] &quot;DESeq_RUVg_k2&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>需要注意的是，如果 <code>enONE</code> 运行的时候没有返回校正后数据（i.e., <code>return.norm=FALSE</code>），可以通过下面的代码手动执行数据标准化。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># perform normalization</span></span><br><span class="line">Enone &lt;- UseNormalization(Enone, slot = <span class="string">&quot;sample&quot;</span>, method = norm.method)</span><br><span class="line"><span class="comment"># get normalized counts</span></span><br><span class="line">norm.data &lt;- Counts(Enone, slot = <span class="string">&quot;sample&quot;</span>, method = norm.method)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="数据校正的效果"><a href="#数据校正的效果" class="headerlink" title="数据校正的效果"></a>数据校正的效果</h2><p>这里使用PCA展示数据校正的效果。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create sample name, e.g., Y3.Input</span></span><br><span class="line">samples_name &lt;- paste(Enone$condition, Enone$replicate, sep=<span class="string">&quot;.&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># PCA for raw count</span></span><br><span class="line">p1 &lt;- PCAplot(enONE::Counts(Enone, slot=<span class="string">&quot;sample&quot;</span>, <span class="string">&quot;Raw&quot;</span>), </span><br><span class="line">            color = Enone$batch,</span><br><span class="line">            shape = Enone$enrich,</span><br><span class="line">            label = samples_name, </span><br><span class="line">            vst.norm = <span class="literal">TRUE</span>) + </span><br><span class="line">  ggtitle(<span class="string">&quot;Before normalization&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># PCA for normalized count</span></span><br><span class="line">p2 &lt;- PCAplot(log1p(norm.data), </span><br><span class="line">            color = Enone$batch,</span><br><span class="line">            shape = Enone$enrich,</span><br><span class="line">            label = samples_name, </span><br><span class="line">            vst.norm = <span class="literal">FALSE</span>) + </span><br><span class="line">  ggtitle(<span class="string">&quot;After normalization&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># combine two plots</span></span><br><span class="line">p1 + p2</span><br></pre></td></tr></table></figure>
+
+<img src="unnamed-chunk-15-1.jpeg" alt="img" style="zoom:33%;" />
+
+<h2 id="鉴定富集基因"><a href="#鉴定富集基因" class="headerlink" title="鉴定富集基因"></a>鉴定富集基因</h2><p><code>enONE</code> 可用于富集基因的鉴定。<code>FindEnrichment</code> 函数自动地根据<code>condition</code> 列中的每个生物学分组鉴定富集的基因。</p>
+<p>默认情况下，富集基因（即NAD-RNA）为Enrichment/Input ≥ 2（**<code>logfc.cutoff = 1</code><strong>），FDR &lt; 0.05（</strong><code>p.cutoff = 0.05</code>**）的基因。</p>
+<p>使用**<code>getEnrichment</code>**函数可以获取一个列表包含了各组的富集结果。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># find all enriched genes</span></span><br><span class="line">Enone &lt;- FindEnrichment(Enone, slot=<span class="string">&quot;sample&quot;</span>, norm.method = norm.method, </span><br><span class="line">                        logfc.cutoff = <span class="number">1</span>, p.cutoff = <span class="number">0.05</span>)</span><br><span class="line"><span class="comment">#&gt; - Estimate dispersion &amp; Fit GLM... </span></span><br><span class="line"><span class="comment">#&gt; - Testing differential genes...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get filtered enrichment results</span></span><br><span class="line">res.sig.ls &lt;- getEnrichment(Enone, slot=<span class="string">&quot;sample&quot;</span>, filter=<span class="literal">TRUE</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># count number of enrichment in each group</span></span><br><span class="line">unlist(lapply(res.sig.ls, nrow))</span><br><span class="line"><span class="comment">#&gt; Y.Enrich_Y.Input M.Enrich_M.Input O.Enrich_O.Input </span></span><br><span class="line"><span class="comment">#&gt;              579              672              683</span></span><br></pre></td></tr></table></figure>
+
+<p><code>res.sig.ls</code>中每个表都是一个**<code>data.frame</code>**，其中行为基因，列为基因的相关信息（GeneID、logFC、p值等）。表格中包含以下列：</p>
+<ul>
+<li><p>**<code>GeneID</code>**：基因的ID。</p>
+</li>
+<li><p>**<code>logFC</code>**：富集样本和输入样本之间的log2倍变化。正值表示基因在富集组中更高度富集。</p>
+</li>
+<li><p>**<code>logCPM</code>**：所有样本平均表达的log2 CPM（counts per million）。</p>
+</li>
+<li><p>**<code>LR</code>**：似然比检验的似然比。</p>
+</li>
+<li><p>**<code>PValue</code>**：来自似然比检验的p值。</p>
+</li>
+<li><p>**<code>FDR</code>**：p值的假阳性发现率，默认使用”BH”方法。</p>
+</li>
+</ul>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">head(res.sig.ls[[<span class="number">1</span>]])</span><br><span class="line"><span class="comment">#&gt;            GeneID    logFC   logCPM       LR        PValue           FDR</span></span><br><span class="line"><span class="comment">#&gt; 1 ENSG00000013275 2.271643 7.518198 731.6422 3.936608e-161 5.444329e-157</span></span><br><span class="line"><span class="comment">#&gt; 2 ENSG00000113387 2.643018 9.732157 631.6712 2.164465e-139 1.496728e-135</span></span><br><span class="line"><span class="comment">#&gt; 3 ENSG00000104853 2.244442 7.839256 587.7484 7.738626e-130 3.567507e-126</span></span><br><span class="line"><span class="comment">#&gt; 4 ENSG00000105185 2.094086 6.147852 558.6392 1.662061e-123 5.746574e-120</span></span><br><span class="line"><span class="comment">#&gt; 5 ENSG00000143110 3.084209 9.115976 550.0416 1.232914e-121 3.410239e-118</span></span><br><span class="line"><span class="comment">#&gt; 6 ENSG00000173915 2.324782 7.005478 483.7653 3.239173e-107 7.466295e-104</span></span><br></pre></td></tr></table></figure>
+
+<p><code>enONE</code> 提供 <code>reduceRes</code> 函数将各个富集表格的结果转换到同一个<code>data.frame</code> 中。接着，可以使用 <code>BetweenStatPlot</code>可视化各组NAD-RNA修饰水平。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># simplify group id</span></span><br><span class="line"><span class="built_in">names</span>(res.sig.ls) &lt;- <span class="built_in">c</span>(<span class="string">&quot;Young&quot;</span>, <span class="string">&quot;Mid&quot;</span>, <span class="string">&quot;Old&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># logfc.col specify the name of logFC column</span></span><br><span class="line">nad_df1 &lt;- reduceRes(res.sig.ls, logfc.col = <span class="string">&quot;logFC&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># convert the Group column as factor</span></span><br><span class="line">nad_df1$Group &lt;- factor(nad_df1$Group, levels = unique(nad_df1$Group))</span><br><span class="line"></span><br><span class="line"><span class="comment"># draw plot</span></span><br><span class="line">bxp1 &lt;- BetweenStatPlot(nad_df1, x=<span class="string">&quot;Group&quot;</span>, y=<span class="string">&quot;logFC&quot;</span>, color=<span class="string">&quot;Group&quot;</span>, </span><br><span class="line">                        step.increase = <span class="number">0.6</span>, add.p = <span class="string">&quot;p&quot;</span>, </span><br><span class="line">                        comparisons = <span class="built_in">list</span>(<span class="built_in">c</span>(<span class="string">&quot;Young&quot;</span>, <span class="string">&quot;Mid&quot;</span>), </span><br><span class="line">                                           <span class="built_in">c</span>(<span class="string">&quot;Young&quot;</span>, <span class="string">&quot;Old&quot;</span>)))</span><br><span class="line">bxp1</span><br></pre></td></tr></table></figure>
+
+<img src="unnamed-chunk-18-1.jpeg" alt="img" style="zoom:33%;" />
+
+<h2 id="处理synthetic-spike-in"><a href="#处理synthetic-spike-in" class="headerlink" title="处理synthetic spike-in"></a>处理synthetic spike-in</h2><p>由于样本中加入了synthetic RNA，其中一个带有5%的NAD帽，另一个带有100%的m7G帽，我们可以利用这些spike-ins来确定捕获的灵敏度和特异性。</p>
+<p>**<code>synEnrichment</code><strong>计算具有给定标准化方法的spike-ins的富集水平。</strong><code>DotPlot</code>**可用于可视化spike-in的富集水平。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># compute synthetic spike-in enrichment</span></span><br><span class="line">syn_level &lt;- synEnrichment(Enone, method=norm.method, <span class="built_in">log</span>=<span class="literal">TRUE</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># transform to long format</span></span><br><span class="line">syn_df &lt;- as.data.frame(syn_level) %&gt;% </span><br><span class="line">  rownames_to_column(<span class="string">&quot;syn_id&quot;</span>) %&gt;% </span><br><span class="line">  pivot_longer(cols = -syn_id,</span><br><span class="line">               names_to = <span class="string">&quot;id&quot;</span>,</span><br><span class="line">               values_to = <span class="string">&quot;logFC&quot;</span>) %&gt;% </span><br><span class="line">  left_join(meta[,<span class="built_in">c</span>(<span class="string">&quot;id&quot;</span>,<span class="string">&quot;condition&quot;</span>)], by=<span class="string">&quot;id&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># remove suffix of condition for simplification</span></span><br><span class="line">syn_df$condition &lt;- gsub(<span class="string">&quot;\\..*&quot;</span>, <span class="string">&quot;&quot;</span>, syn_df$condition)</span><br><span class="line"></span><br><span class="line"><span class="comment"># rename facet label</span></span><br><span class="line">samples_label &lt;- setNames(<span class="built_in">c</span>(<span class="string">&quot;5% NAD-RNA&quot;</span>, <span class="string">&quot;100% m7G-RNA&quot;</span>), </span><br><span class="line">                          nm=<span class="built_in">c</span>(<span class="string">&quot;Syn1&quot;</span>, <span class="string">&quot;Syn2&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># draw dotplot</span></span><br><span class="line">DotPlot(syn_df, x=<span class="string">&quot;syn_id&quot;</span>, y=<span class="string">&quot;logFC&quot;</span>, fill=<span class="string">&quot;syn_id&quot;</span>) +</span><br><span class="line">  theme(legend.position = <span class="string">&quot;none&quot;</span>) +</span><br><span class="line">  scale_x_discrete(labels=samples_label)</span><br><span class="line"><span class="comment">#&gt; Bin width defaults to 1/30 of the range of the data. Pick better value with `binwidth`.</span></span><br></pre></td></tr></table></figure>
+
+<img src="unnamed-chunk-19-1.jpeg" alt="img" style="zoom:33%;" />
+
+<p>其中，具有5% NAD-RNA的Syn1有明显富集，而100% m7G-RNA的Syn2并没有出现富集，表明了富集实验的特异性。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># save Enone data</span></span><br><span class="line">save(Enone, file=<span class="string">&quot;data/Enone.RData&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Session-Info"><a href="#Session-Info" class="headerlink" title="Session Info"></a>Session Info</h2><details>
+<summary>
+**Session Info**
+</summary>
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">sessionInfo()</span><br><span class="line"><span class="comment">#&gt; R version 4.2.1 (2022-06-23 ucrt)</span></span><br><span class="line"><span class="comment">#&gt; Platform: x86_64-w64-mingw32/x64 (64-bit)</span></span><br><span class="line"><span class="comment">#&gt; Running under: Windows 10 x64 (build 22631)</span></span><br><span class="line"><span class="comment">#&gt; </span></span><br><span class="line"><span class="comment">#&gt; Matrix products: default</span></span><br><span class="line"><span class="comment">#&gt; </span></span><br><span class="line"><span class="comment">#&gt; locale:</span></span><br><span class="line"><span class="comment">#&gt; [1] LC_COLLATE=Chinese (Simplified)_China.utf8 </span></span><br><span class="line"><span class="comment">#&gt; [2] LC_CTYPE=Chinese (Simplified)_China.utf8   </span></span><br><span class="line"><span class="comment">#&gt; [3] LC_MONETARY=Chinese (Simplified)_China.utf8</span></span><br><span class="line"><span class="comment">#&gt; [4] LC_NUMERIC=C                               </span></span><br><span class="line"><span class="comment">#&gt; [5] LC_TIME=Chinese (Simplified)_China.utf8    </span></span><br><span class="line"><span class="comment">#&gt; </span></span><br><span class="line"><span class="comment">#&gt; attached base packages:</span></span><br><span class="line"><span class="comment">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span><br><span class="line"><span class="comment">#&gt; </span></span><br><span class="line"><span class="comment">#&gt; other attached packages:</span></span><br><span class="line"><span class="comment">#&gt;  [1] patchwork_1.1.2 forcats_0.5.2   stringr_1.4.1   dplyr_1.0.10   </span></span><br><span class="line"><span class="comment">#&gt;  [5] purrr_0.3.5     readr_2.1.3     tidyr_1.2.1     tibble_3.1.8   </span></span><br><span class="line"><span class="comment">#&gt;  [9] ggplot2_3.3.6   tidyverse_1.3.2 enONE_1.0.0    </span></span><br><span class="line"><span class="comment">#&gt; </span></span><br><span class="line"><span class="comment">#&gt; loaded via a namespace (and not attached):</span></span><br><span class="line"><span class="comment">#&gt;   [1] googledrive_2.0.0           colorspace_2.0-3           </span></span><br><span class="line"><span class="comment">#&gt;   [3] ggsignif_0.6.4              ellipsis_0.3.2             </span></span><br><span class="line"><span class="comment">#&gt;   [5] class_7.3-20                modeltools_0.2-23          </span></span><br><span class="line"><span class="comment">#&gt;   [7] EnvStats_2.7.0              mclust_5.4.10              </span></span><br><span class="line"><span class="comment">#&gt;   [9] XVector_0.36.0              fs_1.5.2                   </span></span><br><span class="line"><span class="comment">#&gt;  [11] GenomicRanges_1.48.0        rstudioapi_0.14            </span></span><br><span class="line"><span class="comment">#&gt;  [13] farver_2.1.1                ggpubr_0.4.0               </span></span><br><span class="line"><span class="comment">#&gt;  [15] ggrepel_0.9.1               flexmix_2.3-18             </span></span><br><span class="line"><span class="comment">#&gt;  [17] bit64_4.0.5                 lubridate_1.8.0            </span></span><br><span class="line"><span class="comment">#&gt;  [19] AnnotationDbi_1.58.0        fansi_1.0.3                </span></span><br><span class="line"><span class="comment">#&gt;  [21] xml2_1.3.3                  codetools_0.2-18           </span></span><br><span class="line"><span class="comment">#&gt;  [23] splines_4.2.1               cachem_1.0.6               </span></span><br><span class="line"><span class="comment">#&gt;  [25] robustbase_0.95-0           geneplotter_1.74.0         </span></span><br><span class="line"><span class="comment">#&gt;  [27] knitr_1.40                  jsonlite_1.8.2             </span></span><br><span class="line"><span class="comment">#&gt;  [29] broom_1.0.1                 annotate_1.74.0            </span></span><br><span class="line"><span class="comment">#&gt;  [31] cluster_2.1.3               kernlab_0.9-31             </span></span><br><span class="line"><span class="comment">#&gt;  [33] dbplyr_2.2.1                png_0.1-7                  </span></span><br><span class="line"><span class="comment">#&gt;  [35] compiler_4.2.1              httr_1.4.4                 </span></span><br><span class="line"><span class="comment">#&gt;  [37] backports_1.4.1             assertthat_0.2.1           </span></span><br><span class="line"><span class="comment">#&gt;  [39] Matrix_1.5-1                fastmap_1.1.0              </span></span><br><span class="line"><span class="comment">#&gt;  [41] lazyeval_0.2.2              gargle_1.2.1               </span></span><br><span class="line"><span class="comment">#&gt;  [43] limma_3.52.4                cli_3.4.1                  </span></span><br><span class="line"><span class="comment">#&gt;  [45] htmltools_0.5.3             tools_4.2.1                </span></span><br><span class="line"><span class="comment">#&gt;  [47] gtable_0.3.1                glue_1.6.2                 </span></span><br><span class="line"><span class="comment">#&gt;  [49] GenomeInfoDbData_1.2.8      Rcpp_1.0.9                 </span></span><br><span class="line"><span class="comment">#&gt;  [51] carData_3.0-5               Biobase_2.56.0             </span></span><br><span class="line"><span class="comment">#&gt;  [53] cellranger_1.1.0            vctrs_0.5.1                </span></span><br><span class="line"><span class="comment">#&gt;  [55] Biostrings_2.64.1           fpc_2.2-9                  </span></span><br><span class="line"><span class="comment">#&gt;  [57] xfun_0.33                   rvest_1.0.3                </span></span><br><span class="line"><span class="comment">#&gt;  [59] lifecycle_1.0.3             googlesheets4_1.0.1        </span></span><br><span class="line"><span class="comment">#&gt;  [61] rstatix_0.7.0               XML_3.99-0.11              </span></span><br><span class="line"><span class="comment">#&gt;  [63] edgeR_3.38.4                DEoptimR_1.0-11            </span></span><br><span class="line"><span class="comment">#&gt;  [65] zlibbioc_1.42.0             MASS_7.3-57                </span></span><br><span class="line"><span class="comment">#&gt;  [67] scales_1.2.1                hms_1.1.2                  </span></span><br><span class="line"><span class="comment">#&gt;  [69] MatrixGenerics_1.8.1        parallel_4.2.1             </span></span><br><span class="line"><span class="comment">#&gt;  [71] SummarizedExperiment_1.26.1 RColorBrewer_1.1-3         </span></span><br><span class="line"><span class="comment">#&gt;  [73] yaml_2.3.5                  memoise_2.0.1              </span></span><br><span class="line"><span class="comment">#&gt;  [75] pbapply_1.5-0               stringi_1.7.8              </span></span><br><span class="line"><span class="comment">#&gt;  [77] RSQLite_2.2.18              highr_0.9                  </span></span><br><span class="line"><span class="comment">#&gt;  [79] genefilter_1.78.0           S4Vectors_0.34.0           </span></span><br><span class="line"><span class="comment">#&gt;  [81] BiocGenerics_0.42.0         BiocParallel_1.30.4        </span></span><br><span class="line"><span class="comment">#&gt;  [83] GenomeInfoDb_1.32.4         rlang_1.0.6                </span></span><br><span class="line"><span class="comment">#&gt;  [85] pkgconfig_2.0.3             prabclus_2.3-2             </span></span><br><span class="line"><span class="comment">#&gt;  [87] matrixStats_0.62.0          bitops_1.0-7               </span></span><br><span class="line"><span class="comment">#&gt;  [89] evaluate_0.17               lattice_0.20-45            </span></span><br><span class="line"><span class="comment">#&gt;  [91] labeling_0.4.2              htmlwidgets_1.5.4          </span></span><br><span class="line"><span class="comment">#&gt;  [93] bit_4.0.4                   tidyselect_1.2.0           </span></span><br><span class="line"><span class="comment">#&gt;  [95] magrittr_2.0.3              DESeq2_1.36.0              </span></span><br><span class="line"><span class="comment">#&gt;  [97] R6_2.5.1                    IRanges_2.30.1             </span></span><br><span class="line"><span class="comment">#&gt;  [99] generics_0.1.3              DelayedArray_0.22.0        </span></span><br><span class="line"><span class="comment">#&gt; [101] DBI_1.1.3                   withr_2.5.0                </span></span><br><span class="line"><span class="comment">#&gt; [103] haven_2.5.1                 pillar_1.8.1               </span></span><br><span class="line"><span class="comment">#&gt; [105] survival_3.3-1              KEGGREST_1.36.3            </span></span><br><span class="line"><span class="comment">#&gt; [107] abind_1.4-5                 RCurl_1.98-1.9             </span></span><br><span class="line"><span class="comment">#&gt; [109] nnet_7.3-17                 modelr_0.1.9               </span></span><br><span class="line"><span class="comment">#&gt; [111] crayon_1.5.2                car_3.1-1                  </span></span><br><span class="line"><span class="comment">#&gt; [113] utf8_1.2.2                  plotly_4.10.0              </span></span><br><span class="line"><span class="comment">#&gt; [115] tzdb_0.3.0                  rmarkdown_2.17             </span></span><br><span class="line"><span class="comment">#&gt; [117] readxl_1.4.1                locfit_1.5-9.6             </span></span><br><span class="line"><span class="comment">#&gt; [119] grid_4.2.1                  data.table_1.14.2          </span></span><br><span class="line"><span class="comment">#&gt; [121] blob_1.2.3                  reprex_2.0.2               </span></span><br><span class="line"><span class="comment">#&gt; [123] digest_0.6.29               diptest_0.76-0             </span></span><br><span class="line"><span class="comment">#&gt; [125] xtable_1.8-4                paintingr_0.1.1            </span></span><br><span class="line"><span class="comment">#&gt; [127] stats4_4.2.1                munsell_0.5.0              </span></span><br><span class="line"><span class="comment">#&gt; [129] viridisLite_0.4.1</span></span><br></pre></td></tr></table></figure>
+
+</details>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2024/05/10/enONE/" title="enONE">https://thereallda.github.io/2024/05/10/enONE/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/22/geneformer-gene-class/" rel="prev" title="geneformer-gene-class">
+      <i class="fa fa-chevron-left"></i> geneformer-gene-class
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#enONE-Tutorial-zh"><span class="nav-number">1.</span> <span class="nav-text">enONE Tutorial-zh</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Setup"><span class="nav-number">1.2.</span> <span class="nav-text">Setup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">标准流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%A8%E9%87%8F%E6%8E%A7%E5%88%B6%EF%BC%88Quality-control%EF%BC%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">质量控制（Quality control）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8CenONE"><span class="nav-number">1.3.2.</span> <span class="nav-text">运行enONE</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E5%9B%A0%E9%9B%86%E9%80%89%E5%8F%96%EF%BC%88Gene-set-selection%EF%BC%89"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">基因集选取（Gene set selection）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A0%A1%E6%AD%A3%EF%BC%88Normalization%EF%BC%89"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">数据校正（Normalization）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A0%A1%E6%AD%A3%E6%95%88%E6%9E%9C%E8%AF%84%E4%BC%B0"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">数据校正效果评估</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%95%B0%E6%8D%AE%E6%A0%87%E5%87%86%E5%8C%96%E6%96%B9%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">选择数据标准化方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A0%A1%E6%AD%A3%E7%9A%84%E6%95%88%E6%9E%9C"><span class="nav-number">1.5.</span> <span class="nav-text">数据校正的效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%89%B4%E5%AE%9A%E5%AF%8C%E9%9B%86%E5%9F%BA%E5%9B%A0"><span class="nav-number">1.6.</span> <span class="nav-text">鉴定富集基因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86synthetic-spike-in"><span class="nav-number">1.7.</span> <span class="nav-text">处理synthetic spike-in</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Session-Info"><span class="nav-number">1.8.</span> <span class="nav-text">Session Info</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<script>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'b17fd66a29f5f1ca2605ecf1bee68a67',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
