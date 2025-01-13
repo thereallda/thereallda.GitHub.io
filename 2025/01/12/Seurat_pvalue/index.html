@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="新年好啊 :)  最近使用Seurat画小提琴图时想将组间的p值给标上，发现Seurat的VlnPlot并没有参数直接支持这个功能。本文就记录一下解决的方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Seurat-VlnPlot-pvalues">
+<meta property="og:url" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="新年好啊 :)  最近使用Seurat画小提琴图时想将组间的p值给标上，发现Seurat的VlnPlot并没有参数直接支持这个功能。本文就记录一下解决的方案。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-2-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-3-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-4-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-5-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-6-1.png">
+<meta property="article:published_time" content="2025-01-13T01:27:00.000Z">
+<meta property="article:modified_time" content="2025-01-13T01:29:48.256Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="single-cell">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-2-1.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2025/01/12/Seurat_pvalue/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Seurat-VlnPlot-pvalues | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2025/01/12/Seurat_pvalue/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Seurat-VlnPlot-pvalues
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-01-12 20:27:00 / Modified: 20:29:48" itemprop="dateCreated datePublished" datetime="2025-01-12T20:27:00-05:00">2025-01-12</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>新年好啊 :)</p>
+</blockquote>
+<p>最近使用Seurat画小提琴图时想将组间的p值给标上，发现Seurat的VlnPlot并没有参数直接支持这个功能。本文就记录一下解决的方案。</p>
+<span id="more"></span>
+
+<h2 id="Data-preprocessing"><a href="#Data-preprocessing" class="headerlink" title="Data preprocessing"></a>Data preprocessing</h2><p>这里用pbmc的数据作为示例</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><span class="line">library(Seurat)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: SeuratObject</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: sp</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## &#x27;SeuratObject&#x27; was built under R 4.4.0 but the current version is</span></span><br><span class="line"><span class="comment">## 4.4.1; it is recomended that you reinstall &#x27;SeuratObject&#x27; as the ABI</span></span><br><span class="line"><span class="comment">## for R may have changed</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Attaching package: &#x27;SeuratObject&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following objects are masked from &#x27;package:base&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     intersect, t</span></span><br><span class="line"></span><br><span class="line">library(ggplot2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load the PBMC dataset</span></span><br><span class="line">pbmc.data &lt;- Read10X(data.dir = <span class="string">&quot;data/filtered_gene_bc_matrices/hg19/&quot;</span>)</span><br><span class="line"><span class="comment"># Initialize the Seurat object with the raw (non-normalized data).</span></span><br><span class="line">pbmc &lt;- CreateSeuratObject(counts = pbmc.data, project = <span class="string">&quot;pbmc3k&quot;</span>, min.cells = <span class="number">3</span>, min.features = <span class="number">200</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Warning: Feature names cannot have underscores (&#x27;_&#x27;), replacing with dashes</span></span><br><span class="line"><span class="comment">## (&#x27;-&#x27;)</span></span><br><span class="line"></span><br><span class="line">pbmc</span><br><span class="line"></span><br><span class="line"><span class="comment">## An object of class Seurat </span></span><br><span class="line"><span class="comment">## 13714 features across 2700 samples within 1 assay </span></span><br><span class="line"><span class="comment">## Active assay: RNA (13714 features, 0 variable features)</span></span><br><span class="line"><span class="comment">##  1 layer present: counts</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- NormalizeData(object = pbmc)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Normalizing layer: counts</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- FindVariableFeatures(object = pbmc)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Finding variable features for layer counts</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- ScaleData(object = pbmc)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Centering and scaling data matrix</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- RunPCA(object = pbmc)</span><br><span class="line"></span><br><span class="line"><span class="comment">## PC_ 1 </span></span><br><span class="line"><span class="comment">## Positive:  MALAT1, LTB, IL32, CD2, ACAP1, STK17A, CTSW, CD247, CCL5, GIMAP5 </span></span><br><span class="line"><span class="comment">##     AQP3, GZMA, CST7, TRAF3IP3, MAL, HOPX, ITM2A, GZMK, MYC, BEX2 </span></span><br><span class="line"><span class="comment">##     GIMAP7, ETS1, LDLRAP1, ZAP70, LYAR, RIC3, TNFAIP8, KLRG1, SAMD3, NKG7 </span></span><br><span class="line"><span class="comment">## Negative:  CST3, TYROBP, LST1, AIF1, FTL, FCN1, LYZ, FTH1, S100A9, FCER1G </span></span><br><span class="line"><span class="comment">##     TYMP, CFD, LGALS1, CTSS, S100A8, SERPINA1, LGALS2, SPI1, IFITM3, PSAP </span></span><br><span class="line"><span class="comment">##     CFP, SAT1, IFI30, COTL1, S100A11, NPC2, LGALS3, GSTP1, PYCARD, NCF2 </span></span><br><span class="line"><span class="comment">## PC_ 2 </span></span><br><span class="line"><span class="comment">## Positive:  CD79A, MS4A1, TCL1A, HLA-DQA1, HLA-DRA, HLA-DQB1, LINC00926, CD79B, HLA-DRB1, CD74 </span></span><br><span class="line"><span class="comment">##     HLA-DPB1, HLA-DMA, HLA-DQA2, HLA-DRB5, HLA-DPA1, HLA-DMB, FCRLA, HVCN1, LTB, BLNK </span></span><br><span class="line"><span class="comment">##     KIAA0125, P2RX5, IRF8, IGLL5, SWAP70, ARHGAP24, SMIM14, PPP1R14A, FCRL2, C16orf74 </span></span><br><span class="line"><span class="comment">## Negative:  NKG7, PRF1, CST7, GZMA, GZMB, FGFBP2, CTSW, GNLY, GZMH, SPON2 </span></span><br><span class="line"><span class="comment">##     CCL4, FCGR3A, CCL5, CD247, XCL2, CLIC3, AKR1C3, SRGN, HOPX, CTSC </span></span><br><span class="line"><span class="comment">##     TTC38, S100A4, ANXA1, IL32, IGFBP7, ID2, ACTB, XCL1, APOBEC3G, SAMD3 </span></span><br><span class="line"><span class="comment">## PC_ 3 </span></span><br><span class="line"><span class="comment">## Positive:  HLA-DQA1, CD79A, CD79B, HLA-DQB1, HLA-DPB1, CD74, HLA-DPA1, MS4A1, HLA-DRB1, HLA-DRB5 </span></span><br><span class="line"><span class="comment">##     HLA-DRA, HLA-DQA2, TCL1A, LINC00926, HLA-DMB, HLA-DMA, HVCN1, FCRLA, IRF8, BLNK </span></span><br><span class="line"><span class="comment">##     KIAA0125, SMIM14, PLD4, IGLL5, P2RX5, TMSB10, SWAP70, LAT2, MALAT1, IGJ </span></span><br><span class="line"><span class="comment">## Negative:  PPBP, PF4, SDPR, SPARC, GNG11, NRGN, GP9, RGS18, TUBB1, CLU </span></span><br><span class="line"><span class="comment">##     HIST1H2AC, AP001189.4, ITGA2B, CD9, TMEM40, CA2, PTCRA, ACRBP, MMD, TREML1 </span></span><br><span class="line"><span class="comment">##     NGFRAP1, F13A1, RUFY1, SEPT5, MPP1, CMTM5, TSC22D1, MYL9, RP11-367G6.3, GP1BA </span></span><br><span class="line"><span class="comment">## PC_ 4 </span></span><br><span class="line"><span class="comment">## Positive:  HLA-DQA1, CD79A, CD79B, HIST1H2AC, HLA-DQB1, PF4, MS4A1, SDPR, CD74, PPBP </span></span><br><span class="line"><span class="comment">##     HLA-DPB1, GNG11, HLA-DQA2, SPARC, HLA-DRB1, HLA-DPA1, GP9, TCL1A, HLA-DRA, LINC00926 </span></span><br><span class="line"><span class="comment">##     NRGN, RGS18, HLA-DRB5, PTCRA, CD9, AP001189.4, CA2, CLU, TUBB1, ITGA2B </span></span><br><span class="line"><span class="comment">## Negative:  VIM, S100A8, S100A6, S100A4, S100A9, TMSB10, IL32, GIMAP7, LGALS2, S100A10 </span></span><br><span class="line"><span class="comment">##     RBP7, FCN1, MAL, LYZ, S100A12, MS4A6A, CD2, FYB, S100A11, FOLR3 </span></span><br><span class="line"><span class="comment">##     GIMAP4, AQP3, ANXA1, AIF1, MALAT1, GIMAP5, IL8, IFI6, TRABD2A, TMSB4X </span></span><br><span class="line"><span class="comment">## PC_ 5 </span></span><br><span class="line"><span class="comment">## Positive:  GZMB, FGFBP2, NKG7, GNLY, PRF1, CCL4, CST7, SPON2, GZMA, CLIC3 </span></span><br><span class="line"><span class="comment">##     GZMH, XCL2, CTSW, TTC38, AKR1C3, CCL5, IGFBP7, XCL1, CCL3, S100A8 </span></span><br><span class="line"><span class="comment">##     TYROBP, HOPX, CD160, HAVCR2, S100A9, FCER1G, PTGDR, LGALS2, RBP7, S100A12 </span></span><br><span class="line"><span class="comment">## Negative:  LTB, VIM, AQP3, PPA1, MAL, KIAA0101, CD2, CYTIP, CORO1B, FYB </span></span><br><span class="line"><span class="comment">##     IL32, TRADD, ANXA5, TUBA1B, HN1, TYMS, PTGES3, ITM2A, COTL1, GPR183 </span></span><br><span class="line"><span class="comment">##     TNFAIP8, ACTG1, TRAF3IP3, ATP5C1, GIMAP4, ZWINT, PRDX1, LDLRAP1, ABRACL, NGFRAP1</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- FindNeighbors(object = pbmc, dims = <span class="number">1</span>:<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Computing nearest neighbor graph</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Computing SNN</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- FindClusters(object = pbmc, resolution = <span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Number of nodes: 2700</span></span><br><span class="line"><span class="comment">## Number of edges: 97892</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Running Louvain algorithm...</span></span><br><span class="line"><span class="comment">## Maximum modularity in 10 random starts: 0.8719</span></span><br><span class="line"><span class="comment">## Number of communities: 9</span></span><br><span class="line"><span class="comment">## Elapsed time: 0 seconds</span></span><br><span class="line"></span><br><span class="line">pbmc &lt;- RunUMAP(object = pbmc, dims = <span class="number">1</span>:<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric</span></span><br><span class="line"><span class="comment">## To use Python UMAP via reticulate, set umap.method to &#x27;umap-learn&#x27; and metric to &#x27;correlation&#x27;</span></span><br><span class="line"><span class="comment">## This message will be shown once per session</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 11:53:34 UMAP embedding parameters a = 0.9922 b = 1.112</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 11:53:34 Read 2700 rows and found 10 numeric columns</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 11:53:34 Using Annoy for neighbor search, n_neighbors = 30</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 11:53:34 Building Annoy index with metric = cosine, n_trees = 50</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 0%   10   20   30   40   50   60   70   80   90   100%</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## [----|----|----|----|----|----|----|----|----|----|</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## **************************************************|</span></span><br><span class="line"><span class="comment">## 11:53:34 Writing NN index file to temp file /var/folders/yk/896pglhn555drshbgn27f71h0000gn/T//Rtmp5Rftbq/file1d9d31ab7c3e</span></span><br><span class="line"><span class="comment">## 11:53:34 Searching Annoy index using 1 thread, search_k = 3000</span></span><br><span class="line"><span class="comment">## 11:53:34 Annoy recall = 100%</span></span><br><span class="line"><span class="comment">## 11:53:35 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span><br><span class="line"><span class="comment">## 11:53:35 Initializing from normalized Laplacian + noise (using RSpectra)</span></span><br><span class="line"><span class="comment">## 11:53:35 Commencing optimization for 500 epochs, with 107868 positive edges</span></span><br><span class="line"><span class="comment">## 11:53:37 Optimization finished</span></span><br><span class="line"></span><br><span class="line">DimPlot(object = pbmc, reduction = <span class="string">&quot;umap&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-2-1.png"></p>
+<p>根据seurat提供的注释对cluster命名</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pbmc &lt;- RenameIdents(pbmc,</span><br><span class="line">                     <span class="string">&#x27;0&#x27;</span> = <span class="string">&#x27;Naive CD4 T&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;1&#x27;</span> = <span class="string">&#x27;CD14+ Mono&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;2&#x27;</span> = <span class="string">&#x27;Memory CD4 T&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;3&#x27;</span> = <span class="string">&#x27;B&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;4&#x27;</span> = <span class="string">&#x27;CD8 T&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;5&#x27;</span> = <span class="string">&#x27;FCGR3A+ Mono&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;6&#x27;</span> = <span class="string">&#x27;NK&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;7&#x27;</span> = <span class="string">&#x27;DC&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;8&#x27;</span> = <span class="string">&#x27;Platelet&#x27;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">pbmc$celltype &lt;- Idents(pbmc)</span><br><span class="line">DimPlot(pbmc, group.by = <span class="string">&#x27;celltype&#x27;</span>, label = <span class="built_in">T</span>, repel = <span class="built_in">T</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-3-1.png"></p>
+<h2 id="Comparison-between-group"><a href="#Comparison-between-group" class="headerlink" title="Comparison between group"></a>Comparison between group</h2><p>假设我们想比较每个细胞类型中某个基因在两组间的差异，我们可以首先给pbmc数据随机创建一个分组A和B</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">group1 &lt;- <span class="built_in">rep</span>(<span class="string">&#x27;A&#x27;</span>, nrow(pbmc@meta.data))</span><br><span class="line">set.seed(<span class="number">233</span>)</span><br><span class="line">idx &lt;- sample(<span class="number">1</span>:nrow(pbmc@meta.data), nrow(pbmc@meta.data)/<span class="number">2</span>)</span><br><span class="line">group1[idx] &lt;- <span class="string">&#x27;B&#x27;</span></span><br><span class="line"></span><br><span class="line">pbmc$group &lt;- group1</span><br><span class="line"></span><br><span class="line">DimPlot(pbmc, group.by = <span class="string">&#x27;celltype&#x27;</span>, split.by = <span class="string">&#x27;group&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-4-1.png"></p>
+<p>再用wilcox test做组间差异比较，并进行显著性标注。这些用ggpubr::geom_pwc的函数都可以实现。</p>
+<p>由于Seurat的VlnPlot会将表达数据进行汇总为一个新的数据，其中x轴变量为<code>ident</code>，y轴变量为对应的feature名字（这里是<code>NKG7</code>），而split.by的变量为<code>split</code>。因此，这里ggpubr::geom_pwc的分组变量为<code>split</code>（而不是<code>group</code> ）。</p>
+<p>同时，这里还在图中用黑点标注各组的中位值。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">vp1 &lt;- VlnPlot(pbmc, </span><br><span class="line">        group.by = <span class="string">&quot;celltype&quot;</span>, split.by = <span class="string">&#x27;group&#x27;</span>,</span><br><span class="line">        cols = <span class="built_in">c</span>(<span class="string">&quot;grey&quot;</span>,<span class="string">&quot;#A83C1E&quot;</span>),</span><br><span class="line">        features = <span class="string">&quot;NKG7&quot;</span>, pt.size = <span class="number">0</span>) +</span><br><span class="line">    stat_summary(fun = median, geom=<span class="string">&#x27;point&#x27;</span>, size = <span class="number">1</span>, colour = <span class="string">&quot;black&quot;</span>, position = position_dodge(width = <span class="number">0.9</span>)) +</span><br><span class="line">  ggpubr::geom_pwc(aes(group = split), </span><br><span class="line">                   method = <span class="string">&quot;wilcox_test&quot;</span>, tip.length = <span class="number">0</span>, </span><br><span class="line">                   hide.ns = <span class="built_in">T</span>, label = <span class="string">&quot;p.adj.format&quot;</span>, </span><br><span class="line">                   p.adjust.method = <span class="string">&quot;fdr&quot;</span>) + </span><br><span class="line">  scale_y_continuous(expand = expansion(mult = <span class="built_in">c</span>(<span class="number">0.05</span>, <span class="number">0.15</span>))) +</span><br><span class="line">  labs(x=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## The default behaviour of split.by has changed.</span></span><br><span class="line"><span class="comment">## Separate violin plots are now plotted side-by-side.</span></span><br><span class="line"><span class="comment">## To restore the old behaviour of a single split violin,</span></span><br><span class="line"><span class="comment">## set split.plot = TRUE.</span></span><br><span class="line"><span class="comment">##       </span></span><br><span class="line"><span class="comment">## This message will be shown once per session.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Scale for y is already present.</span></span><br><span class="line"><span class="comment">## Adding another scale for y, which will replace the existing scale.</span></span><br><span class="line"></span><br><span class="line">vp1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-5-1.png"></p>
+<p>多个基因同时画也没有问题。但要注意将不同layer直接连接的<code>+</code> 换为<code>&amp;</code> 。这是由于在画多个features的时候VlnPlot首先画出了各个features的图，再用patchwork语法拼接为一个图。而在patchwork中<code>&amp;</code> 符号可以对每个图中都应用想用的ggplot2语法操作，这就可以给每个feature的VlnPlot进行统计检验及标注了。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">vp2 &lt;- VlnPlot(pbmc, </span><br><span class="line">        group.by = <span class="string">&quot;celltype&quot;</span>, split.by = <span class="string">&#x27;group&#x27;</span>,</span><br><span class="line">        cols = <span class="built_in">c</span>(<span class="string">&quot;grey&quot;</span>,<span class="string">&quot;#A83C1E&quot;</span>),</span><br><span class="line">        features = <span class="built_in">c</span>(<span class="string">&quot;NKG7&quot;</span>,<span class="string">&quot;LYZ&quot;</span>), pt.size = <span class="number">0</span>) &amp;</span><br><span class="line">    stat_summary(fun = median, geom=<span class="string">&#x27;point&#x27;</span>, size = <span class="number">1</span>, colour = <span class="string">&quot;black&quot;</span>, position = position_dodge(width = <span class="number">0.9</span>)) &amp;</span><br><span class="line">  ggpubr::geom_pwc(aes(group = split), </span><br><span class="line">                   method = <span class="string">&quot;wilcox_test&quot;</span>, tip.length = <span class="number">0</span>, </span><br><span class="line">                   hide.ns = <span class="built_in">F</span>, label = <span class="string">&quot;p.adj.format&quot;</span>, </span><br><span class="line">                   p.adjust.method = <span class="string">&quot;fdr&quot;</span>) &amp; </span><br><span class="line">  scale_y_continuous(expand = expansion(mult = <span class="built_in">c</span>(<span class="number">0.05</span>, <span class="number">0.15</span>))) &amp;</span><br><span class="line">  labs(x=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Scale for y is already present.</span></span><br><span class="line"><span class="comment">## Adding another scale for y, which will replace the existing scale.</span></span><br><span class="line"><span class="comment">## Scale for y is already present.</span></span><br><span class="line"><span class="comment">## Adding another scale for y, which will replace the existing scale.</span></span><br><span class="line"></span><br><span class="line">vp2</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/01/12/Seurat_pvalue/figure-markdown_strict/unnamed-chunk-6-1.png"></p>
+<p>以上就是在seurat VlnPlot基础上标注p值的方法。</p>
+<p>完。</p>
+<blockquote>
+<p>Ref:</p>
+<p><a target="_blank" rel="noopener" href="https://satijalab.org/seurat/articles/pbmc3k_tutorial">https://satijalab.org/seurat/articles/pbmc3k_tutorial</a></p>
+<p><a target="_blank" rel="noopener" href="https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html">https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2025/01/12/Seurat_pvalue/" title="Seurat-VlnPlot-pvalues">https://thereallda.github.io/2025/01/12/Seurat_pvalue/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/single-cell/" rel="tag"># single-cell</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/12/10/cytotrace2-basic/" rel="prev" title="CytoTRACE2-basic">
+      <i class="fa fa-chevron-left"></i> CytoTRACE2-basic
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-preprocessing"><span class="nav-number">1.</span> <span class="nav-text">Data preprocessing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Comparison-between-group"><span class="nav-number">2.</span> <span class="nav-text">Comparison between group</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<script>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : 'f171836843b0fc7a2e0e2e20d8947cf6',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
