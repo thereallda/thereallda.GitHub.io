@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"thereallda.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Signac是一个可以处理scATAC-seq、scCUT&amp;Tag和scNTT-seq等检测单细胞水平染色质状态的R包，其主要步骤包括：    Create object    QC    Normalization    Dimension Reduction and Clustering    Inference of gene activity    Identify differ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R-Signac">
+<meta property="og:url" content="https://thereallda.github.io/2025/06/12/R-signac/index.html">
+<meta property="og:site_name" content="Dean&#39;s blog">
+<meta property="og:description" content="Signac是一个可以处理scATAC-seq、scCUT&amp;Tag和scNTT-seq等检测单细胞水平染色质状态的R包，其主要步骤包括：    Create object    QC    Normalization    Dimension Reduction and Clustering    Inference of gene activity    Identify differ">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/image-20250612170025320.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/clipboard-1569865576.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/clipboard-42948041.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-13-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-14-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-15-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-18-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-19-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-21-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-24-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-27-1.png">
+<meta property="og:image" content="https://thereallda.github.io/2025/06/12/R-signac/unnamed-chunk-30-1.png">
+<meta property="article:published_time" content="2025-06-12T20:00:00.000Z">
+<meta property="article:modified_time" content="2025-06-12T21:01:00.737Z">
+<meta property="article:author" content="Dean Li">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="single-cell">
+<meta property="article:tag" content="scATAC-seq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://thereallda.github.io/2025/06/12/R-signac/image-20250612170025320.png">
+
+<link rel="canonical" href="https://thereallda.github.io/2025/06/12/R-signac/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>R-Signac | Dean's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dean's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://thereallda.github.io/2025/06/12/R-signac/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/55836943?v=4">
+      <meta itemprop="name" content="Dean Li">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dean's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          R-Signac
+        </h1>
+
+        <div class="post-meta">
+          
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-12 16:00:00 / Modified: 17:01:00" itemprop="dateCreated datePublished" datetime="2025-06-12T16:00:00-04:00">2025-06-12</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>24k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>22 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="/2025/06/12/R-signac/image-20250612170025320.png" alt="image-20250612170025320"></p>
+<p>Signac是一个可以处理scATAC-seq、scCUT&amp;Tag和scNTT-seq等检测单细胞水平染色质状态的R包，其主要步骤包括：</p>
+<ul>
+<li><p>  Create object</p>
+</li>
+<li><p>  QC</p>
+</li>
+<li><p>  Normalization</p>
+</li>
+<li><p>  Dimension Reduction and Clustering</p>
+</li>
+<li><p>  Inference of gene activity</p>
+</li>
+<li><p>  Identify differential peaks</p>
+</li>
+<li><p>  Plotting genomic regions</p>
+</li>
+</ul>
+<span id="more"></span>
+
+<p>本文只讨论代码实现，具体原理可以参考<a target="_blank" rel="noopener" href="https://doi.org/10.1038/s41592-021-01282-5">Stuart et al. 2021</a> (<strong>Single-cell chromatin state analysis with Signac</strong>)</p>
+<h2 id="Data-Download"><a href="#Data-Download" class="headerlink" title="Data Download"></a>Data Download</h2><p>The inputs files of signac can be generated from cellranger</p>
+<p>本文用到的文件包括</p>
+<ul>
+<li><p>  Raw data: Peak-by-Cell matrix. 行为基因组区域（peaks），列为细胞barcode，其中的值为比对到该peaks上的read counts（详见<a target="_blank" rel="noopener" href="https://support.10xgenomics.com/single-cell-atac/software/pipelines/latest/output/matrices">https://support.10xgenomics.com/single-cell-atac/software/pipelines/latest/output/matrices</a>）</p>
+</li>
+<li><p>  Metadata</p>
+</li>
+<li><p>Fragments file: 在所有细胞中检测到的不重复的测序片段数目（详见10x Genomics <a target="_blank" rel="noopener" href="https://support.10xgenomics.com/single-cell-atac/software/pipelines/latest/output/fragments">website</a>）。</p>
+<blockquote>
+<pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># example lines of fragments file</span><br><span class="line">#chr1    9994    10157   AAAGGTTAGTTGGGCC-1      1</span><br><span class="line">#chr1    10000   10144   AGGTCTTAGCCAGGTC-1      1</span><br><span class="line">#chr1    10001   10103   GTTCTCATCCGGTTGA-1      1</span><br><span class="line">#chr1    10001   10208   GCTTAGTAGTTATCTC-1      1</span><br></pre></td></tr></table></figure>
+</code></pre>
+</blockquote>
+</li>
+<li><p>  Fragments file index</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># raw data</span><br><span class="line">wget https://cf.10xgenomics.com/samples/cell-atac/2.1.0/10k_pbmc_ATACv2_nextgem_Chromium_Controller/10k_pbmc_ATACv2_nextgem_Chromium_Controller_filtered_peak_bc_matrix.h5</span><br><span class="line"># metadata</span><br><span class="line">wget https://cf.10xgenomics.com/samples/cell-atac/2.1.0/10k_pbmc_ATACv2_nextgem_Chromium_Controller/10k_pbmc_ATACv2_nextgem_Chromium_Controller_singlecell.csv</span><br><span class="line"># fragments file</span><br><span class="line">wget https://cf.10xgenomics.com/samples/cell-atac/2.1.0/10k_pbmc_ATACv2_nextgem_Chromium_Controller/10k_pbmc_ATACv2_nextgem_Chromium_Controller_fragments.tsv.gz</span><br><span class="line"># fragments files index</span><br><span class="line">wget https://cf.10xgenomics.com/samples/cell-atac/2.1.0/10k_pbmc_ATACv2_nextgem_Chromium_Controller/10k_pbmc_ATACv2_nextgem_Chromium_Controller_fragments.tsv.gz.tbi</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;Signac&quot;</span>, quietly = <span class="literal">TRUE</span>)) install.packages(<span class="string">&quot;Signac&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;Seurat&quot;</span>, quietly = <span class="literal">TRUE</span>)) install.packages(<span class="string">&quot;Seurat&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;ggplot2&quot;</span>, quietly = <span class="literal">TRUE</span>)) install.packages(<span class="string">&quot;ggplot2&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;patchwork&quot;</span>, quietly = <span class="literal">TRUE</span>)) install.packages(<span class="string">&quot;patchwork&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;ensembldb&quot;</span>, quietly = <span class="literal">TRUE</span>)) BiocManager::install(<span class="string">&#x27;ensembldb&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> (!requireNamespace(<span class="string">&quot;biovizBase&quot;</span>, quietly = <span class="literal">TRUE</span>)) BiocManager::install(<span class="string">&#x27;biovizBase&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Pre-processing"><a href="#Pre-processing" class="headerlink" title="Pre-processing"></a>Pre-processing</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">library(Signac)</span><br><span class="line">library(Seurat)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: SeuratObject</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: sp</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## &#x27;SeuratObject&#x27; was built under R 4.4.0 but the current version is</span></span><br><span class="line"><span class="comment">## 4.4.1; it is recomended that you reinstall &#x27;SeuratObject&#x27; as the ABI</span></span><br><span class="line"><span class="comment">## for R may have changed</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Attaching package: &#x27;SeuratObject&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following objects are masked from &#x27;package:base&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     intersect, t</span></span><br><span class="line"></span><br><span class="line">library(GenomicRanges)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: stats4</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: BiocGenerics</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Attaching package: &#x27;BiocGenerics&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:SeuratObject&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     intersect</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following objects are masked from &#x27;package:stats&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     IQR, mad, sd, var, xtabs</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following objects are masked from &#x27;package:base&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     anyDuplicated, aperm, append, as.data.frame, basename, cbind,</span></span><br><span class="line"><span class="comment">##     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,</span></span><br><span class="line"><span class="comment">##     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,</span></span><br><span class="line"><span class="comment">##     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,</span></span><br><span class="line"><span class="comment">##     Position, rank, rbind, Reduce, rownames, sapply, setdiff, table,</span></span><br><span class="line"><span class="comment">##     tapply, union, unique, unsplit, which.max, which.min</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: S4Vectors</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Attaching package: &#x27;S4Vectors&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:utils&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     findMatches</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following objects are masked from &#x27;package:base&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     expand.grid, I, unname</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: IRanges</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Attaching package: &#x27;IRanges&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:sp&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     %over%</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: GenomeInfoDb</span></span><br><span class="line"></span><br><span class="line">library(ggplot2)</span><br><span class="line">library(patchwork)</span><br></pre></td></tr></table></figure>
+
+<p>Create Seurat object using peak/cell matrix and metadata</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line">counts &lt;- Read10X_h5(filename =                 <span class="string">&quot;10k_pbmc_ATACv2_nextgem_Chromium_Controller_filtered_peak_bc_matrix.h5&quot;</span>)</span><br><span class="line"></span><br><span class="line">metadata &lt;- read.csv(</span><br><span class="line">  file = <span class="string">&quot;10k_pbmc_ATACv2_nextgem_Chromium_Controller_singlecell.csv&quot;</span>,</span><br><span class="line">  header = <span class="literal">TRUE</span>,</span><br><span class="line">  row.names = <span class="number">1</span></span><br><span class="line">)</span><br><span class="line">head(metadata)</span><br><span class="line"></span><br><span class="line"><span class="comment">##                       total duplicate chimeric unmapped lowmapq mitochondrial</span></span><br><span class="line"><span class="comment">## NO_BARCODE         20081988   3972351     3423  2118408 1159348         23059</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAACGCC-1        4         0        0        0       0             0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGCAG-1        3         0        0        0       0             0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGGGT-1        2         0        0        0       0             0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATACC-1       17         0        0        0       0             0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATCTG-1        1         0        0        0       0             0</span></span><br><span class="line"><span class="comment">##                    nonprimary passed_filters is__cell_barcode excluded_reason</span></span><br><span class="line"><span class="comment">## NO_BARCODE               4131       12801268                0               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAACGCC-1          0              4                0               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGCAG-1          0              3                0               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGGGT-1          0              2                0               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATACC-1          0             17                0               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATCTG-1          0              1                0               2</span></span><br><span class="line"><span class="comment">##                    TSS_fragments DNase_sensitive_region_fragments</span></span><br><span class="line"><span class="comment">## NO_BARCODE                     0                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAACGCC-1             1                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGCAG-1             0                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGGGT-1             0                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATACC-1            11                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATCTG-1             0                                0</span></span><br><span class="line"><span class="comment">##                    enhancer_region_fragments promoter_region_fragments</span></span><br><span class="line"><span class="comment">## NO_BARCODE                                 0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAACGCC-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGCAG-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGGGT-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATACC-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATCTG-1                         0                         0</span></span><br><span class="line"><span class="comment">##                    on_target_fragments blacklist_region_fragments</span></span><br><span class="line"><span class="comment">## NO_BARCODE                           0                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAACGCC-1                   1                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGCAG-1                   0                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGGGT-1                   0                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATACC-1                  11                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATCTG-1                   0                          0</span></span><br><span class="line"><span class="comment">##                    peak_region_fragments peak_region_cutsites</span></span><br><span class="line"><span class="comment">## NO_BARCODE                             0                    0</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAACGCC-1                     2                    4</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGCAG-1                     1                    2</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAAGGGT-1                     1                    2</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATACC-1                    14                   27</span></span><br><span class="line"><span class="comment">## AAACGAAAGAAATCTG-1                     0                    0</span></span><br><span class="line"></span><br><span class="line">chrom_assay &lt;- CreateChromatinAssay(</span><br><span class="line">  counts = counts,</span><br><span class="line">  sep = <span class="built_in">c</span>(<span class="string">&quot;:&quot;</span>, <span class="string">&quot;-&quot;</span>),</span><br><span class="line">  fragments = <span class="string">&quot;10k_pbmc_ATACv2_nextgem_Chromium_Controller_fragments.tsv.gz&quot;</span>,</span><br><span class="line">  min.cells = <span class="number">10</span>,</span><br><span class="line">  min.features = <span class="number">200</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Computing hash</span></span><br><span class="line"></span><br><span class="line">chrom_assay</span><br><span class="line"></span><br><span class="line"><span class="comment">## ChromatinAssay data with 165434 features for 10246 cells</span></span><br><span class="line"><span class="comment">## Variable features: 0 </span></span><br><span class="line"><span class="comment">## Genome: </span></span><br><span class="line"><span class="comment">## Annotation present: FALSE </span></span><br><span class="line"><span class="comment">## Motifs present: FALSE </span></span><br><span class="line"><span class="comment">## Fragment files: 1</span></span><br><span class="line"></span><br><span class="line">pbmc_atac &lt;- CreateSeuratObject(</span><br><span class="line">  counts = chrom_assay,</span><br><span class="line">  assay = <span class="string">&quot;peaks&quot;</span>,</span><br><span class="line">  meta.data = metadata</span><br><span class="line">)</span><br><span class="line">pbmc_atac</span><br><span class="line"></span><br><span class="line"><span class="comment">## An object of class Seurat </span></span><br><span class="line"><span class="comment">## 165434 features across 10246 samples within 1 assay </span></span><br><span class="line"><span class="comment">## Active assay: peaks (165434 features, 0 variable features)</span></span><br><span class="line"><span class="comment">##  2 layers present: counts, data</span></span><br><span class="line"></span><br><span class="line">pbmc_atac@meta.data[<span class="number">1</span>:<span class="number">3</span>,]</span><br><span class="line"></span><br><span class="line"><span class="comment">##                       orig.ident nCount_peaks nFeature_peaks total duplicate</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1 SeuratProject        32618          12605 59781     33159</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1 SeuratProject        13293           5392 19399      9003</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1 SeuratProject        36155          13306 64452     31013</span></span><br><span class="line"><span class="comment">##                    chimeric unmapped lowmapq mitochondrial nonprimary</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1        1      633    3228           221         17</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1        1      231    1137             2          3</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1        4      549    4538           182          4</span></span><br><span class="line"><span class="comment">##                    passed_filters is__cell_barcode excluded_reason</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1          22522                1               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1           9022                1               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1          28162                1               0</span></span><br><span class="line"><span class="comment">##                    TSS_fragments DNase_sensitive_region_fragments</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1          9962                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1          5362                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1         13887                                0</span></span><br><span class="line"><span class="comment">##                    enhancer_region_fragments promoter_region_fragments</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1                         0                         0</span></span><br><span class="line"><span class="comment">##                    on_target_fragments blacklist_region_fragments</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                9962                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                5362                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1               13887                          0</span></span><br><span class="line"><span class="comment">##                    peak_region_fragments peak_region_cutsites</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                 17067                32618</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                  6888                13293</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1                 19132                36155</span></span><br><span class="line"></span><br><span class="line">pbmc_atac@assays$peaks</span><br><span class="line"></span><br><span class="line"><span class="comment">## ChromatinAssay data with 165434 features for 10246 cells</span></span><br><span class="line"><span class="comment">## Variable features: 0 </span></span><br><span class="line"><span class="comment">## Genome: </span></span><br><span class="line"><span class="comment">## Annotation present: FALSE </span></span><br><span class="line"><span class="comment">## Motifs present: FALSE </span></span><br><span class="line"><span class="comment">## Fragment files: 1</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果没有h5文件，可以通过counts matrix (.mtx), cell barcodes (barcodes.tsv), peak file (.bed) 来创建对象</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">counts &lt;- Matrix::readMM(&quot;filtered_peak_bc_matrix/matrix.mtx&quot;)</span><br><span class="line">barcodes &lt;- readLines(&quot;filtered_peak_bc_matrix/barcodes.tsv&quot;)</span><br><span class="line">peaks &lt;- read.table(&quot;filtered_peak_bc_matrix/peaks.bed&quot;, sep=&quot;\t&quot;)</span><br><span class="line">peaknames &lt;- paste(peaks$V1, peaks$V2, peaks$V3, sep=&quot;-&quot;)</span><br><span class="line"></span><br><span class="line">colnames(counts) &lt;- barcodes</span><br><span class="line">rownames(counts) &lt;- peaknames</span><br></pre></td></tr></table></figure>
+
+<p>或者直接用fragments文件创建</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">fragpath &lt;- &#x27;10k_pbmc_ATACv2_nextgem_Chromium_Controller_fragments.tsv.gz&#x27;</span><br><span class="line"></span><br><span class="line"># Define cells</span><br><span class="line"> # If you already have a list of cell barcodes to use you can skip this step</span><br><span class="line"> total_counts &lt;- CountFragments(fragpath)</span><br><span class="line"> cutoff &lt;- 1000 # Change this number depending on your dataset!</span><br><span class="line"> barcodes &lt;- total_counts[total_counts$frequency_count &gt; cutoff, ]$CB</span><br><span class="line"> </span><br><span class="line"># Create a fragment object</span><br><span class="line"> frags &lt;- CreateFragmentObject(path = fragpath, cells = barcodes)</span><br><span class="line"> </span><br><span class="line"># First call peaks on the dataset</span><br><span class="line"> # If you already have a set of peaks you can skip this step</span><br><span class="line"> peaks &lt;- CallPeaks(frags)</span><br><span class="line"></span><br><span class="line"># Quantify fragments in each peak</span><br><span class="line"> counts &lt;- FeatureMatrix(fragments = frags, features = peaks, cells = barcodes)</span><br></pre></td></tr></table></figure>
+
+
+</blockquote>
+<p>接下来，只保留比对到标准染色体（22+2）上的peaks</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">seqlevels(granges(pbmc_atac))</span><br><span class="line"></span><br><span class="line"><span class="comment">##  [1] &quot;chr1&quot;       &quot;chr2&quot;       &quot;chr3&quot;       &quot;chr4&quot;       &quot;chr5&quot;      </span></span><br><span class="line"><span class="comment">##  [6] &quot;chr6&quot;       &quot;chr7&quot;       &quot;chr8&quot;       &quot;chr9&quot;       &quot;chr10&quot;     </span></span><br><span class="line"><span class="comment">## [11] &quot;chr11&quot;      &quot;chr12&quot;      &quot;chr13&quot;      &quot;chr14&quot;      &quot;chr15&quot;     </span></span><br><span class="line"><span class="comment">## [16] &quot;chr16&quot;      &quot;chr17&quot;      &quot;chr18&quot;      &quot;chr19&quot;      &quot;chr20&quot;     </span></span><br><span class="line"><span class="comment">## [21] &quot;chr21&quot;      &quot;chr22&quot;      &quot;chrX&quot;       &quot;chrY&quot;       &quot;GL000194.1&quot;</span></span><br><span class="line"><span class="comment">## [26] &quot;GL000195.1&quot; &quot;GL000205.2&quot; &quot;GL000218.1&quot; &quot;GL000219.1&quot; &quot;KI270711.1&quot;</span></span><br><span class="line"><span class="comment">## [31] &quot;KI270713.1&quot; &quot;KI270721.1&quot; &quot;KI270726.1&quot; &quot;KI270727.1&quot; &quot;KI270734.1&quot;</span></span><br><span class="line"></span><br><span class="line">peaks.keep &lt;- seqnames(granges(pbmc_atac)) %in% standardChromosomes(granges(pbmc_atac))</span><br><span class="line">pbmc_atac &lt;- pbmc_atac[as.vector(peaks.keep), ]</span><br></pre></td></tr></table></figure>
+
+<h3 id="Peak-annotation"><a href="#Peak-annotation" class="headerlink" title="Peak annotation"></a>Peak annotation</h3><p>在该示例中，10x Genomics 使用的参考基因组文件为“GRCh38-2020-A”，其对应的注释为Ensembl v98</p>
+<blockquote>
+<p>其他版本的对应关系可在该网站找到：<a target="_blank" rel="noopener" href="https://www.ensembl.org/info/website/archives/assembly.html">https://www.ensembl.org/info/website/archives/assembly.html</a></p>
+</blockquote>
+<p>接下来，使用AnnotationHub进行基因组区域注释</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">library(AnnotationHub)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: BiocFileCache</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Loading required package: dbplyr</span></span><br><span class="line"></span><br><span class="line">ah &lt;- AnnotationHub()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Search for the Ensembl 98 EnsDb for Homo sapiens on AnnotationHub</span></span><br><span class="line">query(ah, <span class="string">&quot;EnsDb.Hsapiens.v98&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## AnnotationHub with 1 record</span></span><br><span class="line"><span class="comment">## # snapshotDate(): 2024-04-30</span></span><br><span class="line"><span class="comment">## # names(): AH75011</span></span><br><span class="line"><span class="comment">## # $dataprovider: Ensembl</span></span><br><span class="line"><span class="comment">## # $species: Homo sapiens</span></span><br><span class="line"><span class="comment">## # $rdataclass: EnsDb</span></span><br><span class="line"><span class="comment">## # $rdatadateadded: 2019-05-02</span></span><br><span class="line"><span class="comment">## # $title: Ensembl 98 EnsDb for Homo sapiens</span></span><br><span class="line"><span class="comment">## # $description: Gene and protein annotations for Homo sapiens based on Ensem...</span></span><br><span class="line"><span class="comment">## # $taxonomyid: 9606</span></span><br><span class="line"><span class="comment">## # $genome: GRCh38</span></span><br><span class="line"><span class="comment">## # $sourcetype: ensembl</span></span><br><span class="line"><span class="comment">## # $sourceurl: http://www.ensembl.org</span></span><br><span class="line"><span class="comment">## # $sourcesize: NA</span></span><br><span class="line"><span class="comment">## # $tags: c(&quot;98&quot;, &quot;AHEnsDbs&quot;, &quot;Annotation&quot;, &quot;EnsDb&quot;, &quot;Ensembl&quot;, &quot;Gene&quot;,</span></span><br><span class="line"><span class="comment">## #   &quot;Protein&quot;, &quot;Transcript&quot;) </span></span><br><span class="line"><span class="comment">## # retrieve record with &#x27;object[[&quot;AH75011&quot;]]&#x27;</span></span><br><span class="line"></span><br><span class="line">ensdb_v98 &lt;- ah[[<span class="string">&quot;AH75011&quot;</span>]]</span><br><span class="line"></span><br><span class="line"><span class="comment">## loading from cache</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## require(&quot;ensembldb&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># extract gene annotations from EnsDb</span></span><br><span class="line">annotations &lt;- GetGRangesFromEnsDb(ensdb = ensdb_v98)</span><br><span class="line"></span><br><span class="line"><span class="comment"># change to UCSC style since the data was mapped to hg38</span></span><br><span class="line">seqlevels(annotations) &lt;- paste0(<span class="string">&#x27;chr&#x27;</span>, seqlevels(annotations))</span><br><span class="line">genome(annotations) &lt;- <span class="string">&quot;hg38&quot;</span></span><br><span class="line"><span class="comment"># add the gene information to the object</span></span><br><span class="line">Annotation(pbmc_atac) &lt;- annotations</span><br><span class="line"></span><br><span class="line">Annotation(pbmc_atac) </span><br><span class="line"></span><br><span class="line"><span class="comment">## GRanges object with 3200207 ranges and 5 metadata columns:</span></span><br><span class="line"><span class="comment">##                   seqnames        ranges strand |           tx_id   gene_name</span></span><br><span class="line"><span class="comment">##                      &lt;Rle&gt;     &lt;IRanges&gt;  &lt;Rle&gt; |     &lt;character&gt; &lt;character&gt;</span></span><br><span class="line"><span class="comment">##   ENSE00001489430     chrX 276322-276394      + | ENST00000399012      PLCXD1</span></span><br><span class="line"><span class="comment">##   ENSE00001536003     chrX 276324-276394      + | ENST00000484611      PLCXD1</span></span><br><span class="line"><span class="comment">##   ENSE00002160563     chrX 276353-276394      + | ENST00000430923      PLCXD1</span></span><br><span class="line"><span class="comment">##   ENSE00001750899     chrX 281055-281121      + | ENST00000445062      PLCXD1</span></span><br><span class="line"><span class="comment">##   ENSE00001719251     chrX 281194-281256      + | ENST00000429181      PLCXD1</span></span><br><span class="line"><span class="comment">##               ...      ...           ...    ... .             ...         ...</span></span><br><span class="line"><span class="comment">##   ENST00000361739    chrMT     7586-8269      + | ENST00000361739      MT-CO2</span></span><br><span class="line"><span class="comment">##   ENST00000361789    chrMT   14747-15887      + | ENST00000361789      MT-CYB</span></span><br><span class="line"><span class="comment">##   ENST00000361851    chrMT     8366-8572      + | ENST00000361851     MT-ATP8</span></span><br><span class="line"><span class="comment">##   ENST00000361899    chrMT     8527-9207      + | ENST00000361899     MT-ATP6</span></span><br><span class="line"><span class="comment">##   ENST00000362079    chrMT     9207-9990      + | ENST00000362079      MT-CO3</span></span><br><span class="line"><span class="comment">##                           gene_id   gene_biotype     type</span></span><br><span class="line"><span class="comment">##                       &lt;character&gt;    &lt;character&gt; &lt;factor&gt;</span></span><br><span class="line"><span class="comment">##   ENSE00001489430 ENSG00000182378 protein_coding     exon</span></span><br><span class="line"><span class="comment">##   ENSE00001536003 ENSG00000182378 protein_coding     exon</span></span><br><span class="line"><span class="comment">##   ENSE00002160563 ENSG00000182378 protein_coding     exon</span></span><br><span class="line"><span class="comment">##   ENSE00001750899 ENSG00000182378 protein_coding     exon</span></span><br><span class="line"><span class="comment">##   ENSE00001719251 ENSG00000182378 protein_coding     exon</span></span><br><span class="line"><span class="comment">##               ...             ...            ...      ...</span></span><br><span class="line"><span class="comment">##   ENST00000361739 ENSG00000198712 protein_coding      cds</span></span><br><span class="line"><span class="comment">##   ENST00000361789 ENSG00000198727 protein_coding      cds</span></span><br><span class="line"><span class="comment">##   ENST00000361851 ENSG00000228253 protein_coding      cds</span></span><br><span class="line"><span class="comment">##   ENST00000361899 ENSG00000198899 protein_coding      cds</span></span><br><span class="line"><span class="comment">##   ENST00000362079 ENSG00000198938 protein_coding      cds</span></span><br><span class="line"><span class="comment">##   -------</span></span><br><span class="line"><span class="comment">##   seqinfo: 25 sequences (1 circular) from hg38 genome</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Computing-QC-Metrics"><a href="#Computing-QC-Metrics" class="headerlink" title="Computing QC Metrics"></a>Computing QC Metrics</h2><p>scATAC-seq 一般用到的QC指标包括：</p>
+<ul>
+<li>  Nucleosome banding pattern: 考虑到核小体由～147bp缠绕的组蛋白八聚体组成，质量较好的scATAC-seq数据的片段大小会展示出核小体的特征（～147bp）.</li>
+</ul>
+<blockquote>
+<p><code>Signac</code> computes the ratio of fragments between 147 bp and 294 bp (mononucleosome) to fragments &lt; 147 bp (nucleosome-free). Greater NS indicates poor quality.</p>
+<p><a target="_blank" rel="noopener" href="https://nbis-workshop-epigenomics.readthedocs.io/en/latest/content/tutorials/data-preproc/data-qc-atac.html">Quailty Control for ATAC-seq</a></p>
+<p>In ATAC-seq experiments, tagmentation of Tn5 transposases produces signature size pattern of fragments derived from nucleosome-free regions (NFR), mononucleosome, dinucleosome, trinucleosome and longer oligonucleosome from open chromatin regions (Figure below, adapted from <a target="_blank" rel="noopener" href="https://doi.org/10.1186/s13059-019-1642-2">Li et al</a> ).</p>
+<p><img src="/2025/06/12/R-signac/clipboard-1569865576.png"></p>
+<p><img src="/2025/06/12/R-signac/clipboard-42948041.png"></p>
+</blockquote>
+<ul>
+<li><p>  Transcriptional start site (TSS) enrichment score: 正在转录的基因的TSS区域常呈现开放的状态，质量较好的scATAC-seq数据的read counts也会在TSS呈现富集的特征</p>
+</li>
+<li><p>  Total number of fragments in peaks</p>
+</li>
+<li><p>  Fraction of fragments in peaks</p>
+</li>
+<li><p>  Ratio reads in genomic blacklist region: ENCODE定义了一系列黑名单区域，比对到该区域的片段有可能是由于实验误差引起的. 这里Signac统计每个细胞中fragments比对到黑名单区域的比例。</p>
+</li>
+</ul>
+<blockquote>
+<p>blacklist regions provided by ENCODE (<a target="_blank" rel="noopener" href="https://github.com/Boyle-Lab/Blacklist">https://github.com/Boyle-Lab/Blacklist</a>)</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># compute nucleosome signal score per cell</span></span><br><span class="line">pbmc_atac &lt;- NucleosomeSignal(object = pbmc_atac)</span><br><span class="line"></span><br><span class="line"><span class="comment"># compute TSS enrichment score per cell</span></span><br><span class="line">pbmc_atac &lt;- TSSEnrichment(object = pbmc_atac)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Extracting TSS positions</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Extracting fragments at TSSs</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Computing TSS enrichment score</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># add fraction of reads in peaks</span></span><br><span class="line">pbmc_atac$pct_reads_in_peaks &lt;- pbmc_atac$peak_region_fragments / pbmc_atac$passed_filters * <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># add blacklist ratio</span></span><br><span class="line">pbmc_atac$blacklist_ratio &lt;- FractionCountsInRegion(</span><br><span class="line">  object = pbmc_atac, </span><br><span class="line">  assay = <span class="string">&#x27;peaks&#x27;</span>,</span><br><span class="line">  regions = blacklist_hg38_unified</span><br><span class="line">)</span><br><span class="line">pbmc_atac@meta.data[<span class="number">1</span>:<span class="number">3</span>,]</span><br><span class="line"></span><br><span class="line"><span class="comment">##                       orig.ident nCount_peaks nFeature_peaks total duplicate</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1 SeuratProject        32614          12603 59781     33159</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1 SeuratProject        13287           5390 19399      9003</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1 SeuratProject        36139          13300 64452     31013</span></span><br><span class="line"><span class="comment">##                    chimeric unmapped lowmapq mitochondrial nonprimary</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1        1      633    3228           221         17</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1        1      231    1137             2          3</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1        4      549    4538           182          4</span></span><br><span class="line"><span class="comment">##                    passed_filters is__cell_barcode excluded_reason</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1          22522                1               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1           9022                1               0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1          28162                1               0</span></span><br><span class="line"><span class="comment">##                    TSS_fragments DNase_sensitive_region_fragments</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1          9962                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1          5362                                0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1         13887                                0</span></span><br><span class="line"><span class="comment">##                    enhancer_region_fragments promoter_region_fragments</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                         0                         0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1                         0                         0</span></span><br><span class="line"><span class="comment">##                    on_target_fragments blacklist_region_fragments</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                9962                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                5362                          0</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1               13887                          0</span></span><br><span class="line"><span class="comment">##                    peak_region_fragments peak_region_cutsites nucleosome_signal</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                 17067                32618         0.5054022</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                  6888                13293         0.4906667</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1                 19132                36155         0.6323430</span></span><br><span class="line"><span class="comment">##                    nucleosome_percentile TSS.enrichment TSS.percentile</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1                  0.06       6.403815           0.92</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1                  0.04       8.516617           1.00</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1                  0.40       4.847291           0.10</span></span><br><span class="line"><span class="comment">##                    pct_reads_in_peaks blacklist_ratio</span></span><br><span class="line"><span class="comment">## AAACGAAAGAGAGGTA-1           75.77924    0.0001839701</span></span><br><span class="line"><span class="comment">## AAACGAAAGCAGGAGG-1           76.34671    0.0001505231</span></span><br><span class="line"><span class="comment">## AAACGAAAGGAAGAAC-1           67.93552    0.0006087606</span></span><br></pre></td></tr></table></figure>
+
+<p>可视化QC指标</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DensityScatter(pbmc_atac, x = <span class="string">&#x27;nCount_peaks&#x27;</span>, y = <span class="string">&#x27;TSS.enrichment&#x27;</span>, log_x = <span class="literal">TRUE</span>, quantiles = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-13-1.png"></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">summary(pbmc_atac$nucleosome_signal)</span><br><span class="line"></span><br><span class="line"><span class="comment">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span><br><span class="line"><span class="comment">##  0.2255  0.5921  0.6608  0.8395  0.7429 19.8889</span></span><br><span class="line"></span><br><span class="line">pbmc_atac$nucleosome_group &lt;- ifelse(pbmc_atac$nucleosome_signal &gt; <span class="number">4</span>, <span class="string">&#x27;NS &gt; 4&#x27;</span>, <span class="string">&#x27;NS &lt; 4&#x27;</span>)</span><br><span class="line">FragmentHistogram(pbmc_atac, group.by = <span class="string">&#x27;nucleosome_group&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Warning: Removed 63 rows containing non-finite outside the scale range</span></span><br><span class="line"><span class="comment">## (`stat_bin()`).</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Warning: Removed 4 rows containing missing values or values outside the scale range</span></span><br><span class="line"><span class="comment">## (`geom_bar()`).</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-14-1.png"></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">VlnPlot(</span><br><span class="line">  object = pbmc_atac,</span><br><span class="line">  features = <span class="built_in">c</span>(<span class="string">&#x27;nCount_peaks&#x27;</span>, <span class="string">&#x27;TSS.enrichment&#x27;</span>, <span class="string">&#x27;blacklist_ratio&#x27;</span>, <span class="string">&#x27;nucleosome_signal&#x27;</span>, <span class="string">&#x27;pct_reads_in_peaks&#x27;</span>),</span><br><span class="line">  pt.size = <span class="number">0.1</span>,</span><br><span class="line">  ncol = <span class="number">5</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-15-1.png"></p>
+<p>以下使用标准过滤pbmc的数据，实际cutoff需要根据数据调整</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pbmc_atac &lt;- subset(</span><br><span class="line">  x = pbmc_atac,</span><br><span class="line">  subset = nCount_peaks &gt; <span class="number">9000</span> &amp;</span><br><span class="line">    nCount_peaks &lt; <span class="number">100000</span> &amp;</span><br><span class="line">    pct_reads_in_peaks &gt; <span class="number">40</span> &amp;</span><br><span class="line">    blacklist_ratio &lt; <span class="number">0.01</span> &amp;</span><br><span class="line">    nucleosome_signal &lt; <span class="number">4</span> &amp;</span><br><span class="line">    TSS.enrichment &gt; <span class="number">4</span></span><br><span class="line">)</span><br><span class="line">pbmc_atac</span><br><span class="line"></span><br><span class="line"><span class="comment">## An object of class Seurat </span></span><br><span class="line"><span class="comment">## 165376 features across 9651 samples within 1 assay </span></span><br><span class="line"><span class="comment">## Active assay: peaks (165376 features, 0 variable features)</span></span><br><span class="line"><span class="comment">##  2 layers present: counts, data</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Normalization-and-linear-dimension-reduction"><a href="#Normalization-and-linear-dimension-reduction" class="headerlink" title="Normalization and linear dimension reduction"></a>Normalization and linear dimension reduction</h2><ul>
+<li>  Normalization: Signac perform term frequency-inverse document frequency (TF-IDF) normalization. 这一步既对不同细胞的测序深度进行校正，也对rare peaks赋予更高的值</li>
+<li>  Feature Selection: use top n% of features for dimension reduction. Here, use all features.</li>
+<li>  Dimension reduction: run singular value decomposition (SVD) on the TF-IDF matrix. SVD与PCA类似都用于线性降维</li>
+</ul>
+<!-- -->
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">pbmc_atac &lt;- RunTFIDF(pbmc_atac)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Performing TF-IDF normalization</span></span><br><span class="line"></span><br><span class="line">pbmc_atac &lt;- FindTopFeatures(pbmc_atac, min.cutoff = <span class="string">&#x27;q0&#x27;</span>)</span><br><span class="line">pbmc_atac &lt;- RunSVD(pbmc_atac)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Running SVD</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Scaling cell embeddings</span></span><br></pre></td></tr></table></figure>
+
+<p>降维后，可以观察singular values和测序深度的关系，避免降维矩阵捕捉到测序引起的技术误差而非生物学变量相关的信息</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DepthCor(pbmc_atac)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-18-1.png"></p>
+<p>考虑到第一个成分和细胞测序深度有较强的相关性，在后续分析中排除掉该成分进行分析。</p>
+<blockquote>
+<p>换别的Normalization是否可以消除测序深度的variation？</p>
+</blockquote>
+<h2 id="Non-linear-dimension-reduction-and-clustering"><a href="#Non-linear-dimension-reduction-and-clustering" class="headerlink" title="Non-linear dimension reduction and clustering"></a>Non-linear dimension reduction and clustering</h2><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">pbmc_atac &lt;- RunUMAP(pbmc_atac, reduction = <span class="string">&#x27;lsi&#x27;</span>, dims = <span class="number">2</span>:<span class="number">30</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric</span></span><br><span class="line"><span class="comment">## To use Python UMAP via reticulate, set umap.method to &#x27;umap-learn&#x27; and metric to &#x27;correlation&#x27;</span></span><br><span class="line"><span class="comment">## This message will be shown once per session</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 16:16:18 UMAP embedding parameters a = 0.9922 b = 1.112</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 16:16:18 Read 9651 rows and found 29 numeric columns</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 16:16:18 Using Annoy for neighbor search, n_neighbors = 30</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 16:16:18 Building Annoy index with metric = cosine, n_trees = 50</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 0%   10   20   30   40   50   60   70   80   90   100%</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## [----|----|----|----|----|----|----|----|----|----|</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## **************************************************|</span></span><br><span class="line"><span class="comment">## 16:16:18 Writing NN index file to temp file /var/folders/yk/896pglhn555drshbgn27f71h0000gn/T//Rtmp2EI0Kk/file68bc42d57dde</span></span><br><span class="line"><span class="comment">## 16:16:18 Searching Annoy index using 1 thread, search_k = 3000</span></span><br><span class="line"><span class="comment">## 16:16:20 Annoy recall = 100%</span></span><br><span class="line"><span class="comment">## 16:16:20 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span><br><span class="line"><span class="comment">## 16:16:22 Initializing from normalized Laplacian + noise (using RSpectra)</span></span><br><span class="line"><span class="comment">## 16:16:22 Commencing optimization for 500 epochs, with 384638 positive edges</span></span><br><span class="line"><span class="comment">## 16:16:29 Optimization finished</span></span><br><span class="line"></span><br><span class="line">pbmc_atac &lt;- FindNeighbors(pbmc_atac, reduction = <span class="string">&#x27;lsi&#x27;</span>, dims = <span class="number">2</span>:<span class="number">30</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Computing nearest neighbor graph</span></span><br><span class="line"><span class="comment">## Computing SNN</span></span><br><span class="line"></span><br><span class="line">pbmc_atac &lt;- FindClusters(pbmc_atac, verbose = <span class="literal">FALSE</span>, algorithm = <span class="number">3</span>)</span><br><span class="line">DimPlot(pbmc_atac, label = <span class="literal">TRUE</span>) + NoLegend()</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-19-1.png"></p>
+<h2 id="Create-gene-activity-matrix"><a href="#Create-gene-activity-matrix" class="headerlink" title="Create gene activity matrix"></a>Create gene activity matrix</h2><p>计算每个基因的染色质开放程度来评估基因活性。这里提取每个基因及其上游2kb的区域（作为promoter），并计算区域内fragments的数目。</p>
+<blockquote>
+<p>注意这里是分析人类的数据，因此promoter区域设置为上游2kb，不同物种需要调整该区域的长度</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">gene.activities &lt;- GeneActivity(pbmc_atac)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Extracting gene coordinates</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Warning in SingleFeatureMatrix(fragment = fragments[[x]], features = features,</span></span><br><span class="line"><span class="comment">## : 13 features are on seqnames not present in the fragment file. These will be</span></span><br><span class="line"><span class="comment">## removed.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Extracting reads overlapping genomic regions</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># add the gene activity matrix to the Seurat object as a new assay and normalize it</span></span><br><span class="line">pbmc_atac[[<span class="string">&#x27;RNA&#x27;</span>]] &lt;- CreateAssayObject(counts = gene.activities)</span><br><span class="line">pbmc_atac &lt;- NormalizeData(</span><br><span class="line">  object = pbmc_atac,</span><br><span class="line">  assay = <span class="string">&#x27;RNA&#x27;</span>,</span><br><span class="line">  normalization.method = <span class="string">&#x27;LogNormalize&#x27;</span>,</span><br><span class="line">  scale.factor = median(pbmc_atac$nCount_RNA))</span><br><span class="line"></span><br><span class="line">DefaultAssay(pbmc_atac) &lt;- <span class="string">&#x27;RNA&#x27;</span></span><br><span class="line"></span><br><span class="line">FeaturePlot(</span><br><span class="line">  object = pbmc_atac,</span><br><span class="line">  features = <span class="built_in">c</span>(<span class="string">&#x27;MS4A1&#x27;</span>, <span class="string">&#x27;CD3D&#x27;</span>, <span class="string">&#x27;LEF1&#x27;</span>, <span class="string">&#x27;NKG7&#x27;</span>, <span class="string">&#x27;TREM1&#x27;</span>, <span class="string">&#x27;LYZ&#x27;</span>),</span><br><span class="line">  pt.size = <span class="number">0.1</span>,</span><br><span class="line">  max.cutoff = <span class="string">&#x27;q95&#x27;</span>,</span><br><span class="line">  ncol = <span class="number">3</span></span><br><span class="line">)  </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-21-1.png"></p>
+<h2 id="Find-differentially-accessible-peaks-between-clusters"><a href="#Find-differentially-accessible-peaks-between-clusters" class="headerlink" title="Find differentially accessible peaks between clusters"></a>Find differentially accessible peaks between clusters</h2><p>接下来，鉴定不同clusters之间的差异peaks。</p>
+<p>在做这一步之前，也可以基于ATAC信号进行细胞注释。如果是同时测了单细胞转录组的数据（e.g., 10x Multiome），还可以与注释好的scRNA-seq进行整合，并转移 cell labels.</p>
+<p>这里简单展示clusters之间的差异peaks鉴定过程</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># peak-level assessment</span></span><br><span class="line">DefaultAssay(pbmc_atac) &lt;- <span class="string">&#x27;peaks&#x27;</span></span><br><span class="line"></span><br><span class="line">de_peak12 &lt;- FindMarkers(pbmc_atac,</span><br><span class="line">                         ident.1 = <span class="string">&quot;1&quot;</span>,</span><br><span class="line">                         ident.2 = <span class="string">&quot;2&quot;</span>,</span><br><span class="line">                         test.use = <span class="string">&#x27;wilcox&#x27;</span>,</span><br><span class="line">                         min.pct = <span class="number">0.1</span>)</span><br><span class="line">head(de_peak12)</span><br><span class="line"></span><br><span class="line"><span class="comment">##                                  p_val avg_log2FC pct.1 pct.2    p_val_adj</span></span><br><span class="line"><span class="comment">## chr1-159076655-159077519 1.329425e-103   3.166030 0.478 0.056 2.198550e-98</span></span><br><span class="line"><span class="comment">## chr14-80930680-80931604   2.548539e-87   2.594749 0.465 0.076 4.214672e-82</span></span><br><span class="line"><span class="comment">## chr14-64755601-64756513   5.721793e-87   3.072965 0.418 0.048 9.462473e-82</span></span><br><span class="line"><span class="comment">## chr15-97960010-97960929   6.801525e-86  -1.258617 0.407 0.791 1.124809e-80</span></span><br><span class="line"><span class="comment">## chr16-56261934-56262834   6.700869e-76   3.941570 0.333 0.024 1.108163e-70</span></span><br><span class="line"><span class="comment">## chr1-235999140-235999977  5.621705e-71   2.158735 0.449 0.093 9.296951e-66</span></span><br></pre></td></tr></table></figure>
+
+<p>For all clusters</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">de_peak_all &lt;- FindAllMarkers(pbmc_atac,</span><br><span class="line">                         test.use = <span class="string">&#x27;wilcox&#x27;</span>,</span><br><span class="line">                         min.pct = <span class="number">0.1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 4</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 6</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 7</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 9</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 11</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 12</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 13</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 14</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 15</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 16</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Calculating cluster 17</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h2><h3 id="Selected-peak"><a href="#Selected-peak" class="headerlink" title="Selected peak"></a>Selected peak</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">plot1 &lt;- VlnPlot(</span><br><span class="line">  object = pbmc_atac,</span><br><span class="line">  features = <span class="string">&#x27;chr17-78198651-78199583&#x27;</span>,</span><br><span class="line">  pt.size = <span class="number">0</span></span><br><span class="line">)</span><br><span class="line">plot2 &lt;- FeaturePlot(</span><br><span class="line">  object = pbmc_atac,</span><br><span class="line">  features = <span class="string">&#x27;chr17-78198651-78199583&#x27;</span>,</span><br><span class="line">  pt.size = <span class="number">0.1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">wrap_elements(plot1) + plot2 + plot_layout(nrow=<span class="number">1</span>, widths = <span class="built_in">c</span>(<span class="number">2</span>,<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-24-1.png"></p>
+<h3 id="Enrichment-analysis"><a href="#Enrichment-analysis" class="headerlink" title="Enrichment analysis"></a>Enrichment analysis</h3><p>接下来，可以找到与该染色体坐标较近的基因进行分析。这里我们与cluster 0的特异性peaks为例</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">peaks_cl0 &lt;- subset(de_peak_all, cluster == <span class="string">&#x27;0&#x27;</span> &amp; avg_log2FC &gt;= <span class="number">4</span> &amp; p_val_adj &lt; <span class="number">0.05</span>)$gene</span><br><span class="line">closest_genes_cl0 &lt;- ClosestFeature(pbmc_atac, regions = peaks_cl0)</span><br><span class="line">head(closest_genes_cl0)</span><br><span class="line"></span><br><span class="line"><span class="comment">##                           tx_id gene_name         gene_id   gene_biotype type</span></span><br><span class="line"><span class="comment">## ENSE00001143632 ENST00000232424      HES1 ENSG00000114315 protein_coding exon</span></span><br><span class="line"><span class="comment">## ENST00000615008 ENST00000615008   TMEM230 ENSG00000089063 protein_coding  utr</span></span><br><span class="line"><span class="comment">## ENST00000366988 ENST00000366988      NENF ENSG00000117691 protein_coding  utr</span></span><br><span class="line"><span class="comment">## ENSE00001818341 ENST00000493582     HDAC4 ENSG00000068024 protein_coding exon</span></span><br><span class="line"><span class="comment">## ENST00000544990 ENST00000544990     CPSF7 ENSG00000149532 protein_coding  gap</span></span><br><span class="line"><span class="comment">## ENST00000610470 ENST00000610470      PRKN ENSG00000185345 protein_coding  gap</span></span><br><span class="line"><span class="comment">##                           closest_region             query_region distance</span></span><br><span class="line"><span class="comment">## ENSE00001143632 chr3-194136148-194136488 chr3-194089270-194090185    45962</span></span><br><span class="line"><span class="comment">## ENST00000615008    chr20-5068232-5068259    chr20-5065671-5066557     1674</span></span><br><span class="line"><span class="comment">## ENST00000366988 chr1-212446007-212446379 chr1-212485664-212486562    39284</span></span><br><span class="line"><span class="comment">## ENSE00001818341 chr2-239401402-239401654 chr2-239465135-239466062    63480</span></span><br><span class="line"><span class="comment">## ENST00000544990  chr11-61416520-61419948  chr11-61417414-61418287        0</span></span><br><span class="line"><span class="comment">## ENST00000610470 chr6-161360206-161386793 chr6-161369071-161369942        0</span></span><br></pre></td></tr></table></figure>
+
+<p>进行GO富集分析</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">library(clusterProfiler)</span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"></span><br><span class="line"><span class="comment">## clusterProfiler v4.12.6 Learn more at https://yulab-smu.top/contribution-knowledge-mining/</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Please cite:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Guangchuang Yu, Li-Gen Wang, Yanyan Han and Qing-Yu He.</span></span><br><span class="line"><span class="comment">## clusterProfiler: an R package for comparing biological themes among</span></span><br><span class="line"><span class="comment">## gene clusters. OMICS: A Journal of Integrative Biology. 2012,</span></span><br><span class="line"><span class="comment">## 16(5):284-287</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">## Attaching package: &#x27;clusterProfiler&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following objects are masked from &#x27;package:ensembldb&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     filter, select</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:AnnotationDbi&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     select</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:IRanges&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     slice</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:S4Vectors&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     rename</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## The following object is masked from &#x27;package:stats&#x27;:</span></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment">##     filter</span></span><br><span class="line"></span><br><span class="line">library(org.Hs.eg.db)</span><br><span class="line"></span><br><span class="line"><span class="comment">## </span></span><br><span class="line"></span><br><span class="line">library(enrichplot)</span><br><span class="line"></span><br><span class="line">cl0_ego &lt;- enrichGO(gene = closest_genes_cl0$gene_id,</span><br><span class="line">                keyType = <span class="string">&quot;ENSEMBL&quot;</span>,</span><br><span class="line">                OrgDb = org.Hs.eg.db,</span><br><span class="line">                ont = <span class="string">&quot;BP&quot;</span>,</span><br><span class="line">                pAdjustMethod = <span class="string">&quot;BH&quot;</span>,</span><br><span class="line">                pvalueCutoff = <span class="number">0.05</span>,</span><br><span class="line">                qvalueCutoff = <span class="number">0.05</span>,</span><br><span class="line">                readable = <span class="literal">TRUE</span>)</span><br><span class="line"></span><br><span class="line">barplot(cl0_ego,showCategory = <span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-27-1.png"></p>
+<h3 id="Plot-genomic-regions"><a href="#Plot-genomic-regions" class="headerlink" title="Plot genomic regions"></a>Plot genomic regions</h3><p>根据clusters之间的相似程度进行cluster排序</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pbmc_atac &lt;- SortIdents(pbmc_atac)</span><br><span class="line"></span><br><span class="line"><span class="comment">## Creating pseudobulk profiles for 18 variables across 165376 features</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Computing euclidean distance between pseudobulk profiles</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Clustering distance matrix</span></span><br><span class="line"></span><br><span class="line">levels(Idents(pbmc_atac))</span><br><span class="line"></span><br><span class="line"><span class="comment">##  [1] &quot;17&quot; &quot;15&quot; &quot;7&quot;  &quot;16&quot; &quot;14&quot; &quot;0&quot;  &quot;10&quot; &quot;12&quot; &quot;2&quot;  &quot;6&quot;  &quot;11&quot; &quot;8&quot;  &quot;5&quot;  &quot;1&quot;  &quot;13&quot;</span></span><br><span class="line"><span class="comment">## [16] &quot;4&quot;  &quot;3&quot;  &quot;9&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里，我们可视化NMNAT2基因的结合谱图，该基因具有cluster 0中富集的peak</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># find DA peaks overlapping gene of interest</span></span><br><span class="line">regions_highlight &lt;- subsetByOverlaps(StringToGRanges(peaks_cl0), LookupGeneCoords(pbmc_atac, <span class="string">&quot;NMNAT2&quot;</span>))</span><br><span class="line"></span><br><span class="line">CoveragePlot(</span><br><span class="line">  object = pbmc_atac,</span><br><span class="line">  region = <span class="string">&quot;NMNAT2&quot;</span>,</span><br><span class="line">  region.highlight = regions_highlight,</span><br><span class="line">  extend.upstream = <span class="number">1000</span>,</span><br><span class="line">  extend.downstream = <span class="number">1000</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/06/12/R-signac/unnamed-chunk-30-1.png"></p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>使用Signac对单细胞染色质相关数据进行常规分析，我们通常需要：</p>
+<ul>
+<li>  创建对象</li>
+<li>  根据数据特征进行质量控制</li>
+<li>  数据校正</li>
+<li>  降维及聚类</li>
+<li>  细胞注释</li>
+<li>  鉴定细胞特异性染色质开放区域</li>
+<li>  后续的定制化分析，例如富集分析、可视化特定区域等。</li>
+</ul>
+<p>以上就是对Signac分析流程的简单介绍。</p>
+<p>完。</p>
+<blockquote>
+<p>Ref: <a target="_blank" rel="noopener" href="https://stuartlab.org/signac/articles/pbmc_vignette">https://stuartlab.org/signac/articles/pbmc_vignette</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Dean Li
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://thereallda.github.io/2025/06/12/R-signac/" title="R-Signac">https://thereallda.github.io/2025/06/12/R-signac/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/single-cell/" rel="tag"># single-cell</a>
+              <a href="/tags/scATAC-seq/" rel="tag"># scATAC-seq</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/01/12/Seurat_pvalue/" rel="prev" title="Seurat-VlnPlot-pvalues">
+      <i class="fa fa-chevron-left"></i> Seurat-VlnPlot-pvalues
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-Download"><span class="nav-number">1.</span> <span class="nav-text">Data Download</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Installation"><span class="nav-number">2.</span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pre-processing"><span class="nav-number">3.</span> <span class="nav-text">Pre-processing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Peak-annotation"><span class="nav-number">3.1.</span> <span class="nav-text">Peak annotation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Computing-QC-Metrics"><span class="nav-number">4.</span> <span class="nav-text">Computing QC Metrics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normalization-and-linear-dimension-reduction"><span class="nav-number">5.</span> <span class="nav-text">Normalization and linear dimension reduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Non-linear-dimension-reduction-and-clustering"><span class="nav-number">6.</span> <span class="nav-text">Non-linear dimension reduction and clustering</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Create-gene-activity-matrix"><span class="nav-number">7.</span> <span class="nav-text">Create gene activity matrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Find-differentially-accessible-peaks-between-clusters"><span class="nav-number">8.</span> <span class="nav-text">Find differentially accessible peaks between clusters</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Visualization"><span class="nav-number">9.</span> <span class="nav-text">Visualization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Selected-peak"><span class="nav-number">9.1.</span> <span class="nav-text">Selected peak</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Enrichment-analysis"><span class="nav-number">9.2.</span> <span class="nav-text">Enrichment analysis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plot-genomic-regions"><span class="nav-number">9.3.</span> <span class="nav-text">Plot genomic regions</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">10.</span> <span class="nav-text">Summary</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Dean Li"
+      src="https://avatars.githubusercontent.com/u/55836943?v=4">
+  <p class="site-author-name" itemprop="name">Dean Li</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/thereallda" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;thereallda" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lideanlda@foxmail.com" title="E-Mail → mailto:lideanlda@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ab8a1c7d0510" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ab8a1c7d0510" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dean Li</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<script>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
+
+
+
+
+  
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'aea502b6092de143578a',
+      clientSecret: '7bb9f5afb99d67ab37d8b296f39782af05dc8614',
+      repo        : 'thereallda.GitHub.io',
+      owner       : 'thereallda',
+      admin       : ['thereallda'],
+      id          : '17f5c90a42d9cb8abb1a4b22234f429f',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
